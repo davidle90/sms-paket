@@ -1,0 +1,28 @@
+{
+	"name": "rocketlabs/forms",
+	"description": "Forms package for RocketLabs",
+	"authors": [
+		{
+		    "name": "RocketLabs",
+		    "email": "hello@rocketlabs.se"
+		}
+	],
+	"autoload": {
+		"classmap": [
+			"src/database"
+		],
+		"psr-4": {
+			"Rocketlabs\\Forms\\": "src/"
+		}
+	},
+	"minimum-stability": "dev",
+	"require": {},
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Rocketlabs\\Forms\\FormsServiceProvider"
+			]
+		}
+	}
+
+}
