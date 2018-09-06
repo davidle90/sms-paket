@@ -22,7 +22,10 @@ return [
                     'edit'      => [
                         'index' => '/admin/forms/edit/{id}',
                     ],
-                    'view' => '/admin/forms/view/{id}'
+                    'view' => '/admin/forms/view/{id}',
+                    'store' => '/admin/forms/store',
+                    'destroy' => '/admin/forms/destroy',
+                    'template' => '/admin/forms/template/{template}'
                 ]
             ]
         ]

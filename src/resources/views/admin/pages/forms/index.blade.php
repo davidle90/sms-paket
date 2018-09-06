@@ -26,6 +26,26 @@
 		<!-- Card body -->
 		<div class="card-body collapse show" id="collapseProfile">
 
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>Formulär</th>
+						<th width="10px"></th>
+					</tr>
+				</thead>
+
+				<tbody>
+					@if(isset($forms) && !empty($forms))
+						@foreach($forms as $f)
+							<tr class="pointer go-to-url" data-url="{{ route('rl_forms.admin.forms.edit', ['id' => $f->id]) }}">
+								<td>@if(!empty($f->label)){{ ucfirst($f->label) }}@else <i>Namnlöst</i> @endif</td>
+								<td width="10px"></td>
+							</tr>
+						@endforeach
+					@endif
+				</tbody>
+			</table>
+
 		</div>
 	</div>
 

@@ -24,6 +24,14 @@ Route::group(['middleware' => ['auth','acl','user']], function () use ($route, $
         Route::get($route('rl_pagebuilder.routes.admin.forms.view', '/admin/forms/view/{id}'), 'FormsController@view')
             ->name('rl_forms.admin.forms.view');
 
+        Route::get($route('rl_pagebuilder.routes.admin.forms.template', '/admin/forms/template/{template}'), 'FormsController@template')
+            ->name('rl_forms.admin.forms.template');
+
+        Route::post($route('rl_pagebuilder.routes.admin.forms.store', '/admin/forms/store'), 'FormsController@store')
+            ->name('rl_forms.admin.forms.store');
+        Route::post($route('rl_pagebuilder.routes.admin.forms.destroy', '/admin/forms/destroy'), 'FormsController@destroy')
+            ->name('rl_forms.admin.forms.destroy');
+
 	});
 
 });
