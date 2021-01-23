@@ -10,11 +10,11 @@
 
                     <div class="input-group">
 
-                        <input class="element-option-id" type="hidden" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][id]" value="{{$option->id or ''}}" />
+                        <input class="element-option-id" type="hidden" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][id]" value="{{$option->id ?? ''}}" />
                         <input class="element-option-other" type="hidden" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][other]" value="{{$option->other or 0}}" />
                         <input class="element-option-sort-order" type="hidden" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][sort_order]" value="{{$option->sort_order or 0}}" />
 
-                        <input id="input_answers_{{ $key }}" class="form-control col-md-12 element-option-label" type="text" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][label]" value="{{ $option->label or '' }}" />
+                        <input id="input_answers_{{ $key }}" class="form-control col-md-12 element-option-label" type="text" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][label]" value="{{ $option->label ?? '' }}" />
                         <span class="input-group-addon pointer">
                             <i class="text-danger essential essential-xs essential-multiply element-answers-delete-option" aria-hidden="true"></i>
                         </span>

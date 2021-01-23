@@ -157,7 +157,7 @@
 
                 <!-- Button group -->
                 @if(isset($form) && !empty($form))
-                    <span class="btn btn-link" id="doDeleteForm" data-form-id="{{ $form->id or '' }}">Radera</span>
+                    <span class="btn btn-link" id="doDeleteForm" data-form-id="{{ $form->id ?? '' }}">Radera</span>
 
                     <div class="btn-group">
                         <a class="btn btn-success" href="{{ route('rl_forms.admin.forms.create') }}">Skapa nytt formulär</a>
@@ -180,10 +180,10 @@
 
                         <div class="form-group">
                             <label for="label" class="control-label">Titel på formulär</label>
-                            <input type="text" name="label" value="{{ $form->label or '' }}" class="form-control" />
+                            <input type="text" name="label" value="{{ $form->label ?? '' }}" class="form-control" />
                         </div>
 
-                        <input type="hidden" name="form_id" value="{{ $form->id or '' }}" />
+                        <input type="hidden" name="form_id" value="{{ $form->id ?? '' }}" />
 
                         <div id="survey-sections" data-elements-count="{{ $form->elements_count or 0 }}" data-sections-count="{{ $form->sections_count or 0 }}">
 
@@ -217,7 +217,7 @@
                                                 </span>
 
                                             <div class="float-right">
-                                                <b>Page:</b> <span class="section-page">{{ $y+1 }}</span> of <span class="section-page-of">{{ $form->sections_count or '0' }}</span>
+                                                <b>Page:</b> <span class="section-page">{{ $y+1 }}</span> of <span class="section-page-of">{{ $form->sections_count ?? '0' }}</span>
                                                 <span class="c-button survey-section-modal"><i class="text-white thin flaticon flaticon-pencil"></i></span>
                                             </div>
 

@@ -1,7 +1,7 @@
 <div class="element" data-unique-id="{{$i}}">
 
-	<input class="element-id" type="hidden" name="section[{{$y}}][element][{{$i}}][id]" value="{{$element->id or ''}}" />
-	<input class="element-list-element-id" type="hidden" name="section[{{$y}}][element][{{$i}}][list_element_id]" value="{{$element->list_element_id or '3'}}" />
+	<input class="element-id" type="hidden" name="section[{{$y}}][element][{{$i}}][id]" value="{{$element->id ?? ''}}" />
+	<input class="element-list-element-id" type="hidden" name="section[{{$y}}][element][{{$i}}][list_element_id]" value="{{$element->list_element_id ?? '3'}}" />
 	<input class="element-sort-order" type="hidden" name="section[{{$y}}][element][{{$i}}][sort_order]" value="{{$element->sort_order or 0}}" />
 
 	<span class="element-drag">
@@ -58,11 +58,11 @@
 
 						<div class="form-group">
 							<label class="control-label">Skriv en fråga (titel)</label>
-							<input id="input_title_{{ $i }}" class="form-control element-label" type="text" name="section[{{$y}}][element][{{$i}}][label]" value="{{$element->label or ''}}" />
+							<input id="input_title_{{ $i }}" class="form-control element-label" type="text" name="section[{{$y}}][element][{{$i}}][label]" value="{{$element->label ?? ''}}" />
 						</div>
 						<div class="form-group">
 							<label class="control-label">Skriv en instruktion (hjälp text)</label>
-							<textarea id="input_helptext_{{ $i }}" class="form-control element-help-text" type="text" rows="5" name="section[{{$y}}][element][{{$i}}][help_text]">{{$element->help_text or ''}}</textarea>
+							<textarea id="input_helptext_{{ $i }}" class="form-control element-help-text" type="text" rows="5" name="section[{{$y}}][element][{{$i}}][help_text]">{{$element->help_text ?? ''}}</textarea>
 						</div>
 
 						<div class="pdn-xs"></div>

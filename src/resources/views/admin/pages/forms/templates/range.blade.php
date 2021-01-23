@@ -1,18 +1,18 @@
 <div class="element" data-unique-id="{{$i}}">
 
-	<input class="element-id" type="hidden" name="section[{{$y}}][element][{{$i}}][id]" value="{{$element->id or ''}}" />
-	<input class="element-list-element-id" type="hidden" name="section[{{$y}}][element][{{$i}}][list_element_id]" value="{{$element->list_element_id or '10'}}" />
+	<input class="element-id" type="hidden" name="section[{{$y}}][element][{{$i}}][id]" value="{{$element->id ?? ''}}" />
+	<input class="element-list-element-id" type="hidden" name="section[{{$y}}][element][{{$i}}][list_element_id]" value="{{$element->list_element_id ?? '10'}}" />
 	<input class="element-sort-order" type="hidden" name="section[{{$y}}][element][{{$i}}][sort_order]" value="{{$element->sort_order or 0}}" />
 
 	<h5 class="element-drag">#Q<span class="element-number">{{ $i+1 }}</span> - Range slider <span class="pull-right"><i class="text-muted-light essential essential-settings-5 element-settings pointer" aria-hidden="true"></i></span></h5>
 
 	<div class="form-group">
 		<label class="control-label">Enter your question</label>
-		<input class="form-control element-label" type="text" name="section[{{$y}}][element][{{$i}}][label]" value="{{$element->label or ''}}" />
+		<input class="form-control element-label" type="text" name="section[{{$y}}][element][{{$i}}][label]" value="{{$element->label ?? ''}}" />
 	</div>
 	<div class="form-group">
 		<label class="control-label">Write an instruction</label>
-		<input class="form-control element-help-text" type="text" name="section[{{$y}}][element][{{$i}}][help_text]" value="{{$element->help_text or ''}}" />
+		<input class="form-control element-help-text" type="text" name="section[{{$y}}][element][{{$i}}][help_text]" value="{{$element->help_text ?? ''}}" />
 	</div>
 
 	<div class="element-answers" data-answers-count="@if(isset($element->options)){{$element->options->count()}}@else{{1}}@endif">
@@ -31,10 +31,10 @@
 								Step
 							@endif
 						</label>
-						<input class="element-option-id" type="hidden" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][id]" value="{{$option->id or ''}}" />
+						<input class="element-option-id" type="hidden" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][id]" value="{{$option->id ?? ''}}" />
 						<input class="element-option-other" type="hidden" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][other]" value="{{$option->other or 0}}" />
 						<input class="element-option-sort-order" type="hidden" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][sort_order]" value="{{$option->sort_order or 0}}" />
-						<input class="form-control col-md-8 element-option-label" type="number" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][label]" value="{{ $option->label or '' }}" />
+						<input class="form-control col-md-8 element-option-label" type="number" name="section[{{$y}}][element][{{$i}}][options][{{$key}}][label]" value="{{ $option->label ?? '' }}" />
 					</div>
 				@endforeach
 			@else

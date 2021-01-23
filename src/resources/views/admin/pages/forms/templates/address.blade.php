@@ -1,17 +1,17 @@
 <div class="element" data-unique-id="{{$i}}">
 
-	<input type="hidden" name="element[{{$i}}][id]" value="{{$element->id or ''}}" />
-	<input type="hidden" name="element[{{$i}}][list_element_id]" value="{{$element->list_element_id or '7'}}" />
+	<input type="hidden" name="element[{{$i}}][id]" value="{{$element->id ?? ''}}" />
+	<input type="hidden" name="element[{{$i}}][list_element_id]" value="{{$element->list_element_id ?? '7'}}" />
 
 	<h5>#Q{{ $i+1 }} - Address <span class="pull-right"><i class="text-muted-light essential essential-settings-5 element-settings pointer" aria-hidden="true"></i></span></h5>
 
 	<div class="form-group">
 		<label class="control-label">Enter your question</label>
-		<input class="form-control" type="text" name="element[{{$i}}][label]" value="{{$element->label or 'What is your address?'}}" />
+		<input class="form-control" type="text" name="element[{{$i}}][label]" value="{{$element->label ?? 'What is your address?'}}" />
 	</div>
 	<div class="form-group">
 		<label class="control-label">Write an instruction</label>
-		<input class="form-control" type="text" name="element[{{$i}}][help_text]" value="{{$element->help_text or ''}}" />
+		<input class="form-control" type="text" name="element[{{$i}}][help_text]" value="{{$element->help_text ?? ''}}" />
 	</div>
 
 	<div class="clearfix"></div>

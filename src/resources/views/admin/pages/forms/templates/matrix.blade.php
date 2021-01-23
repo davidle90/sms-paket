@@ -4,17 +4,17 @@
 	<h5>#Q{{ $i+1 }} - Matrix / Rating scale <span class="pull-right"><i class="text-muted-light essential essential-settings-5 element-settings pointer" aria-hidden="true"></i></span></h5>
 
 
-	<input type="hidden" name="element[{{$i}}][id]" value="{{$element->id or ''}}" />
-	<input type="hidden" name="element[{{$i}}][list_element_id]" value="{{$element->list_element_id or '9'}}" />
+	<input type="hidden" name="element[{{$i}}][id]" value="{{$element->id ?? ''}}" />
+	<input type="hidden" name="element[{{$i}}][list_element_id]" value="{{$element->list_element_id ?? '9'}}" />
 	<input type="hidden" name="element[{{$i}}][sort_order]" value="{{$element->sort_order or 0}}" />
 
 	<div class="form-group">
 		<label class="control-label">Enter your question</label>
-		<input class="form-control" type="text" name="element[{{$i}}][label]" value="{{$element->label or ''}}" />
+		<input class="form-control" type="text" name="element[{{$i}}][label]" value="{{$element->label ?? ''}}" />
 	</div>
 	<div class="form-group">
 		<label class="control-label">Write an instruction</label>
-		<input class="form-control" type="text" name="element[{{$i}}][help_text]" value="{{$element->help_text or ''}}" />
+		<input class="form-control" type="text" name="element[{{$i}}][help_text]" value="{{$element->help_text ?? ''}}" />
 	</div>
 
     <div class="pdn-md"></div>
