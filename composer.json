@@ -12,7 +12,9 @@
 			"src/database"
 		],
 		"psr-4": {
-			"Rocketlabs\\Forms\\": "src/"
+			"Rocketlabs\\Tables\\": "src/",
+			"Rocketlabs\\Tables\\App\\": "src/app/",
+			"Rocketlabs\\Tables\\Seeds\\": "src/database/seeds/"
 		}
 	},
 	"minimum-stability": "dev",
@@ -21,7 +23,10 @@
 		"laravel": {
 			"providers": [
 				"Rocketlabs\\Forms\\FormsServiceProvider"
-			]
+			],
+			"aliases": {
+				"rl_forms": "Rocketlabs\\Forms\\App\\Facades\\Forms"
+			}
 		}
 	}
 
