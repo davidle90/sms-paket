@@ -1,59 +1,61 @@
 <?php namespace Rocketlabs\Forms\App\Models\Forms;
 
 use Illuminate\Database\Eloquent\Model;
+use Rocketlabs\Languages\App\Traits\Translatable;
 
 class Elements extends Model
 {
+    use Translatable;
 
-	protected $relations = [
-		'form'			=>	'Rocketlabs\Forms\App\Models\Forms',
-		'options'		=>	'Rocketlabs\Forms\App\Models\Forms\Elements\Options',
-		'listElements'	=>	'Rocketlabs\Forms\App\Models\Forms\Lists\Elements',
-		'data'			=>  'Rocketlabs\Forms\App\Models\Forms\Response\Data',
-	];
+    protected $with = ['translations'];
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    public function getTable()
+    {
+        return config('rl_forms.tables.forms_elements');
+    }
 
     protected $fillable = [
-		'form_id',
-		'list_element_id',
-		'section_id',
-		'help_text',
-		'required_text',
-		'attr_required',
-		'attr_disabled',
-		'attr_readonly',
-		'attr_novalidate',
-		'attr_autocomplete',
-		'hidden',
-		'default_value',
-		'sort_order',
-	];
+        'slug',
+        'type_id',
+        'validator',
+        'table_id',
+        'options_id'
+    ];
 
-    /*
-     * The database table used by the model.
-     */
-    protected $table = 'forms_elements';
+    public $translatable = [
+        'label',
+        'description',
+        'required'
+    ];
 
-	public function form()
-	{
-		return $this->belongsTo($this->relations['form'],'form_id', 'id');
-	}
+    public function sections()
+    {
+        return $this->belongsToMany(config('rl_forms.models.forms_sections'), config('rl_forms.tables.forms_sections_elements'),'element_id','section_id')
+            ->withPivot('required', 'sort_order', 'size', 'size_class')
+            ->orderBy(config('rl_forms.tables.forms_sections_elements').'sort_order', 'asc')
+            ->withTimestamps();
+    }
 
-	public function options()
-	{
-		return $this->hasMany($this->relations['options'],'element_id','id');
-	}
+    public function type() {
+        return $this->belongsTo(config('rl_forms.models.forms_elements_types'), 'type_id', 'id');
+    }
 
-	public function template()
-	{
-		return $this->hasOne($this->relations['listElements'],'id','list_element_id');
-	}
+    public function table() {
+        return $this->hasOne(config('rl_tables.models.tables'), 'id', 'table_id');
+    }
 
+    public function options() {
+        return $this->hasMany(config('rl_tables.models.forms_elements_options'), 'id', 'options_id');
+    }
 
-	/*
-	 * Get all data for all the element fields
-	 * */
-	public function data()
-	{
-		return $this->hasMany($this->relations['data'],'column_id', 'id');
-	}
+    public function data()
+    {
+        return $this->hasMany(config('rl_forms.models.forms_responses_data'), 'element_id', 'id');
+    }
+
 }

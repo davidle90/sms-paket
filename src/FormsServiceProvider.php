@@ -1,10 +1,10 @@
-<?php namespace Rocketlabs\Froms;
+<?php namespace Rocketlabs\Forms;
 
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\View\View;
 
-class FromsServiceProvider extends ServiceProvider
+class FormsServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.

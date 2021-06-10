@@ -1,36 +1,45 @@
 <?php namespace Rocketlabs\Forms\App\Models\Forms;
 
 use Illuminate\Database\Eloquent\Model;
+use Rocketlabs\Languages\App\Traits\Translatable;
 
 class Sections extends Model
 {
+    use Translatable;
 
-	protected $relations = [
-		'form'			=>	'Rocketlabs\Forms\App\Models\Forms',
-		'elements'		=>	'Rocketlabs\Forms\App\Models\Forms\Elements',
-		'contact'		=>	'Rocketlabs\Forms\App\Models\Forms\Contact',
-	];
+    protected $with = ['translations'];
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    public function getTable()
+    {
+        return config('rl_forms.tables.forms_sections');
+    }
 
     protected $fillable = [
-		'form_id',
-		'label',
-		'sort_order'
-	];
-	
-    /*
-     * The database table used by the model.
-     */
-    protected $table = 'forms_sections';
+        'form_id',
+        'sort_order'
+    ];
 
+    public $translatable = [
+        'label',
+        'description'
+    ];
 
-	public function form()
-	{
-		return $this->belongsTo($this->relations['form'],'form_id', 'id');
-	}
+    public function elements()
+    {
+        return $this->belongsToMany(config('rl_forms.models.forms_elements'), config('rl_forms.tables.forms_sections_elements'),'section_id','element_id')
+            ->withPivot('required', 'sort_order', 'size', 'size_class')
+            ->orderBy(config('rl_forms.tables.forms_sections_elements').'sort_order', 'asc')
+            ->withTimestamps();
+    }
 
-	public function elements()
-	{
-		return $this->hasMany($this->relations['elements'],'section_id','id');
-	}
-	
+    public function form()
+    {
+        return $this->belongsTo(config('rl_forms.models.forms'), 'form_id', 'id');
+    }
+
 }
