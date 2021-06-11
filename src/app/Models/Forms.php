@@ -37,5 +37,10 @@ class Forms extends Model
         return $this->hasMany(config('rl_forms.models.forms_responses'), 'form_id', 'id');
     }
 
+    public function sourceable()
+    {
+        return $this->belongsTo(config('rl_forms.models.forms_sourceable'), 'id', 'form_id');
+    }
+
 }
 

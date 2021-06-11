@@ -48,7 +48,7 @@ class FormsController extends Controller
 	public function edit($id)
     {
 
-        $form               = Forms::find($id);
+        $form               = Forms::with('sections.elements.type')->find($id);
         $default_language   = Config::get('app.locale');
         $fallback_language  = Config::get('app.fallback_locale');
         $languages          = Languages::all()->keyBy('iso_name');

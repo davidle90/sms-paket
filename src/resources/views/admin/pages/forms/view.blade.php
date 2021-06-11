@@ -26,7 +26,7 @@
 
         <div class="card-body">
 
-            <h5 class="bold">Formulär fält</h5>
+            <h5 class="bold">Formulär sektioner</h5>
 
             {{--@if(isset($form) && !empty($form))
                 @foreach($form->fields as $field)

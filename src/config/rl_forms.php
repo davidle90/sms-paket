@@ -8,7 +8,7 @@ return [
         'forms_sections'                => 'forms_sections',
         'forms_sections_elements'       => 'forms_sections_elements',
         'forms_elements'                => 'forms_elements',
-        'forms_elements_types'          => 'forms_element_types',
+        'forms_elements_types'          => 'forms_elements_types',
         'forms_elements_options'        => 'forms_elements_options',
         'forms_responses'               => 'forms_responses',
         'forms_responses_data'          => 'forms_responses_data',

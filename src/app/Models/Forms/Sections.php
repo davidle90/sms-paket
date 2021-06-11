@@ -33,7 +33,7 @@ class Sections extends Model
     {
         return $this->belongsToMany(config('rl_forms.models.forms_elements'), config('rl_forms.tables.forms_sections_elements'),'section_id','element_id')
             ->withPivot('required', 'sort_order', 'size', 'size_class')
-            ->orderBy(config('rl_forms.tables.forms_sections_elements').'sort_order', 'asc')
+            ->orderBy(config('rl_forms.tables.forms_sections_elements').'.sort_order', 'asc')
             ->withTimestamps();
     }
 

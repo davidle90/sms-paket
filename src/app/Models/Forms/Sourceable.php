@@ -19,4 +19,14 @@ class Sourceable extends Model
         'sourceable'
     ];
 
+    public function sourceable()
+    {
+        return $this->morphTo();
+    }
+
+    public function form()
+    {
+        return $this->hasOne(config('rl_forms.models.forms'), 'id', 'form_id');
+    }
+
 }
