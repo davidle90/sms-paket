@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 use Rocketlabs\Forms\App\Models\Forms;
+use Rocketlabs\Forms\App\Models\Forms\Elements\Types;
 
 use DB;
 use Rocketlabs\Languages\App\Models\Languages;
@@ -52,12 +53,14 @@ class FormsController extends Controller
         $default_language   = Config::get('app.locale');
         $fallback_language  = Config::get('app.fallback_locale');
         $languages          = Languages::all()->keyBy('iso_name');
+        $types              = Types::orderBy('sort_order', 'asc')->get();
 
         return view('rl_forms::admin.pages.forms.edit', [
             'form'              => $form,
             'default_language'  => $default_language,
             'fallback_language' => $fallback_language,
-            'languages'         => $languages
+            'languages'         => $languages,
+            'types'             => $types
         ]);
 
         return view('', [
@@ -81,9 +84,20 @@ class FormsController extends Controller
 
     }
 
-    public function store()
+    public function get_element_modal()
     {
 
+        return view('rl_forms::admin.pages.forms.modals.element', [
+            'type_id'       => request()->get('type_id', null),
+            'section_index' => request()->get('section_index', null),
+            'template'      => true,
+        ]);
+
+    }
+
+    public function store()
+    {
+        pre(request()->all());
         $input = [
             'id'        => request()->get('form_id', null),
             'labels'    => request()->get('labels', []),

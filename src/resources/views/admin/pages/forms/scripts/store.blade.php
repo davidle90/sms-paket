@@ -5,6 +5,16 @@
 
             const $form = $('#form_form');
 
+            $('.redactor-sv').each(function(){
+                let text = $R('#' + $(this).attr('id'), 'source.getCode');
+                $(this).html(text);
+            });
+
+            $('.redactor-en').each(function(){
+                let text = $R('#' + $(this).attr('id'), 'source.getCode');
+                $(this).html(text);
+            });
+
             $.ajax({
                 type: $form.attr('method'),
                 url: $form.attr('action'),

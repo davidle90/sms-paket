@@ -45,8 +45,11 @@
     @endif
 @endsection
 
-@section('content')
+@section('modals')
 
+@endsection
+
+@section('content')
     <div class="card">
         <div class="card-header">
             @if(isset($form) && !empty($form))
@@ -97,6 +100,7 @@
                     <div class="sortable-sections">
                         @foreach($form->sections as $section_index => $section)
                             <div class="row" id="section_{{ $section_index }}">
+                                <!-- Hidden inputs start -->
                                 <input
                                         type="hidden"
                                         min=1
@@ -105,6 +109,10 @@
                                         name="sections[{{ $section_index }}][sort_order]"
                                         id="sections_{{ $section_index }}_sort_order"
                                 >
+                                <!-- Hidden inputs end -->
+
+                                @include('rl_forms::admin.pages.forms.modals.section')
+                                @include('rl_forms::admin.pages.forms.modals.types')
 
                                 <div class="col-12">
                                     <div class="card">
@@ -113,51 +121,67 @@
                                             <b>Sektion <span class="sortOrderUpdateSectionLabel">{{ $section->sort_order ?? '' }}</span></b>
 
                                             <span class="float-right">
-                                                <span class="m-0 mr-3 pointer">
+                                                <span class="m-0 mr-3 pointer" data-toggle="modal" data-target="#chooseTypeModal_{{ $section_index }}" data-index="{{ $section_index }}">
                                                     <i class="essential-xs essential-add"></i> Lägg till fråga
                                                 </span>
-                                                <span class="m-0 pointer">
+                                                <span class="m-0 pointer" data-toggle="modal" data-target="#editSectionModal_{{ $section_index }}" data-index="{{ $section_index }}">
                                                     <i class="fal fa-pencil-alt"></i>
                                                 </span>
                                             </span>
                                         </div>
 
-                                        <div class="card-body sortable-elements" style="min-height: 150px;">
-                                            <div id="filler_div"></div>
-                                            @if(isset($section->elements) && !empty($section->elements))
-                                                @foreach($section->elements as $element_index => $element)
-                                                    <div class="row" id="element_{{ $element_index }}">
-                                                        <input
-                                                                type="hidden"
-                                                                min=1
-                                                                class="sortOrderUpdateElementVal"
-                                                                value="{{ $section->sort_order  ?? ''}}"
-                                                                name="sections[{{ $section_index }}][elements][{{ $element_index }}][sort_order]"
-                                                                id="sections_{{ $section_index }}_elements_{{ $element_index }}_sort_order"
-                                                        >
+                                        <div class="card-body">
+                                            <h6 class="bold section-label">{{ $section->in($key)->label ?? '' }}</h6>
+                                            <p><i class="text-danger section-description">{{ $section->in($key)->description ?? '' }}</i></p>
+                                            <div class="sortable-elements" style="min-height: 100px;">
+                                                <input class="section-index" type="hidden" value="{{ $section_index }}">
+                                                <div id="filler_div"></div>
+                                                @if(isset($section->elements) && !empty($section->elements))
+                                                    @foreach($section->elements as $element_index => $element)
 
-                                                        <div class="col-12">
-                                                            <div class="card">
+                                                        <div class="row" id="element_{{ $element_index }}">
+                                                            <input
+                                                                    type="hidden"
+                                                                    min=1
+                                                                    class="sortOrderUpdateElementVal"
+                                                                    value="{{ $element->pivot->sort_order ?? '' }}"
+                                                                    name="sections[{{ $section_index }}][elements][{{ $element_index }}][sort_order]"
+                                                                    id="sections_{{ $section_index }}_elements_{{ $element_index }}_sort_order"
+                                                            >
 
-                                                                <div class="card-header handle-element" style="background-color: #dcefdc; cursor: grabbing;">
-                                                                    <b>Fråga <span class="sortOrderUpdateElementLabel">{{ $element->pivot->sort_order ?? '' }}</span> - {{ $element->type->label ?? '' }}</b>
+                                                            <span class="insert-create-element"></span>
 
-                                                                    <span class="float-right">
-                                                                        <span class="m-0 pointer">
+                                                            @include('rl_forms::admin.pages.forms.modals.element')
+
+                                                            <div class="col-12">
+                                                                <div class="card">
+
+                                                                    <div class="card-header handle-element" style="background-color: #dcefdc; cursor: grabbing;">
+                                                                        <b>Fråga <span class="sortOrderUpdateElementLabel">{{ $element->pivot->sort_order ?? '' }}</span> - {{ $element->type->label ?? '' }}</b>
+
+                                                                        <span class="float-right">
+                                                                        <span
+                                                                            class="m-0 pointer"
+                                                                            data-toggle="modal"
+                                                                            data-target="#elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}"
+                                                                            data-section-index="{{ $section_index }}"
+                                                                            data-element-index="{{ $element_index }}"
+                                                                        >
                                                                             <i class="fal fa-pencil-alt"></i>
                                                                         </span>
                                                                     </span>
+                                                                    </div>
+
+                                                                    <div class="card-body">
+
+                                                                    </div>
+
                                                                 </div>
-
-                                                                <div class="card-body">
-
-                                                                </div>
-
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                @endforeach
-                                            @endif
+                                                    @endforeach
+                                                @endif
+                                            </div>
                                         </div>
 
                                     </div>
@@ -174,6 +198,7 @@
 
     <!-- Template Section -->
     <div class="row hidden" id="template_section">
+        <!-- Hidden inputs -->
         <input
                 type="hidden"
                 min=1
@@ -183,6 +208,9 @@
                 id=""
         >
 
+        @include('rl_forms::admin.pages.forms.modals.templates.section')
+        @include('rl_forms::admin.pages.forms.modals.templates.types')
+
         <div class="col-12">
             <div class="card">
 
@@ -190,17 +218,23 @@
                     <b>Sektion <span class="sortOrderUpdateSectionLabel"></span></b>
 
                     <span class="float-right">
-                        <span class="m-0 mr-3 pointer">
+                        <span class="m-0 mr-3 pointer section-types-button" data-toggle="modal" data-target="">
                             <i class="essential-xs essential-add"></i> Lägg till fråga
                         </span>
-                        <span class="m-0 pointer">
+                        <span class="m-0 pointer section-modal-button" data-toggle="modal" data-target="">
                             <i class="fal fa-pencil-alt"></i>
                         </span>
                     </span>
                 </div>
 
-                <div class="card-body sortable-elements" style="min-height: 150px;">
-                    <div id="filler_div"></div>
+                <div class="card-body">
+                    <h6 class="bold section-label"></h6>
+                    <p><i class="text-danger section-description"></i></p>
+
+                    <div class="sortable-elements" style="min-height: 100px;">
+                        <input class="section-index" type="hidden" value="">
+                        <div id="filler_div"></div>
+                    </div>
                 </div>
 
             </div>
@@ -219,6 +253,32 @@
                     goToURL = $(this).attr('data-url');
                     window.location = goToURL;
                 }
+            });
+
+            $R('.redactor-sv', {
+                lang: 'sv',
+                plugins: ['counter', 'fullscreen'],
+                minHeight: '100px',
+                maxHeight: '300px',
+                formatting: ['p', 'blockquote'],
+                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'lists', 'fullscreen'],
+                toolbarFixedTopOffset: 72, // pixel
+                pasteLinkTarget: '_blank',
+                linkNofollow: true,
+                breakline: true,
+            });
+
+            $R('.redactor-en', {
+                lang: 'en',
+                plugins: ['counter', 'fullscreen'],
+                minHeight: '100px',
+                maxHeight: '300px',
+                formatting: ['p', 'blockquote'],
+                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'lists', 'fullscreen'],
+                toolbarFixedTopOffset: 72, // pixel
+                pasteLinkTarget: '_blank',
+                linkNofollow: true,
+                breakline: true,
             });
 
             function init_drag_drop() {
@@ -258,12 +318,17 @@
                     },
                     update: function (event, ui) {
                         let sort_order = 1;
+                        let section_index = $(this).find('.section-index').val();
 
                         $(this).children('div').each(function() {
                             if($(this).is('#filler_div')) return;
 
-                            $(this).find('.sortOrderUpdateElementVal').val(sort_order);
-                            $(this).find('.sortOrderUpdateElementLabel').text(sort_order);
+                            let $sort_order_val = $(this).find('.sortOrderUpdateElementVal');
+                            let $sort_order_label = $(this).find('.sortOrderUpdateElementLabel');
+
+                            $sort_order_label.text(sort_order);
+                            $sort_order_val.val(sort_order);
+                            $sort_order_val.attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][sort_order]`);
 
                             sort_order++;
                         });
@@ -271,14 +336,95 @@
                 });
             }
 
+            //Add new section
             $('.doAddSection').on('click', function(){
-                let $template = $('#template_section').clone();
+                let $template   = $('#template_section').clone();
+                let $modal      = $template.find('#editSectionModal_template');
+                let $modal_type = $template.find('#chooseTypeModal_template');
+                let count       = $('.sortable-sections').children('div').length;
 
-                $template.attr('id', '');
+                //Section
+                $template.find('.sortOrderUpdateSectionVal').val(count + 1);
+                $template.find('.sortOrderUpdateSectionLabel').text(count + 1);
+                $template.find('.section-index').val(count);
+                $template.attr('id', 'section_' + count);
+                $template.attr('name', `sections[${ count }][sort_order]`);
+                $template.find('.section-modal-button').attr('data-target', `#editSectionModal_${ count }`);
+                $template.find('.section-types-button').attr('data-target', `#chooseTypeModal_${ count }`);
                 $template.removeClass('hidden');
                 $template.appendTo('.sortable-sections');
 
+                //Section edit modal
+                $modal.attr('id', `editSectionModal_${ count }`);
+                $modal.find('.doUpdateSection').attr('data-section-index', count);
+                $modal.find('#editSectionModalLabel_template').attr('id', `editSectionModalLabel_${ count }`);
+                $modal.find('.section-modal-labels').each(function() {
+                    let iso = $(this).find('input').val();
+
+                    $(this).find('input').attr('id', `section_${ count }_label_${ iso }`);
+                    $(this).find('input').attr('name', `sections[${ count }][labels][${ iso }]`);
+                    $(this).find('label').attr('for', `section_${ count }_label_${ iso }`);
+                    $(this).find('input').val('');
+                });
+                $modal.find('.section-modal-description-textareas').each(function() {
+                   let iso = $(this).find('input').val();
+
+                   $(this).find('textarea').attr('id', `section_${ count }_description_${ iso }`);
+                   $(this).find('textarea').attr('name', `sections[${ count }][descriptions][${ iso }]`);
+                   $(this).find('textarea').addClass(`redactor-${ iso }`);
+
+                   $R(`#section_${ count }_description_${ iso }`, {
+                       lang: iso,
+                       plugins: ['counter', 'fullscreen'],
+                       minHeight: '100px',
+                       maxHeight: '300px',
+                       formatting: ['p', 'blockquote'],
+                       buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'lists', 'fullscreen'],
+                       toolbarFixedTopOffset: 72, // pixel
+                       pasteLinkTarget: '_blank',
+                       linkNofollow: true,
+                       breakline: true,
+                   });
+                });
+
+                //Section type modal
+                $modal_type.attr('id', `chooseTypeModal_${ count }`);
+                $modal_type.find('.doChooseType').attr('data-section-index', count);
+                $modal_type.find('#chooseTypeModalLabel_template').attr('id', `chooseTypeModalLabel_${ count }`);
+
                 init_drag_drop();
+            });
+
+            //Update section label and description on the card
+            $(document).on('click', '.doUpdateSection', function(){
+                let index   = $(this).attr('data-section-index');
+                let label   = $(`#section_${ index }_label_{{ $default_language }}`).val();
+                let text    = $R(`#section_${ index }_description_{{ $default_language }}`, 'source.getCode');
+
+                $(`#section_${ index }`).find('.section-label').text(label);
+                $(`#section_${ index }`).find('.section-description').text(text);
+            });
+
+            //On type pick
+            $(document).on('click', '.doChooseType', function(){
+                let type_id         = $(this).attr('data-type-id');
+                let section_index   = $(this).attr('data-section-index');
+
+                $.ajax({
+                    url: '{{ route('rl_forms.admin.forms.element.modal') }}',
+                    data: {
+                        "type_id": type_id,
+                        "section_index": section_index
+                    },
+                    cache: false,
+                    success: function(res) {
+                        $(`#section_${ section_index }`).find('.insert-create-element').html(res);
+
+                        $(`#chooseTypeModal_${ section_index }`).on('hidden.bs.modal', function () {
+                            $(`#elementEditModal_section_${ section_index }_element_create`).modal('show');
+                        });
+                    }
+                })
             });
 
             init_drag_drop();

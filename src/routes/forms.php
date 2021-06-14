@@ -43,6 +43,10 @@ Route::group(['middleware' => 'web'], function () use ($route, $middleware) {
                 ->middleware($middleware('admin.forms.edit'))
                 ->name('rl_forms.admin.forms.edit');
 
+            Route::get($route('admin.forms.element.modal'), [FormsController::class, 'get_element_modal'])
+                ->middleware($middleware('admin.forms.edit'))
+                ->name('rl_forms.admin.forms.element.modal');
+
             Route::post($route('admin.forms.store'), [FormsController::class, 'store'])
                 ->middleware($middleware('admin.forms.store'))
                 ->name('rl_forms.admin.forms.store');
