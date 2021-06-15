@@ -13,7 +13,14 @@
                 @foreach($types as $type)
                     <div class="row">
                         <div class="col-12 mb-2 d-flex justify-content-center">
-                            <button type="button" class="btn btn-outline-primary doChooseType w-75" data-type-id="{{ $type->id }}" data-section-index="{{ $section_index }}" data-dismiss="modal">{{ $type->label }}</button>
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary doChooseType w-75"
+                                data-type-id="{{ $type->id }}"
+                                data-section-index="{{ $section_index }}"
+                                data-type-label="{{ $type->label }}"
+                                data-dismiss="modal"
+                            >{{ $type->label }}</button>
                         </div>
                     </div>
                 @endforeach

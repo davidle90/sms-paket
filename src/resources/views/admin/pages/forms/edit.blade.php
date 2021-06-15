@@ -161,7 +161,7 @@
 
                                                                         <span class="float-right">
                                                                         <span
-                                                                            class="m-0 pointer"
+                                                                            class="m-0 pointer element-modal-button"
                                                                             data-toggle="modal"
                                                                             data-target="#elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}"
                                                                             data-section-index="{{ $section_index }}"
@@ -323,12 +323,20 @@
                         $(this).children('div').each(function() {
                             if($(this).is('#filler_div')) return;
 
-                            let $sort_order_val = $(this).find('.sortOrderUpdateElementVal');
-                            let $sort_order_label = $(this).find('.sortOrderUpdateElementLabel');
+                            let $sort_order_val     = $(this).find('.sortOrderUpdateElementVal');
+                            let $sort_order_label   = $(this).find('.sortOrderUpdateElementLabel');
+                            let $modal              = $(this).find('.element-modal-edit');
+                            let $modal_button       = $(this).find('.element-modal-button');
 
+                            $(this).attr('id', `element_${ sort_order - 1 }`);
                             $sort_order_label.text(sort_order);
                             $sort_order_val.val(sort_order);
                             $sort_order_val.attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][sort_order]`);
+                            $modal.attr('id', `elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
+                            $modal.find('.modal-title').attr('id', `elementEditModalLabel_section_${ section_index }_element_${ sort_order - 1 }`);
+                            $modal_button.attr('data-target', `#elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
+                            $modal_button.attr('data-section-index', section_index);
+                            $modal_button.attr('data-element-index', sort_order - 1);
 
                             sort_order++;
                         });
@@ -408,12 +416,14 @@
             //On type pick
             $(document).on('click', '.doChooseType', function(){
                 let type_id         = $(this).attr('data-type-id');
+                let type_label      = $(this).attr('data-type-label');
                 let section_index   = $(this).attr('data-section-index');
 
                 $.ajax({
                     url: '{{ route('rl_forms.admin.forms.element.modal') }}',
                     data: {
                         "type_id": type_id,
+                        "type_label": type_label,
                         "section_index": section_index
                     },
                     cache: false,
@@ -422,6 +432,25 @@
 
                         $(`#chooseTypeModal_${ section_index }`).on('hidden.bs.modal', function () {
                             $(`#elementEditModal_section_${ section_index }_element_create`).modal('show');
+
+                            $(`#chooseTypeModal_${ section_index }`).off('hidden.bs.modal');
+                        });
+
+                        $('.create-element-modal-textareas').each(function(){
+                            let iso = $(this).find('input').val();
+
+                            $R(`#section_${ section_index }_element_create_description_${ iso }`, {
+                                lang: iso,
+                                plugins: ['counter', 'fullscreen'],
+                                minHeight: '100px',
+                                maxHeight: '300px',
+                                formatting: ['p', 'blockquote'],
+                                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'lists', 'fullscreen'],
+                                toolbarFixedTopOffset: 72, // pixel
+                                pasteLinkTarget: '_blank',
+                                linkNofollow: true,
+                                breakline: true,
+                            });
                         });
                     }
                 })
