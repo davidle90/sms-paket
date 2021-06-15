@@ -26,9 +26,6 @@
                                 >
                                 <label for="section_{{ $section_index }}_label_{{ $key }}">
                                     @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
-                                    @if($key == $default_language)
-                                        <i class="fa fa-asterisk required-marker" aria-hidden="true"></i>
-                                    @endif
                                 </label>
                             </div>
                         </div>
@@ -43,9 +40,6 @@
                         <div class="col-12">
                             <small>
                                 @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
-                                @if($key == $default_language)
-                                    <i class="fa fa-asterisk required-marker" aria-hidden="true"></i>
-                                @endif
                             </small>
                             <div class="mb-3 form-group">
                                 <textarea

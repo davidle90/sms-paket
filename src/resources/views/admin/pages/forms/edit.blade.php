@@ -136,6 +136,8 @@
                                             <div class="sortable-elements" style="min-height: 100px;">
                                                 <input class="section-index" type="hidden" value="{{ $section_index }}">
                                                 <div id="filler_div"></div>
+                                                <span class="insert-create-element"></span>
+
                                                 @if(isset($section->elements) && !empty($section->elements))
                                                     @foreach($section->elements as $element_index => $element)
 
@@ -148,8 +150,6 @@
                                                                     name="sections[{{ $section_index }}][elements][{{ $element_index }}][sort_order]"
                                                                     id="sections_{{ $section_index }}_elements_{{ $element_index }}_sort_order"
                                                             >
-
-                                                            <span class="insert-create-element"></span>
 
                                                             @include('rl_forms::admin.pages.forms.modals.element')
 
@@ -234,6 +234,8 @@
                     <div class="sortable-elements" style="min-height: 100px;">
                         <input class="section-index" type="hidden" value="">
                         <div id="filler_div"></div>
+                        <span class="insert-create-element"></span>
+
                     </div>
                 </div>
 
@@ -428,6 +430,7 @@
                     },
                     cache: false,
                     success: function(res) {
+
                         $(`#section_${ section_index }`).find('.insert-create-element').html(res);
 
                         $(`#chooseTypeModal_${ section_index }`).on('hidden.bs.modal', function () {

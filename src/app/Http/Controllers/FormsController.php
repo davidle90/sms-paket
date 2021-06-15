@@ -88,14 +88,16 @@ class FormsController extends Controller
     {
         $languages          = Languages::all()->keyBy('iso_name');
         $default_language   = Config::get('app.locale');
+        $tables             = \rl_tables::tables_model()::get();
 
         return view('rl_forms::admin.pages.forms.modals.element', [
-            'type_id'       => request()->get('type_id', null),
-            'type_label'    => request()->get('type_label', null),
-            'section_index' => request()->get('section_index', null),
-            'languages'     => $languages,
+            'type_id'           => request()->get('type_id', null),
+            'type_label'        => request()->get('type_label', null),
+            'section_index'     => request()->get('section_index', null),
+            'languages'         => $languages,
             'default_language'  => $default_language,
-            'template'      => true,
+            'tables'            => $tables,
+            'template'          => true,
         ]);
 
     }
