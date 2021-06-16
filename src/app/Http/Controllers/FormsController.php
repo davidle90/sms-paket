@@ -49,22 +49,20 @@ class FormsController extends Controller
 	public function edit($id)
     {
 
-        $form               = Forms::with('sections.elements.type')->find($id);
+        $form               = Forms::with(['sections.elements.type', 'sections.elements.options'])->find($id);
         $default_language   = Config::get('app.locale');
         $fallback_language  = Config::get('app.fallback_locale');
         $languages          = Languages::all()->keyBy('iso_name');
         $types              = Types::orderBy('sort_order', 'asc')->get();
+        $tables             = \rl_tables::tables_model()::get();
 
         return view('rl_forms::admin.pages.forms.edit', [
             'form'              => $form,
             'default_language'  => $default_language,
             'fallback_language' => $fallback_language,
             'languages'         => $languages,
-            'types'             => $types
-        ]);
-
-        return view('', [
-
+            'types'             => $types,
+            'tables'            => $tables
         ]);
 
     }

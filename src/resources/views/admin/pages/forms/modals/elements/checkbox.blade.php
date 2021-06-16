@@ -2,9 +2,7 @@
     <div class=" col-12">
         <div class="card">
             <div class="card-body" style="background-color: #e9f3fc; color: #008FFA;">
-                <p>
-                    Checkbox även kallat för kryssrutor är ett multisvars alterativ.
-                </p>
+                Checkbox även kallat för kryssrutor är ett multisvars alterativ.
             </div>
         </div>
     </div>
@@ -35,7 +33,7 @@
                         name="sections[{{ $section_index }}][elements][{{ $element_index }}][labels][{{ $key }}]"
                         id="section_{{ $section_index }}_element_{{ $element_index }}_label_{{ $key }}"
                         class="form-control element-modal-labels-input"
-                        value="{{ (isset($element)) ? $element->in($key)->label : '' }}"
+                        value="{{ (isset($element)) ? $element->in($key)->label ?? '' : '' }}"
                     >
                     <label for="section_{{ $section_index }}_element_{{ $element_index }}_label_{{ $key }}">
                         @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
@@ -74,7 +72,7 @@
                         id="section_{{ $section_index }}_element_{{ $element_index }}_description_{{ $key }}"
                         class="{{ (isset($element)) ? 'redactor-'.$key : '' }} form-control u-form__input"
                     >
-                    {{ (isset($element)) ? $element->in($key)->description : '' }}
+                    {{ (isset($element)) ? $element->in($key)->description ?? '' : '' }}
                 </textarea>
                 </div>
             </div>
@@ -107,7 +105,7 @@
                         name="sections[{{ $section_index }}][elements][{{ $element_index }}][required_texts][{{ $key }}]"
                         id="section_{{ $section_index }}_element_{{ $element_index }}_required_text_{{ $key }}"
                         class="form-control element-modal-required-text-input"
-                        value="{{ (isset($element)) ? $element->in($key)->label : '' }}"
+                        value="{{ (isset($element)) ? $element->in($key)->required ?? '' : '' }}"
                     >
                     <label for="section_{{ $section_index }}_element_{{ $element_index }}_required_text_{{ $key }}">
                         @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
@@ -189,6 +187,10 @@
         </div>
     </div>
 </div>
+
+@if(!isset($template) || $template === false)
+    @push('scripts')
+@endif
 
 <script type="text/javascript">
     $(document).ready(function(){
@@ -277,6 +279,10 @@
 
     });
 </script>
+
+@if(!isset($template) || $template === false)
+    @endpush
+@endif
 
 <style>
     .select2-selection__clear {
