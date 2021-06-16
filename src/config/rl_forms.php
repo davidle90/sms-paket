@@ -36,9 +36,15 @@ return [
                 'index'     => '/admin/forms',
                 'create'    => '/admin/forms/create',
                 'edit'      => '/admin/forms/edit/{id}',
-                'view' => '/admin/forms/view/{id}',
-                'store' => '/admin/forms/store',
-                'drop' => '/admin/forms/drop'
+                'view'      => '/admin/forms/view/{id}',
+                'store'     => '/admin/forms/store',
+                'drop'      => '/admin/forms/drop',
+                'element'   => [
+                    'modal' => '/admin/forms/element/modal'
+                ],
+                'templates' => [
+                    'element' => '/admin/forms/templates/element'
+                ]
             ]
         ]
 	],

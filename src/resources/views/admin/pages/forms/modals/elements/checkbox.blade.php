@@ -10,22 +10,34 @@
     </div>
 </div>
 
-<h6><span class="bold">Label</span><span class="text-link float-right edit-translation text-normal" data-target="label" data-mode="show">Redigera språk</span></h6>
+<h6>
+    <span class="bold">Label</span>
+    <span
+        class="text-link float-right edit-translation text-normal"
+        data-target="label"
+        data-mode="show"
+        data-section-index="{{ $section_index }}"
+        data-element-index="{{ $element_index }}"
+    >
+        Redigera språk
+    </span>
+</h6>
 
 <div class="label-wrapper">
     @foreach($languages as $key => $lang)
         <!-- Label -->
         <div class="row">
             <div class="col-12">
-                <div class="mb-3 form-label-group form-group @if($key !== $default_language) translation @endif" @if($key !== $default_language) style="display: none" @endif>
+                <div class="mb-3 form-label-group form-group element-modal-labels @if($key !== $default_language) translation @endif" @if($key !== $default_language) style="display: none" @endif>
+                    <input class="element-modal-labels-iso" type="hidden" value="{{ $key }}">
                     <input
-                            type="text"
-                            name="sections[{{ $section_index }}][elements][{{ $element_index ?? 'create' }}][labels][{{ $key }}]"
-                            id="section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_label_{{ $key }}"
-                            class="form-control"
-                            value="{{ (isset($element)) ? $element->in($key)->label : '' }}"
+                        type="text"
+                        name="sections[{{ $section_index }}][elements][{{ $element_index }}][labels][{{ $key }}]"
+                        id="section_{{ $section_index }}_element_{{ $element_index }}_label_{{ $key }}"
+                        class="form-control element-modal-labels-input"
+                        value="{{ (isset($element)) ? $element->in($key)->label : '' }}"
                     >
-                    <label for="section_{{ $section_index }}_element_{{ $element_index ?? '' }}_label_{{ $key }}">
+                    <label for="section_{{ $section_index }}_element_{{ $element_index }}_label_{{ $key }}">
                         @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
                     </label>
                 </div>
@@ -34,7 +46,18 @@
     @endforeach
 </div>
 
-<h6><span class="bold">Beskrivning</span><span class="text-link float-right edit-translation text-normal" data-target="description" data-mode="show">Redigera språk</span></h6>
+<h6>
+    <span class="bold">Beskrivning</span>
+    <span
+        class="text-link float-right edit-translation text-normal"
+        data-target="description"
+        data-mode="show"
+        data-section-index="{{ $section_index }}"
+        data-element-index="{{ $element_index }}"
+    >
+        Redigera språk
+    </span>
+</h6>
 
 <div class="description-wrapper">
     @foreach($languages as $key => $lang)
@@ -44,12 +67,12 @@
                 <small>
                     @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
                 </small>
-                <div class="mb-3 form-group create-element-modal-textareas">
+                <div class="mb-3 form-group element-modal-textareas">
                     <input type="hidden" value="{{ $key }}">
                     <textarea
-                            name="sections[{{ $section_index }}][elements][{{ $element_index ?? 'create' }}][descriptions][{{ $key }}]"
-                            id="section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_description_{{ $key }}"
-                            class="{{ (isset($element)) ? 'redactor-'.$key : '' }} form-control u-form__input"
+                        name="sections[{{ $section_index }}][elements][{{ $element_index }}][descriptions][{{ $key }}]"
+                        id="section_{{ $section_index }}_element_{{ $element_index }}_description_{{ $key }}"
+                        class="{{ (isset($element)) ? 'redactor-'.$key : '' }} form-control u-form__input"
                     >
                     {{ (isset($element)) ? $element->in($key)->description : '' }}
                 </textarea>
@@ -59,22 +82,34 @@
     @endforeach
 </div>
 
-<h6><span class="bold">Krav text</span><span class="text-link float-right edit-translation text-normal" data-target="required" data-mode="show">Redigera språk</span></h6>
+<h6>
+    <span class="bold">Krav text</span>
+    <span
+        class="text-link float-right edit-translation text-normal"
+        data-target="required"
+        data-mode="show"
+        data-section-index="{{ $section_index }}"
+        data-element-index="{{ $element_index }}"
+    >
+        Redigera språk
+    </span>
+</h6>
 
 <div class="required-wrapper">
 @foreach($languages as $key => $lang)
     <!-- Required text -->
         <div class="row">
             <div class="col-12">
-                <div class="mb-3 form-label-group form-group @if($key !== $default_language) translation @endif" @if($key !== $default_language) style="display: none" @endif>
+                <div class="mb-3 form-label-group form-group element-modal-required-text @if($key !== $default_language) translation @endif" @if($key !== $default_language) style="display: none" @endif>
+                    <input type="hidden" class="element-modal-required-text-iso" value="{{ $key }}">
                     <input
-                            type="text"
-                            name="sections[{{ $section_index }}][elements][{{ $element_index ?? 'create' }}][required_texts][{{ $key }}]"
-                            id="section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_required_text_{{ $key }}"
-                            class="form-control"
-                            value="{{ (isset($element)) ? $element->in($key)->label : '' }}"
+                        type="text"
+                        name="sections[{{ $section_index }}][elements][{{ $element_index }}][required_texts][{{ $key }}]"
+                        id="section_{{ $section_index }}_element_{{ $element_index }}_required_text_{{ $key }}"
+                        class="form-control element-modal-required-text-input"
+                        value="{{ (isset($element)) ? $element->in($key)->label : '' }}"
                     >
-                    <label for="section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_required_text_{{ $key }}">
+                    <label for="section_{{ $section_index }}_element_{{ $element_index }}_required_text_{{ $key }}">
                         @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
                     </label>
                 </div>
@@ -87,12 +122,12 @@
 
 <div class="row">
     <div class="col-12">
-        <div class="pmd-textfield pmd-textfield-floating-label form-group">
+        <div class="pmd-textfield pmd-textfield-floating-label form-group element-modal-table">
             <select
-                id="section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_table"
+                id="section_{{ $section_index }}_element_{{ $element_index }}_table"
                 class="select-table pmd-select2 form-control"
                 aria-labelledby="labelTable_create"
-                name="sections[{{ $section_index }}][elements][{{ $element_index ?? 'create' }}][table]"
+                name="sections[{{ $section_index }}][elements][{{ $element_index }}][table]"
                 style="width:100%;"
             >
                 <option value=""></option>
@@ -108,7 +143,18 @@
     </div>
 </div>
 
-<h6><span class="bold">Svarsalternativ</span><span class="text-link float-right edit-translation text-normal" data-target="checkbox" data-mode="show">Redigera språk</span></h6>
+<h6>
+    <span class="bold">Svarsalternativ</span>
+    <span
+        class="text-link float-right edit-translation option-translation text-normal"
+        data-target="checkbox"
+        data-mode="show"
+        data-section-index="{{ $section_index }}"
+        data-element-index="{{ $element_index }}"
+    >
+        Redigera språk
+    </span>
+</h6>
 
 <!-- Current options wrapper -->
 @if(isset($element->options) && !empty($element->options))
@@ -121,7 +167,7 @@
 <!-- Add button for options -->
 <div class="row mt-3">
     <div class="col-12 col-md-6">
-        <span class="doAddOption btn btn-block btn-outline-primary">
+        <span class="doAddOption btn btn-block btn-outline-primary" data-section-index="{{ $section_index }}" data-element-index="{{ $element_index }}">
             <i class="essential-xs essential-add"></i> Lägg till svarsalternativ
         </span>
     </div>
@@ -130,14 +176,14 @@
 <!-- Required checkbox -->
 <div class="row mt-3">
     <div class="col-12">
-        <div class="custom-control custom-checkbox d-flex align-items-center mb-2">
-            <input name="sections[{{ $section_index }}][elements][{{ $element_index ?? 'create' }}][required]"
+        <div class="custom-control custom-checkbox d-flex align-items-center mb-2 element-modal-required-checkbox">
+            <input name="sections[{{ $section_index }}][elements][{{ $element_index }}][required]"
                    type="checkbox"
                    class="custom-control-input"
-                   id="section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_required"
+                   id="section_{{ $section_index }}_element_{{ $element_index }}_required"
                    @if(isset($element) && $element->pivot->required == 1) checked @endif
                    value="1" >
-            <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_required">
+            <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_required">
                 Frågan är ett krav och måste besvaras
             </label>
         </div>
@@ -153,11 +199,13 @@
             minimumResultsForSearch: -1
         });
 
-        $('.edit-translation').on('click', function(){
-            let target  = $(this).attr('data-target');
-            let mode    = $(this).attr('data-mode');
+        $('.edit-translation').off('click').on('click', function(){
+            let target          = $(this).attr('data-target');
+            let mode            = $(this).attr('data-mode');
+            let section_index   = $(this).attr('data-section-index');
+            let element_index   = $(this).attr('data-element-index');
 
-            $(`.${ target }-wrapper`).find('.translation').each(function(){
+            $(`#elementEditModal_section_${ section_index }_element_${ element_index } .${ target }-wrapper`).find('.translation').each(function(){
                 if(mode === 'hide') {
                     $(this).hide();
                 } else {
@@ -174,42 +222,53 @@
             }
         });
 
-        $('.doAddOption').on('click', function(){
-            let $template   = $('#option_template').clone();
-            let $container  = $('.append-options-to');
-            let count       = $container.children('div').length;
+        $('.doAddOption').off('click').on('click', function(){
+            let $template       = $('#option_template').clone();
+            let section_index   = $(this).attr('data-section-index');
+            let element_index   = $(this).attr('data-element-index');
+            let $container      = $(`#elementEditModal_section_${ section_index }_element_${ element_index } .append-options-to`);
+            let count           = $container.children('div').length;
 
-            $template.attr('id', `option_${ count }`);
+            $template.attr('id', `elementEditModal_section_${ section_index }_element_${ element_index }_option_${ count }`);
             $template.removeClass('hidden');
-            $template.find('.doRemoveOption').attr('data-option-id', `option_${ count }`);
+            $template.find('.col-12').addClass('element-modal-options');
+            $template.find('.doRemoveOption').attr('data-option-id', `elementEditModal_section_${ section_index }_element_${ element_index }_option_${ count }`);
             $template.children().each(function(){
                 let iso = $(this).find('.checkbox-iso').val();
 
-                $(this).find('.checkbox-input').attr('name', `sections[{{ $section_index }}][elements][{{ $element_index ?? 'create' }}][options][${ count }][labels][${ iso }]`);
-                $(this).find('.checkbox-input').attr('id', `section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_option_${ count }_${ iso }`);
-                $(this).find('label').attr('for', `section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_option_${ count }_${ iso }`);
+                $(this).find('.checkbox-input').attr('name', `sections[${ section_index }][elements][${ element_index }][options][${ count }][labels][${ iso }]`);
+                $(this).find('.checkbox-input').attr('id', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
+                $(this).find('label').attr('for', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
                 $(this).find('.option-label').text(count + 1);
+
+                if($(`#elementEditModal_section_${ section_index }_element_${ element_index } .option-translation`).attr('data-mode') === 'hide') {
+                    $(this).find('.translation').show();
+                }
             });
 
             $container.append($template);
 
-            $("#elementEditModal_section_{{ $section_index }}_element_create_body").scrollTop($('#elementEditModal_section_{{ $section_index }}_element_create_body')[0].scrollHeight);
+            $(`#elementEditModal_section_${ section_index }_element_${ element_index }_body`).scrollTop($(`#elementEditModal_section_${ section_index }_element_${ element_index }_body`)[0].scrollHeight);
         });
 
         $(document).on('click', '.doRemoveOption', function(){
-            let option_id = $(this).attr('data-option-id');
+            let section_index   = $(this).attr('data-section-index');
+            let element_index   = $(this).attr('data-element-index');
+            let option_id       = $(this).attr('data-option-id');
+
             $(`#${ option_id }`).remove();
 
             let count       = 0;
-            let $container  = $('.append-options-to');
+            let $container  = $(`#elementEditModal_section_${ section_index }_element_${ element_index } .append-options-to`);
+
             $container.children('div').each(function(){
                 $(this).find('.option-label').text(count + 1);
 
                 $(this).children('div').each(function(){
                     let iso = $(this).find('.checkbox-iso').val();
-                    $(this).find('.checkbox-input').attr('name', `sections[{{ $section_index }}][elements][{{ $element_index ?? 'create' }}][options][${ count }][labels][${ iso }]`);
-                    $(this).find('.checkbox-input').attr('id', `section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_option_${ count }_${ iso }`);
-                    $(this).find('label').attr('for', `section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_option_${ count }_${ iso }`);
+                    $(this).find('.checkbox-input').attr('name', `sections[${ section_index }][elements][${ element_index }][options][${ count }][labels][${ iso }]`);
+                    $(this).find('.checkbox-input').attr('id', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
+                    $(this).find('label').attr('for', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
                 })
 
                 count++;
@@ -229,19 +288,19 @@
 <div id="option_template" class="hidden">
     <small>Svarsalternativ #<span class="option-label">99</span></small>
 @foreach($languages as $key => $lang)
-    <!-- Checkbox -->
+    <!-- Checkbox - Option -->
         <div class="row">
             <div class="col-12 @if($key !== $default_language) translation @endif" @if($key !== $default_language) style="display: none" @endif>
                 <div class="mb-3 form-label-group form-group">
                     <input class="checkbox-iso" type="hidden" value="{{ $key }}">
                     <input
                             type="text"
-                            name="sections[{{ $section_index }}][elements][{{ $element_index ?? 'create' }}][options][template][labels][{{ $key }}]"
-                            id="section_{{ $section_index }}_element_{{ $element_index ?? 'create' }}_option_template_{{ $key }}"
+                            name=""
+                            id="section_{{ $section_index }}_element_{{ $element_index }}_option_template_{{ $key }}"
                             class="form-control checkbox-input"
                             value=""
                     >
-                    <label for="section_{{ $section_index }}_element_{{ $element_index ?? '' }}_option_template_label_{{ $key }}">
+                    <label for="section_{{ $section_index }}_element_{{ $element_index }}_option_template_{{ $key }}">
                         @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
                         @if($key == $default_language)
                             <i class="fa fa-asterisk required-marker" aria-hidden="true"></i>
@@ -252,6 +311,8 @@
                             class="pointer doRemoveOption"
                             style="position: absolute; right: 13px; top: 13px;"
                             data-option-id=""
+                            data-section-index="{{ $section_index }}"
+                            data-element-index="{{ $element_index }}"
                         >
                             <i class="fal fa-times text-danger"></i>
                         </span>

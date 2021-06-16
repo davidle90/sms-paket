@@ -84,16 +84,18 @@ class FormsController extends Controller
 
     }
 
-    public function get_element_modal()
+    public function get_element_template()
     {
         $languages          = Languages::all()->keyBy('iso_name');
         $default_language   = Config::get('app.locale');
         $tables             = \rl_tables::tables_model()::get();
 
-        return view('rl_forms::admin.pages.forms.modals.element', [
+        return view('rl_forms::admin.pages.forms.templates.element', [
             'type_id'           => request()->get('type_id', null),
             'type_label'        => request()->get('type_label', null),
             'section_index'     => request()->get('section_index', null),
+            'element_index'     => request()->get('element_index', null),
+            'sort_order'        => request()->get('sort_order', null),
             'languages'         => $languages,
             'default_language'  => $default_language,
             'tables'            => $tables,

@@ -136,12 +136,11 @@
                                             <div class="sortable-elements" style="min-height: 100px;">
                                                 <input class="section-index" type="hidden" value="{{ $section_index }}">
                                                 <div id="filler_div"></div>
-                                                <span class="insert-create-element"></span>
 
                                                 @if(isset($section->elements) && !empty($section->elements))
                                                     @foreach($section->elements as $element_index => $element)
 
-                                                        <div class="row" id="element_{{ $element_index }}">
+                                                        <div class="row" id="section_{{ $section_index }}_element_{{ $element_index }}">
                                                             <input
                                                                     type="hidden"
                                                                     min=1
@@ -179,6 +178,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
+
                                                     @endforeach
                                                 @endif
                                             </div>
@@ -234,7 +234,6 @@
                     <div class="sortable-elements" style="min-height: 100px;">
                         <input class="section-index" type="hidden" value="">
                         <div id="filler_div"></div>
-                        <span class="insert-create-element"></span>
 
                     </div>
                 </div>
@@ -242,7 +241,6 @@
             </div>
         </div>
     </div>
-
 @stop
 
 @section('scripts')
@@ -330,15 +328,85 @@
                             let $modal              = $(this).find('.element-modal-edit');
                             let $modal_button       = $(this).find('.element-modal-button');
 
-                            $(this).attr('id', `element_${ sort_order - 1 }`);
+                            //Element
+                            $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }`);
                             $sort_order_label.text(sort_order);
                             $sort_order_val.val(sort_order);
                             $sort_order_val.attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][sort_order]`);
-                            $modal.attr('id', `elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
-                            $modal.find('.modal-title').attr('id', `elementEditModalLabel_section_${ section_index }_element_${ sort_order - 1 }`);
                             $modal_button.attr('data-target', `#elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
                             $modal_button.attr('data-section-index', section_index);
                             $modal_button.attr('data-element-index', sort_order - 1);
+
+                            //Edit Modal
+                            $modal.attr('id', `elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
+                            $modal.find('.modal-title').attr('id', `elementEditModalLabel_section_${ section_index }_element_${ sort_order - 1 }`);
+                            $modal.find('.modal-body').attr('id', `elementEditModal_section_${ section_index }_element_${ sort_order - 1 }_body`);
+                            $modal.find('.doUpdateElement').attr('data-section-index', section_index);
+                            $modal.find('.doUpdateElement').attr('data-element-index', sort_order - 1);
+
+                            //Edit Modal - Label, Textareas, Required boolean/text
+                            $modal.find('.element-modal-labels').each(function() {
+                                let iso = $(this).find('.element-modal-labels-iso').val();
+
+                                $(this).find('.element-modal-labels-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
+                                $(this).find('.element-modal-labels-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][labels][${ iso }]`);
+                                $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
+                            });
+
+                            $modal.find('.element-modal-textareas').each(function() {
+                                let iso = $(this).find('input').val();
+
+                                $(this).find('textarea').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_description_${ iso }`);
+                                $(this).find('textarea').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][descriptions][${ iso }]`);
+                                $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_description_${ iso }`);
+                            });
+
+                            $modal.find('.element-modal-required-text').each(function() {
+                                let iso = $(this).find('.element-modal-required-text-iso').val();
+
+                                $(this).find('.element-modal-required-text-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_required_text_${ iso }`);
+                                $(this).find('.element-modal-required-text-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][required_texts][${ iso }]`);
+                                $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_required_text_${ iso }`);
+                            });
+
+                            $modal.find('.element-modal-required-checkbox input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_required`);
+                            $modal.find('.element-modal-required-checkbox input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][required]`);
+                            $modal.find('.element-modal-required-checkbox label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_required`);
+
+                            //Edit Modal - Options, Add option, Remove option, Table
+                            let count_options   = 0;
+                            let count_total     = 0;
+                            $modal.find('.element-modal-options').each(function(){
+                                let iso = $(this).find('.checkbox-iso').val();
+
+                                $(this).find('.checkbox-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][options][${ count_options }][labels][${ iso }]`);
+                                $(this).find('.checkbox-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_option_${ count_options }_${ iso }`);
+                                $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_option_${ count_options }_${ iso }`);
+                                $(this).find('.option-label').text(count_options + 1);
+                                $(this).find('.doRemoveOption').attr('data-section-index', section_index);
+                                $(this).find('.doRemoveOption').attr('data-element-index', sort_order - 1);
+
+                                count_total++;
+
+                                if(count_total % 2 === 0) {
+                                    count_options++;
+                                }
+                            });
+
+                            $modal.find('.doAddOption').attr('data-section-index', section_index);
+                            $modal.find('.doAddOption').attr('data-element-index', sort_order - 1);
+
+                            $modal.find('.element-modal-table select').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_table`);
+                            $modal.find('.element-modal-table select').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][table]`);
+
+                            //Edit Modal - Language toggles
+                            $modal.find('.edit-translation').each(function(){
+                                $(this).attr('data-section-index', section_index);
+                                $(this).attr('data-element-index', sort_order - 1);
+                            });
+                            $modal.find('.edit-translation-all').attr('data-section-index', section_index);
+                            $modal.find('.edit-translation-all').attr('data-element-index', sort_order - 1);
+
 
                             sort_order++;
                         });
@@ -420,29 +488,32 @@
                 let type_id         = $(this).attr('data-type-id');
                 let type_label      = $(this).attr('data-type-label');
                 let section_index   = $(this).attr('data-section-index');
+                let count           = $(`#section_${ section_index } .sortable-elements`).children('div').length - 1;
 
                 $.ajax({
-                    url: '{{ route('rl_forms.admin.forms.element.modal') }}',
+                    url: '{{ route('rl_forms.admin.forms.templates.element') }}',
                     data: {
-                        "type_id": type_id,
-                        "type_label": type_label,
-                        "section_index": section_index
+                        type_id: type_id,
+                        type_label: type_label,
+                        section_index: section_index,
+                        element_index: count,
+                        sort_order: count + 1
                     },
                     cache: false,
                     success: function(res) {
 
-                        $(`#section_${ section_index }`).find('.insert-create-element').html(res);
+                        $(`#section_${ section_index } .sortable-elements`).append(res);
 
                         $(`#chooseTypeModal_${ section_index }`).on('hidden.bs.modal', function () {
-                            $(`#elementEditModal_section_${ section_index }_element_create`).modal('show');
+                            $(`#elementEditModal_section_${ section_index }_element_${ count }`).modal('show');
 
                             $(`#chooseTypeModal_${ section_index }`).off('hidden.bs.modal');
                         });
 
-                        $('.create-element-modal-textareas').each(function(){
+                        $('.element-modal-textareas').each(function(){
                             let iso = $(this).find('input').val();
 
-                            $R(`#section_${ section_index }_element_create_description_${ iso }`, {
+                            $R(`#section_${ section_index }_element_${ count }_description_${ iso }`, {
                                 lang: iso,
                                 plugins: ['counter', 'fullscreen'],
                                 minHeight: '100px',
@@ -456,7 +527,7 @@
                             });
                         });
                     }
-                })
+                });
             });
 
             init_drag_drop();
