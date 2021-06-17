@@ -132,7 +132,7 @@
 
                                         <div class="card-body">
                                             <h6 class="bold section-label">{{ $section->in($default_language)->label ?? '' }}</h6>
-                                            <p><i class="text-danger section-description">{{ $section->in($default_language)->description ?? '' }}</i></p>
+                                            <p class="element-description">{{ $section->in($default_language)->description ?? '' }}</p>
                                             <div class="sortable-elements" style="min-height: 100px;">
                                                 <input class="section-index" type="hidden" value="{{ $section_index }}">
                                                 <div id="filler_div"></div>
@@ -149,6 +149,7 @@
                                                                     name="sections[{{ $section_index }}][elements][{{ $element_index }}][sort_order]"
                                                                     id="sections_{{ $section_index }}_elements_{{ $element_index }}_sort_order"
                                                             >
+                                                            <input type="hidden" name="sections[{{ $section_index }}][elements][{{ $element_index }}][type_id]" value="{{ $element->type->id}}">
 
                                                             @include('rl_forms::admin.pages.forms.modals.element')
 
@@ -172,7 +173,66 @@
                                                                     </div>
 
                                                                     <div class="card-body">
+                                                                        <h6 class="bold element-label">{{ $element->in($default_language)->label ?? '' }}</h6>
+                                                                        <span class="element-description">{{ $element->in($default_language)->description ?? '' }}</span>
+                                                                        <p><i class="text-danger element-required-text">{{ (isset($element->in($default_language)->required)) ? '*'.$element->in($default_language)->required : '' }}</i></p>
 
+                                                                        <!-- Imported Table -->
+                                                                        @if(isset($element->table_id))
+                                                                            <p class="mt-3 mb-1"><span class="bold">Importerad tabell:</span> {{ $element->table->label }}</p>
+                                                                        @endif
+
+                                                                        <!-- Options -->
+                                                                        @if((isset($element->options) && !$element->options->isEmpty()) || isset($element->table_id))
+                                                                            <p class="bold mt-3 mb-1">Options</p>
+
+                                                                            <!-- Checkbox -->
+                                                                            @if($element->type_id === 4)
+                                                                                @foreach($element->table->data as $data_index => $data)
+                                                                                    <div class="custom-control custom-checkbox d-flex align-items-center mb-2">
+                                                                                        <input
+                                                                                                type="checkbox"
+                                                                                                class="custom-control-input"
+                                                                                                id="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}"
+                                                                                                disabled
+                                                                                        >
+                                                                                        <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}">
+                                                                                            {{ $data->in($default_language)->text ?? '' }}
+                                                                                        </label>
+                                                                                    </div>
+                                                                                @endforeach
+                                                                                @foreach($element->options as $option_index => $option)
+                                                                                    <div class="custom-control custom-checkbox d-flex align-items-center mb-2">
+                                                                                        <input
+                                                                                                type="checkbox"
+                                                                                                class="custom-control-input"
+                                                                                                id="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}"
+                                                                                                disabled
+                                                                                        >
+                                                                                        <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}">
+                                                                                            {{ $option->in($default_language)->label ?? '' }}
+                                                                                        </label>
+                                                                                    </div>
+                                                                                @endforeach
+                                                                            @endif
+
+                                                                            <!-- Dropdown -->
+                                                                            @if($element->type_id === 2)
+                                                                                <select
+                                                                                        id="section_{{ $section_index }}_element_{{ $element_index }}_options_display"
+                                                                                        class="pmd-select2 form-control col-3"
+                                                                                        style="width:100%;"
+                                                                                >
+                                                                                    <option></option>
+                                                                                    @foreach($element->table->data as $data)
+                                                                                        <option>{{ $data->in($default_language)->text ?? '' }}</option>
+                                                                                    @endforeach
+                                                                                    @foreach($element->options as $option)
+                                                                                        <option>{{ $option->in($default_language)->label ?? '' }}</option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                            @endif
+                                                                        @endif
                                                                     </div>
 
                                                                 </div>
@@ -461,38 +521,6 @@
                         });
                     }
                 });
-
-                /*$modal.attr('id', `editSectionModal_${ count }`);
-                $modal.find('.doUpdateSection').attr('data-section-index', count);
-                $modal.find('#editSectionModalLabel_template').attr('id', `editSectionModalLabel_${ count }`);
-                $modal.find('.section-modal-labels').each(function() {
-                    let iso = $(this).find('input').val();
-
-                    $(this).find('input').attr('id', `section_${ count }_label_${ iso }`);
-                    $(this).find('input').attr('name', `sections[${ count }][labels][${ iso }]`);
-                    $(this).find('label').attr('for', `section_${ count }_label_${ iso }`);
-                    $(this).find('input').val('');
-                });
-                $modal.find('.section-modal-description-textareas').each(function() {
-                   let iso = $(this).find('input').val();
-
-                   $(this).find('textarea').attr('id', `section_${ count }_description_${ iso }`);
-                   $(this).find('textarea').attr('name', `sections[${ count }][descriptions][${ iso }]`);
-                   $(this).find('textarea').addClass(`redactor-${ iso }`);
-
-                   $R(`#section_${ count }_description_${ iso }`, {
-                       lang: iso,
-                       plugins: ['counter', 'fullscreen'],
-                       minHeight: '100px',
-                       maxHeight: '300px',
-                       formatting: ['p', 'blockquote'],
-                       buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
-                       toolbarFixedTopOffset: 72, // pixel
-                       pasteLinkTarget: '_blank',
-                       linkNofollow: true,
-                       breakline: true,
-                   });
-                });*/
 
                 //Section type modal
                 $modal_type.attr('id', `chooseTypeModal_${ count }`);

@@ -130,7 +130,7 @@
             >
                 <option value=""></option>
                 @foreach($tables as $table)
-                    @if(isset($element->table) && $element->table == $table->id)
+                    @if(isset($element->table_id) && $element->table_id == $table->id)
                         <option value="{{ $table->id }}" selected>{{ $table->label ?? '' }}</option>
                     @else
                         <option value="{{ $table->id }}">{{ $table->label ?? '' }}</option>
@@ -154,13 +154,50 @@
     </span>
 </h6>
 
-<!-- Current options wrapper -->
-@if(isset($element->options) && !empty($element->options))
-    <!--loopa befintliga options-->
-@endif
-
-<!-- New options wrapper -->
-<span class="append-options-to checkbox-wrapper mt-3"></span>
+<!-- Options wrapper -->
+<span class="append-options-to checkbox-wrapper mt-3">
+    @if(isset($element->options) && !empty($element->options))
+        @foreach($element->options as $index => $option)
+            <div id="elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $index }}">
+                <small>Svarsalternativ #<span class="option-label">{{ $index + 1 }}</span></small>
+                @foreach($languages as $key => $lang)
+                    <!-- Checkbox - Option -->
+                    <div class="row">
+                        <div class="col-12 @if($key !== $default_language) translation @endif" @if($key !== $default_language) style="display: none" @endif>
+                            <div class="mb-3 form-label-group form-group">
+                                <input class="checkbox-iso" type="hidden" value="{{ $key }}">
+                                <input
+                                        type="text"
+                                        name=""
+                                        id="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $index }}_{{ $key }}"
+                                        class="form-control checkbox-input"
+                                        value="{{ $option->in($key)->label ?? '' }}"
+                                >
+                                <label for="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $index }}_{{ $key }}">
+                                    @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
+                                    @if($key == $default_language)
+                                        <i class="fa fa-asterisk required-marker" aria-hidden="true"></i>
+                                    @endif
+                                </label>
+                                @if($key == $default_language)
+                                    <span
+                                            class="pointer doRemoveOption"
+                                            style="position: absolute; right: 13px; top: 13px;"
+                                            data-option-id="elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $index }}"
+                                            data-section-index="{{ $section_index }}"
+                                            data-element-index="{{ $element_index }}"
+                                    >
+                                        <i class="fal fa-times text-danger"></i>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endforeach
+    @endif
+</span>
 
 <!-- Add button for options -->
 <div class="row mt-3">
@@ -305,8 +342,8 @@
 <!-- Templates -->
 <div id="option_template" class="hidden">
     <small>Svarsalternativ #<span class="option-label">99</span></small>
-@foreach($languages as $key => $lang)
-    <!-- Checkbox - Option -->
+    @foreach($languages as $key => $lang)
+        <!-- Checkbox - Option -->
         <div class="row">
             <div class="col-12 @if($key !== $default_language) translation @endif" @if($key !== $default_language) style="display: none" @endif>
                 <div class="mb-3 form-label-group form-group">

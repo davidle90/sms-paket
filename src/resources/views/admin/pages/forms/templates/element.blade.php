@@ -7,6 +7,7 @@
             name="sections[{{ $section_index }}][elements][{{ $element_index }}][sort_order]"
             id="sections_{{ $section_index }}_elements_{{ $element_index }}_sort_order"
     >
+    <input type="hidden" name="sections[{{ $section_index }}][elements][{{ $element_index }}][type_id]" value="{{ $type_id }}">
 
     @include('rl_forms::admin.pages.forms.modals.element')
 

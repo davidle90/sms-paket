@@ -50,7 +50,7 @@ class Elements extends Model
     }
 
     public function options() {
-        return $this->hasMany(config('rl_forms.models.forms_elements_options'), 'id', 'options_id');
+        return $this->hasMany(config('rl_forms.models.forms_elements_options'), 'element_id', 'id');
     }
 
     public function data()
