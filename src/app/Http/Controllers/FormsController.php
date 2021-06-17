@@ -102,6 +102,19 @@ class FormsController extends Controller
 
     }
 
+    public function get_section_modal_template()
+    {
+        $languages          = Languages::all()->keyBy('iso_name');
+        $default_language   = Config::get('app.locale');
+
+        return view('rl_forms::admin.pages.forms.modals.section', [
+            'section_index'     => request()->get('section_index', null),
+            'languages'         => $languages,
+            'default_language'  => $default_language,
+        ]);
+
+    }
+
     public function store()
     {
         pre(request()->all());

@@ -44,6 +44,9 @@ return [
                 ],
                 'templates' => [
                     'element' => '/admin/forms/templates/element'
+                ],
+                'modals' => [
+                    'section' => '/admin/forms/modals/section'
                 ]
             ]
         ]

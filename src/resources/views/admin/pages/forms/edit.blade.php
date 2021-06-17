@@ -131,8 +131,8 @@
                                         </div>
 
                                         <div class="card-body">
-                                            <h6 class="bold section-label">{{ $section->in($key)->label ?? '' }}</h6>
-                                            <p><i class="text-danger section-description">{{ $section->in($key)->description ?? '' }}</i></p>
+                                            <h6 class="bold section-label">{{ $section->in($default_language)->label ?? '' }}</h6>
+                                            <p><i class="text-danger section-description">{{ $section->in($default_language)->description ?? '' }}</i></p>
                                             <div class="sortable-elements" style="min-height: 100px;">
                                                 <input class="section-index" type="hidden" value="{{ $section_index }}">
                                                 <div id="filler_div"></div>
@@ -208,7 +208,6 @@
                 id=""
         >
 
-        @include('rl_forms::admin.pages.forms.modals.templates.section')
         @include('rl_forms::admin.pages.forms.modals.templates.types')
 
         <div class="col-12">
@@ -261,7 +260,7 @@
                 minHeight: '100px',
                 maxHeight: '300px',
                 formatting: ['p', 'blockquote'],
-                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'lists', 'fullscreen'],
+                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
                 toolbarFixedTopOffset: 72, // pixel
                 pasteLinkTarget: '_blank',
                 linkNofollow: true,
@@ -274,7 +273,7 @@
                 minHeight: '100px',
                 maxHeight: '300px',
                 formatting: ['p', 'blockquote'],
-                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'lists', 'fullscreen'],
+                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
                 toolbarFixedTopOffset: 72, // pixel
                 pasteLinkTarget: '_blank',
                 linkNofollow: true,
@@ -433,7 +432,37 @@
                 $template.appendTo('.sortable-sections');
 
                 //Section edit modal
-                $modal.attr('id', `editSectionModal_${ count }`);
+                $.ajax({
+                    url: '{{ route('rl_forms.admin.forms.modals.section') }}',
+                    data: {
+                        section_index: count,
+                    },
+                    cache: false,
+                    success: function(res) {
+                        $template.append(res);
+
+                        $(`#editSectionModal_${ count }`).modal('show');
+
+                        $('.section-modal-textareas').each(function(){
+                            let iso = $(this).find('input').val();
+
+                            $R(`#section_${ count }_description_${ iso }`, {
+                                lang: iso,
+                                plugins: ['counter', 'fullscreen'],
+                                minHeight: '100px',
+                                maxHeight: '300px',
+                                formatting: ['p', 'blockquote'],
+                                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
+                                toolbarFixedTopOffset: 72, // pixel
+                                pasteLinkTarget: '_blank',
+                                linkNofollow: true,
+                                breakline: true,
+                            });
+                        });
+                    }
+                });
+
+                /*$modal.attr('id', `editSectionModal_${ count }`);
                 $modal.find('.doUpdateSection').attr('data-section-index', count);
                 $modal.find('#editSectionModalLabel_template').attr('id', `editSectionModalLabel_${ count }`);
                 $modal.find('.section-modal-labels').each(function() {
@@ -457,13 +486,13 @@
                        minHeight: '100px',
                        maxHeight: '300px',
                        formatting: ['p', 'blockquote'],
-                       buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'lists', 'fullscreen'],
+                       buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
                        toolbarFixedTopOffset: 72, // pixel
                        pasteLinkTarget: '_blank',
                        linkNofollow: true,
                        breakline: true,
                    });
-                });
+                });*/
 
                 //Section type modal
                 $modal_type.attr('id', `chooseTypeModal_${ count }`);
@@ -519,7 +548,7 @@
                                 minHeight: '100px',
                                 maxHeight: '300px',
                                 formatting: ['p', 'blockquote'],
-                                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'lists', 'fullscreen'],
+                                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
                                 toolbarFixedTopOffset: 72, // pixel
                                 pasteLinkTarget: '_blank',
                                 linkNofollow: true,

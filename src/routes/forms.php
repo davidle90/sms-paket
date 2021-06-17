@@ -47,6 +47,10 @@ Route::group(['middleware' => 'web'], function () use ($route, $middleware) {
                 ->middleware($middleware('admin.forms.edit'))
                 ->name('rl_forms.admin.forms.templates.element');
 
+            Route::get($route('admin.forms.modals.section'), [FormsController::class, 'get_section_modal_template'])
+                ->middleware($middleware('admin.forms.edit'))
+                ->name('rl_forms.admin.forms.modals.section');
+
             Route::post($route('admin.forms.store'), [FormsController::class, 'store'])
                 ->middleware($middleware('admin.forms.store'))
                 ->name('rl_forms.admin.forms.store');

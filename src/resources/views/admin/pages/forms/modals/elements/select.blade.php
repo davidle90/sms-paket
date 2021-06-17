@@ -244,6 +244,18 @@
                 $(this).find('label').attr('for', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
                 $(this).find('.option-label').text(count + 1);
 
+                $(this).find('.checkbox-input').on('input', function() {
+                    let $field = $(this).closest('.form-label-group');
+
+                    if (this.value) {
+                        $field.addClass('field--not-empty');
+                        $field.removeClass('field--empty');
+                    } else {
+                        $field.removeClass('field--not-empty');
+                        $field.addClass('field--empty');
+                    }
+                });
+
                 if($(`#elementEditModal_section_${ section_index }_element_${ element_index } .option-translation`).attr('data-mode') === 'hide') {
                     $(this).find('.translation').show();
                 }
