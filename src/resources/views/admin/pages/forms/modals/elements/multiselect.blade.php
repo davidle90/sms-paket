@@ -170,7 +170,7 @@
                                         type="text"
                                         name=""
                                         id="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $index }}_{{ $key }}"
-                                        class="form-control checkbox-input"
+                                        class="form-control checkbox-input checkbox-in-{{ $key }}"
                                         value="{{ $option->in($key)->label ?? '' }}"
                                 >
                                 <label for="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $index }}_{{ $key }}">
@@ -352,7 +352,7 @@
                                     type="text"
                                     name=""
                                     id="section_{{ $section_index }}_element_{{ $element_index }}_option_template_{{ $key }}"
-                                    class="form-control checkbox-input"
+                                    class="form-control checkbox-input checkbox-in-{{ $key }}"
                                     value=""
                             >
                             <label for="section_{{ $section_index }}_element_{{ $element_index }}_option_template_{{ $key }}">

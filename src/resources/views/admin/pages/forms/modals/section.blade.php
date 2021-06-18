@@ -81,14 +81,19 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-link mr-auto" data-dismiss="modal">Stäng</button>
+                <button
+                    type="button"
+                    class="btn btn-outline-danger active mr-auto onDeleteSection"
+                    data-section-index="{{ $section_index }}"
+                    data-dismiss="modal"
+                >Ta bort</button>
                 <div>
                     <span
                             class="btn btn-link edit-translation-all-section"
                             data-mode="show"
                             data-section-index="{{ $section_index }}"
                     >Redigera språk</span>
-                    <button type="button" class="btn btn-outline-success active doUpdateSection" data-section-index="{{ $section_index }}" data-dismiss="modal">Uppdatera sektion</button>
+                    <button type="button" class="btn btn-outline-success active doUpdateSection" data-section-index="{{ $section_index }}" data-dismiss="modal">Uppdatera</button>
                 </div>
             </div>
         </div>
@@ -173,6 +178,17 @@
                         $(this).attr('data-mode', 'show');
                         $(this).text('Redigera språk');
                     }
+                });
+            });
+
+            $('.onDeleteSection').off('click').on('click', function(){
+                let section_index = $(this).attr('data-section-index');
+
+                $(`#editSectionModal_${ section_index }`).on('hidden.bs.modal', function () {
+                    $(`#deleteSectionModal`).find('.doDeleteSection').attr('data-section-index', section_index);
+                    $(`#deleteSectionModal`).modal('show');
+
+                    $(`#editSectionModal_${ section_index }`).off('hidden.bs.modal');
                 });
             });
         });

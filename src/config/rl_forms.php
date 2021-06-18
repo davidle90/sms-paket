@@ -43,7 +43,8 @@ return [
                     'modal' => '/admin/forms/element/modal'
                 ],
                 'templates' => [
-                    'element' => '/admin/forms/templates/element'
+                    'element'   => '/admin/forms/templates/element',
+                    'card'      => '/admin/forms/templates/card'
                 ],
                 'modals' => [
                     'section' => '/admin/forms/modals/section'

@@ -13,6 +13,8 @@
             margin-bottom:15px;
         }
     </style>
+
+    <link href="{{ mix('css/app/multiselect.css') }}" rel="stylesheet" type="text/css">
 @endsection
 
 @section('breadcrumbs')
@@ -46,554 +48,643 @@
 @endsection
 
 @section('modals')
-
+    @include('rl_forms::admin.pages.forms.modals.delete_section')
+    @include('rl_forms::admin.pages.forms.modals.delete_element')
 @endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            @if(isset($form) && !empty($form))
-                <b>Redigera formulär</b>
-            @else
-                <b>Skapa formulär</b>
-            @endif
-        </div>
+   <div class="card">
+       <div class="card-header">
+           @if(isset($form) && !empty($form))
+               <b>Redigera formulär</b>
+           @else
+               <b>Skapa formulär</b>
+           @endif
+       </div>
 
-        <div class="card-body">
-            <form id="form_form" method="post" action="{{ route('rl_forms.admin.forms.store') }}" autocomplete="off">
+       <div class="card-body">
+           <form id="form_form" method="post" action="{{ route('rl_forms.admin.forms.store') }}" autocomplete="off">
 
-                <input type="hidden" name="form_id" value="{{ $form->id ?? '' }}" />
+               <input type="hidden" name="form_id" value="{{ $form->id ?? '' }}" />
 
-                <h6 class="bold">Label</h6>
+               <h6 class="bold">Label</h6>
 
-                @foreach($languages as $key => $lang)
-                    <!-- Label -->
-                    <div class="row">
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                            <div class="mb-3 form-label-group form-group">
-                                <input type="text" name="labels[{{ $key }}]" id="value_{{ $key ?? '' }}" class="form-control" placeholder="" value="{{ (isset($form)) ? $form->in($key)->label : '' }}">
-                                <label for="value_{{ $key ?? '' }}">
-                                    @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
-                                    @if($key == $default_language)
-                                        <i class="fa fa-asterisk required-marker" aria-hidden="true"></i>
-                                    @endif
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+               @foreach($languages as $key => $lang)
+                   <!-- Label -->
+                   <div class="row">
+                       <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                           <div class="mb-3 form-label-group form-group">
+                               <input type="text" name="labels[{{ $key }}]" id="value_{{ $key ?? '' }}" class="form-control" placeholder="" value="{{ (isset($form)) ? $form->in($key)->label : '' }}">
+                               <label for="value_{{ $key ?? '' }}">
+                                   @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
+                                   @if($key == $default_language)
+                                       <i class="fa fa-asterisk required-marker" aria-hidden="true"></i>
+                                   @endif
+                               </label>
+                           </div>
+                       </div>
+                   </div>
+               @endforeach
 
-                <h6 class="bold">Slug</h6>
+               <h6 class="bold">Slug</h6>
 
-                <div class="row">
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                        <!-- Slug -->
-                        <div class="mb-3 form-label-group form-group">
-                            <input type="text" name="slug" id="inputLabel" class="form-control" placeholder="" value="{{ $form->slug ?? '' }}">
-                            <label for="inputLabel">Slug <i class="fa fa-asterisk required-marker" aria-hidden="true"></i></label>
-                        </div>
+               <div class="row">
+                   <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                       <!-- Slug -->
+                       <div class="mb-3 form-label-group form-group">
+                           <input type="text" name="slug" id="inputLabel" class="form-control" placeholder="" value="{{ $form->slug ?? '' }}">
+                           <label for="inputLabel">Slug <i class="fa fa-asterisk required-marker" aria-hidden="true"></i></label>
+                       </div>
 
-                    </div>
-                </div>
+                   </div>
+               </div>
 
-                @if(isset($form->sections) && !$form->sections->isEmpty())
-                    <div class="sortable-sections">
-                        @foreach($form->sections as $section_index => $section)
-                            <div class="row" id="section_{{ $section_index }}">
-                                <!-- Hidden inputs start -->
-                                <input
-                                        type="hidden"
-                                        min=1
-                                        class="sortOrderUpdateSectionVal"
-                                        value="{{ $section->sort_order  ?? ''}}"
-                                        name="sections[{{ $section_index }}][sort_order]"
-                                        id="sections_{{ $section_index }}_sort_order"
-                                >
-                                <!-- Hidden inputs end -->
+               @if(isset($form->sections) && !$form->sections->isEmpty())
+                   <div class="sortable-sections">
+                       @foreach($form->sections as $section_index => $section)
+                           <div class="row" id="section_{{ $section_index }}" data-element-count="{{ (isset($section->elements)) ? $section->elements->count() : 0 }}">
+                               <!-- Hidden inputs start -->
+                               <input
+                                       type="hidden"
+                                       min=1
+                                       class="sortOrderUpdateSectionVal"
+                                       value="{{ $section->sort_order  ?? ''}}"
+                                       name="sections[{{ $section_index }}][sort_order]"
+                                       id="sections_{{ $section_index }}_sort_order"
+                               >
+                               <!-- Hidden inputs end -->
 
-                                @include('rl_forms::admin.pages.forms.modals.section')
-                                @include('rl_forms::admin.pages.forms.modals.types')
+                               @include('rl_forms::admin.pages.forms.modals.section')
+                               @include('rl_forms::admin.pages.forms.modals.types')
 
-                                <div class="col-12">
-                                    <div class="card">
+                               <div class="col-12">
+                                   <div class="card">
 
-                                        <div class="card-header handle-section" style="background-color: #e9f3fc; cursor: grabbing;">
-                                            <b>Sektion <span class="sortOrderUpdateSectionLabel">{{ $section->sort_order ?? '' }}</span></b>
+                                       <div class="card-header handle-section" style="background-color: #e9f3fc; cursor: grabbing;">
+                                           <b>Sektion <span class="sortOrderUpdateSectionLabel">{{ $section->sort_order ?? '' }}</span></b>
 
-                                            <span class="float-right">
-                                                <span class="m-0 mr-3 pointer" data-toggle="modal" data-target="#chooseTypeModal_{{ $section_index }}" data-index="{{ $section_index }}">
-                                                    <i class="essential-xs essential-add"></i> Lägg till fråga
-                                                </span>
-                                                <span class="m-0 pointer" data-toggle="modal" data-target="#editSectionModal_{{ $section_index }}" data-index="{{ $section_index }}">
-                                                    <i class="fal fa-pencil-alt"></i>
-                                                </span>
-                                            </span>
-                                        </div>
+                                           <span class="float-right">
+                                               <span class="m-0 mr-3 pointer" data-toggle="modal" data-target="#chooseTypeModal_{{ $section_index }}" data-index="{{ $section_index }}">
+                                                   <i class="essential-xs essential-add"></i> Lägg till fråga
+                                               </span>
+                                               <span class="m-0 pointer" data-toggle="modal" data-target="#editSectionModal_{{ $section_index }}" data-index="{{ $section_index }}">
+                                                   <i class="fal fa-pencil-alt"></i>
+                                               </span>
+                                           </span>
+                                       </div>
 
-                                        <div class="card-body">
-                                            <h6 class="bold section-label">{{ $section->in($default_language)->label ?? '' }}</h6>
-                                            <p class="element-description">{{ $section->in($default_language)->description ?? '' }}</p>
-                                            <div class="sortable-elements" style="min-height: 100px;">
-                                                <input class="section-index" type="hidden" value="{{ $section_index }}">
-                                                <div id="filler_div"></div>
+                                       <div class="card-body">
+                                           <h6 class="bold section-label">{{ $section->in($default_language)->label ?? '' }}</h6>
+                                           <p class="element-description">{{ $section->in($default_language)->description ?? '' }}</p>
+                                           <div class="sortable-elements" style="min-height: 100px;">
+                                               <input class="section-index" type="hidden" value="{{ $section_index }}">
+                                               <div id="filler_div"></div>
 
-                                                @if(isset($section->elements) && !empty($section->elements))
-                                                    @foreach($section->elements as $element_index => $element)
+                                               @if(isset($section->elements) && !empty($section->elements))
+                                                   @foreach($section->elements as $element_index => $element)
 
-                                                        <div class="row" id="section_{{ $section_index }}_element_{{ $element_index }}">
-                                                            <input
-                                                                    type="hidden"
-                                                                    min=1
-                                                                    class="sortOrderUpdateElementVal"
-                                                                    value="{{ $element->pivot->sort_order ?? '' }}"
-                                                                    name="sections[{{ $section_index }}][elements][{{ $element_index }}][sort_order]"
-                                                                    id="sections_{{ $section_index }}_elements_{{ $element_index }}_sort_order"
-                                                            >
-                                                            <input type="hidden" name="sections[{{ $section_index }}][elements][{{ $element_index }}][type_id]" value="{{ $element->type->id}}">
+                                                       <div class="row" id="section_{{ $section_index }}_element_{{ $element_index }}">
+                                                           <input
+                                                                   type="hidden"
+                                                                   min=1
+                                                                   class="sortOrderUpdateElementVal"
+                                                                   value="{{ $element->pivot->sort_order ?? '' }}"
+                                                                   name="sections[{{ $section_index }}][elements][{{ $element_index }}][sort_order]"
+                                                                   id="sections_{{ $section_index }}_elements_{{ $element_index }}_sort_order"
+                                                           >
+                                                           <input type="hidden" name="sections[{{ $section_index }}][elements][{{ $element_index }}][type_id]" value="{{ $element->type->id}}">
 
-                                                            @include('rl_forms::admin.pages.forms.modals.element')
+                                                           @include('rl_forms::admin.pages.forms.modals.element')
 
-                                                            <div class="col-12">
-                                                                <div class="card">
+                                                           <div class="col-12">
+                                                               <div class="card">
 
-                                                                    <div class="card-header handle-element" style="background-color: #dcefdc; cursor: grabbing;">
-                                                                        <b>Fråga <span class="sortOrderUpdateElementLabel">{{ $element->pivot->sort_order ?? '' }}</span> - {{ $element->type->label ?? '' }}</b>
+                                                                   <div class="card-header handle-element" style="background-color: #dcefdc; cursor: grabbing;">
+                                                                       <b>Fråga
+                                                                           <span class="sortOrderUpdateElementLabel">{{ $element->pivot->sort_order ?? '' }}</span> -
+                                                                           {{ $element->type->label ?? '' }}
+                                                                       </b>
 
-                                                                        <span class="float-right">
-                                                                        <span
-                                                                            class="m-0 pointer element-modal-button"
-                                                                            data-toggle="modal"
-                                                                            data-target="#elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}"
-                                                                            data-section-index="{{ $section_index }}"
-                                                                            data-element-index="{{ $element_index }}"
-                                                                        >
-                                                                            <i class="fal fa-pencil-alt"></i>
-                                                                        </span>
-                                                                    </span>
-                                                                    </div>
+                                                                       <span class="float-right">
+                                                                       <span
+                                                                           class="m-0 pointer element-modal-button"
+                                                                           data-toggle="modal"
+                                                                           data-target="#elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}"
+                                                                           data-section-index="{{ $section_index }}"
+                                                                           data-element-index="{{ $element_index }}"
+                                                                       >
+                                                                           <i class="fal fa-pencil-alt"></i>
+                                                                       </span>
+                                                                   </span>
+                                                                   </div>
 
-                                                                    <div class="card-body">
-                                                                        <h6 class="bold element-label">{{ $element->in($default_language)->label ?? '' }}</h6>
-                                                                        <span class="element-description">{{ $element->in($default_language)->description ?? '' }}</span>
-                                                                        <p><i class="text-danger element-required-text">{{ (isset($element->in($default_language)->required)) ? '*'.$element->in($default_language)->required : '' }}</i></p>
+                                                                   <div class="card-body update-card-body">
+                                                                       <h6 class="bold element-label">
+                                                                           {{ $element->in($default_language)->label ?? '' }}
+                                                                           @if($element->pivot->required == 1 && isset($element->in($default_language)->label)) <i class="fa fa-asterisk required-marker" aria-hidden="true"></i> @endif
+                                                                       </h6>
+                                                                       <span class="element-description">{{ $element->in($default_language)->description ?? '' }}</span>
+                                                                       <p><i class="text-danger element-required-text">{{ (isset($element->in($default_language)->required)) ? '*'.$element->in($default_language)->required : '' }}</i></p>
 
-                                                                        <!-- Imported Table -->
-                                                                        @if(isset($element->table_id))
-                                                                            <p class="mt-3 mb-1"><span class="bold">Importerad tabell:</span> {{ $element->table->label }}</p>
-                                                                        @endif
+                                                                       <!-- Input -->
+                                                                       @if($element->type_id === 1)
+                                                                           <div class="row">
+                                                                               <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                                                   <div class="form-label-group form-group mb-1">
+                                                                                       <input
+                                                                                               type="text"
+                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_options_display"
+                                                                                               class="form-control update-option"
+                                                                                       >
+                                                                                       <label for="section_{{ $section_index }}_element_{{ $element_index }}_options_display">
+                                                                                           @ucfirst(language($key)->getNativeName()) ({{ language($default_language)->getName() }})
+                                                                                       </label>
+                                                                                   </div>
+                                                                               </div>
+                                                                           </div>
+                                                                       @endif
 
-                                                                        <!-- Options -->
-                                                                        @if((isset($element->options) && !$element->options->isEmpty()) || isset($element->table_id))
-                                                                            <p class="bold mt-3 mb-1">Options</p>
+                                                                       <!-- Textarea -->
+                                                                       @if($element->type_id === 6)
+                                                                           <div class="row">
+                                                                               <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+                                                                                   <small>
+                                                                                       @ucfirst(language($key)->getNativeName()) ({{ language($default_language)->getName() }})
+                                                                                   </small>
+                                                                                   <div class="form-group mb-1">
+                                                                                       <textarea
+                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_options_display"
+                                                                                               class="redactor-sv form-control u-form__input update-option"
+                                                                                       ></textarea>
+                                                                                   </div>
+                                                                               </div>
+                                                                           </div>
+                                                                       @endif
 
-                                                                            <!-- Checkbox -->
-                                                                            @if($element->type_id === 4)
-                                                                                @foreach($element->table->data as $data_index => $data)
-                                                                                    <div class="custom-control custom-checkbox d-flex align-items-center mb-2">
-                                                                                        <input
-                                                                                                type="checkbox"
-                                                                                                class="custom-control-input"
-                                                                                                id="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}"
-                                                                                                disabled
-                                                                                        >
-                                                                                        <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}">
-                                                                                            {{ $data->in($default_language)->text ?? '' }}
-                                                                                        </label>
-                                                                                    </div>
-                                                                                @endforeach
-                                                                                @foreach($element->options as $option_index => $option)
-                                                                                    <div class="custom-control custom-checkbox d-flex align-items-center mb-2">
-                                                                                        <input
-                                                                                                type="checkbox"
-                                                                                                class="custom-control-input"
-                                                                                                id="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}"
-                                                                                                disabled
-                                                                                        >
-                                                                                        <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}">
-                                                                                            {{ $option->in($default_language)->label ?? '' }}
-                                                                                        </label>
-                                                                                    </div>
-                                                                                @endforeach
-                                                                            @endif
+                                                                       <!-- Imported Table -->
+                                                                       @if(isset($element->table_id))
+                                                                           <p class="mt-3 mb-1"><span class="bold">Importerad tabell:</span> {{ $element->table->label }}</p>
+                                                                       @endif
 
-                                                                            <!-- Dropdown -->
-                                                                            @if($element->type_id === 2)
-                                                                                <select
-                                                                                        id="section_{{ $section_index }}_element_{{ $element_index }}_options_display"
-                                                                                        class="pmd-select2 form-control col-3"
-                                                                                        style="width:100%;"
-                                                                                >
-                                                                                    <option></option>
-                                                                                    @foreach($element->table->data as $data)
-                                                                                        <option>{{ $data->in($default_language)->text ?? '' }}</option>
-                                                                                    @endforeach
-                                                                                    @foreach($element->options as $option)
-                                                                                        <option>{{ $option->in($default_language)->label ?? '' }}</option>
-                                                                                    @endforeach
-                                                                                </select>
-                                                                            @endif
-                                                                        @endif
-                                                                    </div>
+                                                                       <!-- Options -->
+                                                                       @if((isset($element->options) && !$element->options->isEmpty()) || isset($element->table_id))
+                                                                           <p class="bold mt-3 mb-1">Svarsalternativ</p>
 
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                                           <!-- Dropdown, Dropdown, multiselect-->
+                                                                           @if($element->type_id === 2 || $element->type_id === 3)
+                                                                               <div class="row">
+                                                                                   <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                                                       <select
+                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_options_display"
+                                                                                               class="form-control update-option"
+                                                                                       >
+                                                                                           <option></option>
+                                                                                           <!-- Table data -->
+                                                                                           @foreach($element->table->data as $data)
+                                                                                               <option>{{ $data->in($default_language)->text ?? '' }}</option>
+                                                                                           @endforeach
+                                                                                           <!-- Option data -->
+                                                                                           @foreach($element->options as $option)
+                                                                                               <option>{{ $option->in($default_language)->label ?? '' }}</option>
+                                                                                           @endforeach
+                                                                                       </select>
+                                                                                   </div>
+                                                                               </div>
+                                                                           @endif
 
-                                                    @endforeach
-                                                @endif
-                                            </div>
-                                        </div>
+                                                                           <!-- Checkbox -->
+                                                                           @if($element->type_id === 4)
+                                                                               <!-- Table data -->
+                                                                               @foreach($element->table->data as $data_index => $data)
+                                                                                   <div class="custom-control custom-checkbox d-flex align-items-center mb-2">
+                                                                                       <input
+                                                                                               type="checkbox"
+                                                                                               class="custom-control-input update-data"
+                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}"
+                                                                                               disabled
+                                                                                       >
+                                                                                       <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}">
+                                                                                           {{ $data->in($default_language)->text ?? '' }}
+                                                                                       </label>
+                                                                                   </div>
+                                                                               @endforeach
+                                                                               <!-- Option data -->
+                                                                               @foreach($element->options as $option_index => $option)
+                                                                                   <div class="custom-control custom-checkbox d-flex align-items-center mb-2">
+                                                                                       <input
+                                                                                               type="checkbox"
+                                                                                               class="custom-control-input update-option"
+                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}"
+                                                                                               disabled
+                                                                                       >
+                                                                                       <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}">
+                                                                                           {{ $option->in($default_language)->label ?? '' }}
+                                                                                       </label>
+                                                                                   </div>
+                                                                               @endforeach
+                                                                           @endif
 
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
+                                                                           <!-- Radio -->
+                                                                           @if($element->type_id === 5)
+                                                                               <!-- Table data -->
+                                                                               @foreach($element->table->data as $data_index => $data)
+                                                                                   <div class="form-check form-check-inline d-flex align-items-center mb-2">
+                                                                                       <input
+                                                                                               type="radio"
+                                                                                               class="form-check-input update-data"
+                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}"
+                                                                                               disabled
+                                                                                       >
+                                                                                       <label class="form-check-label" for="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}">
+                                                                                           {{ $data->in($default_language)->text ?? '' }}
+                                                                                       </label>
+                                                                                   </div>
+                                                                               @endforeach
+                                                                               <!-- Option data -->
+                                                                               @foreach($element->options as $option_index => $option)
+                                                                                   <div class="form-check form-check-inline d-flex align-items-center mb-2">
+                                                                                       <input
+                                                                                               type="radio"
+                                                                                               class="form-check-input update-option"
+                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}"
+                                                                                               disabled
+                                                                                       >
+                                                                                       <label class="form-check-label" for="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}">
+                                                                                           {{ $option->in($default_language)->label ?? '' }}
+                                                                                       </label>
+                                                                                   </div>
+                                                                               @endforeach
+                                                                           @endif
 
-            </form>
-        </div>
+                                                                       @endif
+                                                                   </div>
 
-    </div>
+                                                               </div>
+                                                           </div>
+                                                       </div>
 
-    <!-- Template Section -->
-    <div class="row hidden" id="template_section">
-        <!-- Hidden inputs -->
-        <input
-                type="hidden"
-                min=1
-                class="sortOrderUpdateSectionVal"
-                value=""
-                name=""
-                id=""
-        >
+                                                   @endforeach
+                                               @endif
+                                           </div>
+                                       </div>
 
-        @include('rl_forms::admin.pages.forms.modals.templates.types')
+                                   </div>
+                               </div>
+                           </div>
+                       @endforeach
+                   </div>
+               @endif
 
-        <div class="col-12">
-            <div class="card">
+           </form>
+       </div>
 
-                <div class="card-header handle-section" style="background-color: #e9f3fc; cursor: grabbing;">
-                    <b>Sektion <span class="sortOrderUpdateSectionLabel"></span></b>
+   </div>
 
-                    <span class="float-right">
-                        <span class="m-0 mr-3 pointer section-types-button" data-toggle="modal" data-target="">
-                            <i class="essential-xs essential-add"></i> Lägg till fråga
-                        </span>
-                        <span class="m-0 pointer section-modal-button" data-toggle="modal" data-target="">
-                            <i class="fal fa-pencil-alt"></i>
-                        </span>
-                    </span>
-                </div>
+   <!-- Template Section -->
+   <div class="row hidden" id="template_section">
+       <!-- Hidden inputs -->
+       <input
+               type="hidden"
+               min=1
+               class="sortOrderUpdateSectionVal"
+               value=""
+               name=""
+               id=""
+       >
 
-                <div class="card-body">
-                    <h6 class="bold section-label"></h6>
-                    <p><i class="text-danger section-description"></i></p>
+       @include('rl_forms::admin.pages.forms.modals.templates.types')
 
-                    <div class="sortable-elements" style="min-height: 100px;">
-                        <input class="section-index" type="hidden" value="">
-                        <div id="filler_div"></div>
+       <div class="col-12">
+           <div class="card">
 
-                    </div>
-                </div>
+               <div class="card-header handle-section" style="background-color: #e9f3fc; cursor: grabbing;">
+                   <b>Sektion <span class="sortOrderUpdateSectionLabel"></span></b>
 
-            </div>
-        </div>
-    </div>
+                   <span class="float-right">
+                       <span class="m-0 mr-3 pointer section-types-button" data-toggle="modal" data-target="">
+                           <i class="essential-xs essential-add"></i> Lägg till fråga
+                       </span>
+                       <span class="m-0 pointer section-modal-button" data-toggle="modal" data-target="">
+                           <i class="fal fa-pencil-alt"></i>
+                       </span>
+                   </span>
+               </div>
+
+               <div class="card-body">
+                   <h6 class="bold section-label"></h6>
+                   <p><i class="text-danger section-description"></i></p>
+
+                   <div class="sortable-elements" style="min-height: 100px;">
+                       <input class="section-index" type="hidden" value="">
+                       <div id="filler_div"></div>
+
+                   </div>
+               </div>
+
+           </div>
+       </div>
+   </div>
 @stop
 
 @section('scripts')
 
-    <script type="text/javascript">
+   <script type="text/javascript">
 
-        $(document).ready(function(){
-            $('.go-to-url').on('click', function(e){
-                if(!$(e.target).hasClass('dropdown-toggle') && !$(e.target).hasClass('do-delete-row')){
-                    goToURL = $(this).attr('data-url');
-                    window.location = goToURL;
-                }
-            });
+       $(document).ready(function(){
+           let section_count = $('.sortable-sections').children('div').length;
 
-            $R('.redactor-sv', {
-                lang: 'sv',
-                plugins: ['counter', 'fullscreen'],
-                minHeight: '100px',
-                maxHeight: '300px',
-                formatting: ['p', 'blockquote'],
-                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
-                toolbarFixedTopOffset: 72, // pixel
-                pasteLinkTarget: '_blank',
-                linkNofollow: true,
-                breakline: true,
-            });
+           $('.go-to-url').on('click', function(e){
+               if(!$(e.target).hasClass('dropdown-toggle') && !$(e.target).hasClass('do-delete-row')){
+                   goToURL = $(this).attr('data-url');
+                   window.location = goToURL;
+               }
+           });
 
-            $R('.redactor-en', {
-                lang: 'en',
-                plugins: ['counter', 'fullscreen'],
-                minHeight: '100px',
-                maxHeight: '300px',
-                formatting: ['p', 'blockquote'],
-                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
-                toolbarFixedTopOffset: 72, // pixel
-                pasteLinkTarget: '_blank',
-                linkNofollow: true,
-                breakline: true,
-            });
+           $R('.redactor-sv', {
+               lang: 'sv',
+               plugins: ['counter', 'fullscreen'],
+               minHeight: '100px',
+               maxHeight: '300px',
+               formatting: ['p', 'blockquote'],
+               buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
+               toolbarFixedTopOffset: 72, // pixel
+               pasteLinkTarget: '_blank',
+               linkNofollow: true,
+               breakline: true,
+           });
 
-            function init_drag_drop() {
-                $('.sortable-sections').sortable({
-                    animation: 150, // default: 0
-                    axis: "y",
-                    handle: ".handle-section",
-                    cursor: "move",
-                    placeholder: 'placeholder',
-                    forcePlaceholderSize: true,
-                    connectWith: '',
-                    start: function start(e, ui) {
+           $R('.redactor-en', {
+               lang: 'en',
+               plugins: ['counter', 'fullscreen'],
+               minHeight: '100px',
+               maxHeight: '300px',
+               formatting: ['p', 'blockquote'],
+               buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
+               toolbarFixedTopOffset: 72, // pixel
+               pasteLinkTarget: '_blank',
+               linkNofollow: true,
+               breakline: true,
+           });
 
-                    },
-                    update: function (event, ui) {
-                        let sort_order = 1;
+           function init_drag_drop() {
+               $('.sortable-sections').sortable({
+                   animation: 150, // default: 0
+                   axis: "y",
+                   handle: ".handle-section",
+                   cursor: "move",
+                   placeholder: 'placeholder',
+                   forcePlaceholderSize: true,
+                   connectWith: '',
+                   start: function start(e, ui) {
 
-                        $(this).children('div').each(function() {
-                            $(this).find('.sortOrderUpdateSectionVal').val(sort_order);
-                            $(this).find('.sortOrderUpdateSectionLabel').text(sort_order);
+                   },
+                   update: function (event, ui) {
+                       let sort_order = 1;
 
-                            sort_order++;
-                        });
-                    }
-                });
+                       $(this).children('div').each(function() {
+                           $(this).find('.sortOrderUpdateSectionVal').val(sort_order);
+                           $(this).find('.sortOrderUpdateSectionLabel').text(sort_order);
 
-                $('.sortable-elements').sortable({
-                    animation: 150, // default: 0
-                    axis: "y",
-                    handle: ".handle-element",
-                    cursor: "move",
-                    placeholder: 'placeholder',
-                    forcePlaceholderSize: true,
-                    connectWith: '.sortable-elements',
-                    start: function start(e, ui) {
+                           sort_order++;
+                       });
+                   }
+               });
 
-                    },
-                    update: function (event, ui) {
-                        let sort_order = 1;
-                        let section_index = $(this).find('.section-index').val();
+               $('.sortable-elements').sortable({
+                   animation: 150, // default: 0
+                   axis: "y",
+                   handle: ".handle-element",
+                   cursor: "move",
+                   placeholder: 'placeholder',
+                   forcePlaceholderSize: true,
+                   connectWith: '.sortable-elements',
+                   start: function start(e, ui) {
 
-                        $(this).children('div').each(function() {
-                            if($(this).is('#filler_div')) return;
+                   },
+                   update: function (event, ui) {
+                       let sort_order = 1;
+                       let section_index = $(this).find('.section-index').val();
 
-                            let $sort_order_val     = $(this).find('.sortOrderUpdateElementVal');
-                            let $sort_order_label   = $(this).find('.sortOrderUpdateElementLabel');
-                            let $modal              = $(this).find('.element-modal-edit');
-                            let $modal_button       = $(this).find('.element-modal-button');
+                       $(this).children('div').each(function() {
+                           if($(this).is('#filler_div')) return;
 
-                            //Element
-                            $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }`);
-                            $sort_order_label.text(sort_order);
-                            $sort_order_val.val(sort_order);
-                            $sort_order_val.attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][sort_order]`);
-                            $modal_button.attr('data-target', `#elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
-                            $modal_button.attr('data-section-index', section_index);
-                            $modal_button.attr('data-element-index', sort_order - 1);
+                           let $sort_order_val     = $(this).find('.sortOrderUpdateElementVal');
+                           let $sort_order_label   = $(this).find('.sortOrderUpdateElementLabel');
+                           let $modal              = $(this).find('.element-modal-edit');
+                           let $modal_button       = $(this).find('.element-modal-button');
 
-                            //Edit Modal
-                            $modal.attr('id', `elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
-                            $modal.find('.modal-title').attr('id', `elementEditModalLabel_section_${ section_index }_element_${ sort_order - 1 }`);
-                            $modal.find('.modal-body').attr('id', `elementEditModal_section_${ section_index }_element_${ sort_order - 1 }_body`);
-                            $modal.find('.doUpdateElement').attr('data-section-index', section_index);
-                            $modal.find('.doUpdateElement').attr('data-element-index', sort_order - 1);
+                           //Element
+                           $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }`);
+                           $sort_order_label.text(sort_order);
+                           $sort_order_val.val(sort_order);
+                           $sort_order_val.attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][sort_order]`);
+                           $modal_button.attr('data-target', `#elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
+                           $modal_button.attr('data-section-index', section_index);
+                           $modal_button.attr('data-element-index', sort_order - 1);
 
-                            //Edit Modal - Label, Textareas, Required boolean/text
-                            $modal.find('.element-modal-labels').each(function() {
-                                let iso = $(this).find('.element-modal-labels-iso').val();
+                           //Edit Modal
+                           $modal.attr('id', `elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
+                           $modal.find('.modal-title').attr('id', `elementEditModalLabel_section_${ section_index }_element_${ sort_order - 1 }`);
+                           $modal.find('.modal-body').attr('id', `elementEditModal_section_${ section_index }_element_${ sort_order - 1 }_body`);
+                           $modal.find('.doUpdateElement').attr('data-section-index', section_index);
+                           $modal.find('.doUpdateElement').attr('data-element-index', sort_order - 1);
 
-                                $(this).find('.element-modal-labels-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
-                                $(this).find('.element-modal-labels-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][labels][${ iso }]`);
-                                $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
-                            });
+                           //Edit Modal - Label, Textareas, Required boolean/text
+                           $modal.find('.element-modal-labels').each(function() {
+                               let iso = $(this).find('.element-modal-labels-iso').val();
 
-                            $modal.find('.element-modal-textareas').each(function() {
-                                let iso = $(this).find('input').val();
+                               $(this).find('.element-modal-labels-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
+                               $(this).find('.element-modal-labels-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][labels][${ iso }]`);
+                               $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
+                           });
 
-                                $(this).find('textarea').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_description_${ iso }`);
-                                $(this).find('textarea').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][descriptions][${ iso }]`);
-                                $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_description_${ iso }`);
-                            });
+                           $modal.find('.element-modal-textareas').each(function() {
+                               let iso = $(this).find('input').val();
 
-                            $modal.find('.element-modal-required-text').each(function() {
-                                let iso = $(this).find('.element-modal-required-text-iso').val();
+                               $(this).find('textarea').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_description_${ iso }`);
+                               $(this).find('textarea').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][descriptions][${ iso }]`);
+                               $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_description_${ iso }`);
+                           });
 
-                                $(this).find('.element-modal-required-text-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_required_text_${ iso }`);
-                                $(this).find('.element-modal-required-text-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][required_texts][${ iso }]`);
-                                $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_required_text_${ iso }`);
-                            });
+                           $modal.find('.element-modal-required-text').each(function() {
+                               let iso = $(this).find('.element-modal-required-text-iso').val();
 
-                            $modal.find('.element-modal-required-checkbox input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_required`);
-                            $modal.find('.element-modal-required-checkbox input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][required]`);
-                            $modal.find('.element-modal-required-checkbox label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_required`);
+                               $(this).find('.element-modal-required-text-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_required_text_${ iso }`);
+                               $(this).find('.element-modal-required-text-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][required_texts][${ iso }]`);
+                               $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_required_text_${ iso }`);
+                           });
 
-                            //Edit Modal - Options, Add option, Remove option, Table
-                            let count_options   = 0;
-                            let count_total     = 0;
-                            $modal.find('.element-modal-options').each(function(){
-                                let iso = $(this).find('.checkbox-iso').val();
+                           $modal.find('.element-modal-required-checkbox input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_required`);
+                           $modal.find('.element-modal-required-checkbox input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][required]`);
+                           $modal.find('.element-modal-required-checkbox label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_required`);
 
-                                $(this).find('.checkbox-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][options][${ count_options }][labels][${ iso }]`);
-                                $(this).find('.checkbox-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_option_${ count_options }_${ iso }`);
-                                $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_option_${ count_options }_${ iso }`);
-                                $(this).find('.option-label').text(count_options + 1);
-                                $(this).find('.doRemoveOption').attr('data-section-index', section_index);
-                                $(this).find('.doRemoveOption').attr('data-element-index', sort_order - 1);
+                           //Edit Modal - Options, Add option, Remove option, Table
+                           let count_options   = 0;
+                           let count_total     = 0;
+                           $modal.find('.element-modal-options').each(function(){
+                               let iso = $(this).find('.checkbox-iso').val();
 
-                                count_total++;
+                               $(this).find('.checkbox-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][options][${ count_options }][labels][${ iso }]`);
+                               $(this).find('.checkbox-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_option_${ count_options }_${ iso }`);
+                               $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_option_${ count_options }_${ iso }`);
+                               $(this).find('.option-label').text(count_options + 1);
+                               $(this).find('.doRemoveOption').attr('data-section-index', section_index);
+                               $(this).find('.doRemoveOption').attr('data-element-index', sort_order - 1);
 
-                                if(count_total % 2 === 0) {
-                                    count_options++;
-                                }
-                            });
+                               count_total++;
 
-                            $modal.find('.doAddOption').attr('data-section-index', section_index);
-                            $modal.find('.doAddOption').attr('data-element-index', sort_order - 1);
+                               if(count_total % 2 === 0) {
+                                   count_options++;
+                               }
+                           });
 
-                            $modal.find('.element-modal-table select').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_table`);
-                            $modal.find('.element-modal-table select').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][table]`);
+                           $modal.find('.doAddOption').attr('data-section-index', section_index);
+                           $modal.find('.doAddOption').attr('data-element-index', sort_order - 1);
 
-                            //Edit Modal - Language toggles
-                            $modal.find('.edit-translation').each(function(){
-                                $(this).attr('data-section-index', section_index);
-                                $(this).attr('data-element-index', sort_order - 1);
-                            });
-                            $modal.find('.edit-translation-all').attr('data-section-index', section_index);
-                            $modal.find('.edit-translation-all').attr('data-element-index', sort_order - 1);
+                           $modal.find('.element-modal-table select').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_table`);
+                           $modal.find('.element-modal-table select').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][table]`);
+
+                           //Edit Modal - Language toggles
+                           $modal.find('.edit-translation').each(function(){
+                               $(this).attr('data-section-index', section_index);
+                               $(this).attr('data-element-index', sort_order - 1);
+                           });
+                           $modal.find('.edit-translation-all').attr('data-section-index', section_index);
+                           $modal.find('.edit-translation-all').attr('data-element-index', sort_order - 1);
 
 
-                            sort_order++;
-                        });
-                    }
-                });
-            }
+                           sort_order++;
+                       });
+                   }
+               });
+           }
 
-            //Add new section
-            $('.doAddSection').on('click', function(){
-                let $template   = $('#template_section').clone();
-                let $modal      = $template.find('#editSectionModal_template');
-                let $modal_type = $template.find('#chooseTypeModal_template');
-                let count       = $('.sortable-sections').children('div').length;
+           //Add new section
+           $('.doAddSection').on('click', function(){
+               let $template   = $('#template_section').clone();
+               let $modal      = $template.find('#editSectionModal_template');
+               let $modal_type = $template.find('#chooseTypeModal_template');
+               let count       = section_count;
+               let sort_order  = $('.sortable-sections').children('div').length + 1;
 
-                //Section
-                $template.find('.sortOrderUpdateSectionVal').val(count + 1);
-                $template.find('.sortOrderUpdateSectionLabel').text(count + 1);
-                $template.find('.section-index').val(count);
-                $template.attr('id', 'section_' + count);
-                $template.attr('name', `sections[${ count }][sort_order]`);
-                $template.find('.section-modal-button').attr('data-target', `#editSectionModal_${ count }`);
-                $template.find('.section-types-button').attr('data-target', `#chooseTypeModal_${ count }`);
-                $template.removeClass('hidden');
-                $template.appendTo('.sortable-sections');
+               //Section
+               $template.find('.sortOrderUpdateSectionVal').val(sort_order);
+               $template.find('.sortOrderUpdateSectionLabel').text(sort_order);
+               $template.find('.section-index').val(count);
+               $template.attr('id', 'section_' + count);
+               $template.attr('name', `sections[${ count }][sort_order]`);
+               $template.find('.section-modal-button').attr('data-target', `#editSectionModal_${ count }`);
+               $template.find('.section-types-button').attr('data-target', `#chooseTypeModal_${ count }`);
+               $template.removeClass('hidden');
+               $template.appendTo('.sortable-sections');
 
-                //Section edit modal
-                $.ajax({
-                    url: '{{ route('rl_forms.admin.forms.modals.section') }}',
-                    data: {
-                        section_index: count,
-                    },
-                    cache: false,
-                    success: function(res) {
-                        $template.append(res);
+               //Section edit modal
+               $.ajax({
+                   url: '{{ route('rl_forms.admin.forms.modals.section') }}',
+                   data: {
+                       section_index: count,
+                   },
+                   cache: false,
+                   success: function(res) {
+                       $template.append(res);
 
-                        $(`#editSectionModal_${ count }`).modal('show');
+                       $(`#editSectionModal_${ count }`).modal('show');
 
-                        $('.section-modal-textareas').each(function(){
-                            let iso = $(this).find('input').val();
+                       $('.section-modal-textareas').each(function(){
+                           let iso = $(this).find('input').val();
 
-                            $R(`#section_${ count }_description_${ iso }`, {
-                                lang: iso,
-                                plugins: ['counter', 'fullscreen'],
-                                minHeight: '100px',
-                                maxHeight: '300px',
-                                formatting: ['p', 'blockquote'],
-                                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
-                                toolbarFixedTopOffset: 72, // pixel
-                                pasteLinkTarget: '_blank',
-                                linkNofollow: true,
-                                breakline: true,
-                            });
-                        });
-                    }
-                });
+                           $R(`#section_${ count }_description_${ iso }`, {
+                               lang: iso,
+                               plugins: ['counter', 'fullscreen'],
+                               minHeight: '100px',
+                               maxHeight: '300px',
+                               formatting: ['p', 'blockquote'],
+                               buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
+                               toolbarFixedTopOffset: 72, // pixel
+                               pasteLinkTarget: '_blank',
+                               linkNofollow: true,
+                               breakline: true,
+                           });
+                       });
+                   }
+               });
 
-                //Section type modal
-                $modal_type.attr('id', `chooseTypeModal_${ count }`);
-                $modal_type.find('.doChooseType').attr('data-section-index', count);
-                $modal_type.find('#chooseTypeModalLabel_template').attr('id', `chooseTypeModalLabel_${ count }`);
+               //Section type modal
+               $modal_type.attr('id', `chooseTypeModal_${ count }`);
+               $modal_type.find('.doChooseType').attr('data-section-index', count);
+               $modal_type.find('#chooseTypeModalLabel_template').attr('id', `chooseTypeModalLabel_${ count }`);
 
-                init_drag_drop();
-            });
+               section_count++;
 
-            //Update section label and description on the card
-            $(document).on('click', '.doUpdateSection', function(){
-                let index   = $(this).attr('data-section-index');
-                let label   = $(`#section_${ index }_label_{{ $default_language }}`).val();
-                let text    = $R(`#section_${ index }_description_{{ $default_language }}`, 'source.getCode');
+               init_drag_drop();
+           });
 
-                $(`#section_${ index }`).find('.section-label').text(label);
-                $(`#section_${ index }`).find('.section-description').text(text);
-            });
+           //Update section label and description on the card
+           $(document).on('click', '.doUpdateSection', function(){
+               let index   = $(this).attr('data-section-index');
+               let label   = $(`#section_${ index }_label_{{ $default_language }}`).val();
+               let text    = $R(`#section_${ index }_description_{{ $default_language }}`, 'source.getCode');
 
-            //On type pick
-            $(document).on('click', '.doChooseType', function(){
-                let type_id         = $(this).attr('data-type-id');
-                let type_label      = $(this).attr('data-type-label');
-                let section_index   = $(this).attr('data-section-index');
-                let count           = $(`#section_${ section_index } .sortable-elements`).children('div').length - 1;
+               $(`#section_${ index }`).find('.section-label').text(label);
+               $(`#section_${ index }`).find('.section-description').text(text);
+           });
 
-                $.ajax({
-                    url: '{{ route('rl_forms.admin.forms.templates.element') }}',
-                    data: {
-                        type_id: type_id,
-                        type_label: type_label,
-                        section_index: section_index,
-                        element_index: count,
-                        sort_order: count + 1
-                    },
-                    cache: false,
-                    success: function(res) {
+           //On type pick
+           $(document).on('click', '.doChooseType', function(){
+               let type_id         = $(this).attr('data-type-id');
+               let type_label      = $(this).attr('data-type-label');
+               let section_index   = $(this).attr('data-section-index');
+               let count           = parseInt($(`#section_${ section_index }`).attr('data-element-count'));
 
-                        $(`#section_${ section_index } .sortable-elements`).append(res);
+               $.ajax({
+                   url: '{{ route('rl_forms.admin.forms.templates.element') }}',
+                   data: {
+                       type_id: type_id,
+                       type_label: type_label,
+                       section_index: section_index,
+                       element_index: count,
+                       sort_order: count + 1
+                   },
+                   cache: false,
+                   success: function(res) {
 
-                        $(`#chooseTypeModal_${ section_index }`).on('hidden.bs.modal', function () {
-                            $(`#elementEditModal_section_${ section_index }_element_${ count }`).modal('show');
+                       $(`#section_${ section_index } .sortable-elements`).append(res);
 
-                            $(`#chooseTypeModal_${ section_index }`).off('hidden.bs.modal');
-                        });
+                       $(`#chooseTypeModal_${ section_index }`).on('hidden.bs.modal', function () {
+                           $(`#elementEditModal_section_${ section_index }_element_${ count }`).modal('show');
 
-                        $('.element-modal-textareas').each(function(){
-                            let iso = $(this).find('input').val();
+                           $(`#chooseTypeModal_${ section_index }`).off('hidden.bs.modal');
+                       });
 
-                            $R(`#section_${ section_index }_element_${ count }_description_${ iso }`, {
-                                lang: iso,
-                                plugins: ['counter', 'fullscreen'],
-                                minHeight: '100px',
-                                maxHeight: '300px',
-                                formatting: ['p', 'blockquote'],
-                                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
-                                toolbarFixedTopOffset: 72, // pixel
-                                pasteLinkTarget: '_blank',
-                                linkNofollow: true,
-                                breakline: true,
-                            });
-                        });
-                    }
-                });
-            });
+                       $('.element-modal-textareas').each(function(){
+                           let iso = $(this).find('input').val();
 
-            init_drag_drop();
-        });
+                           $R(`#section_${ section_index }_element_${ count }_description_${ iso }`, {
+                               lang: iso,
+                               plugins: ['counter', 'fullscreen'],
+                               minHeight: '100px',
+                               maxHeight: '300px',
+                               formatting: ['p', 'blockquote'],
+                               buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
+                               toolbarFixedTopOffset: 72, // pixel
+                               pasteLinkTarget: '_blank',
+                               linkNofollow: true,
+                               breakline: true,
+                           });
+                       });
 
-    </script>
+                       $(`#section_${ section_index }`).attr('data-element-count', count + 1);
+                   }
+               });
+           });
 
-    @include('rl_forms::admin.pages.forms.scripts.store')
-    @include('rl_forms::admin.pages.forms.scripts.drop')
+           init_drag_drop();
+       });
+
+   </script>
+
+   @include('rl_forms::admin.pages.forms.scripts.store')
+   @include('rl_forms::admin.pages.forms.scripts.drop')
 
 @stop
 

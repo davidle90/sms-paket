@@ -30,7 +30,7 @@
                 </span>
             </div>
 
-            <div class="card-body">
+            <div class="card-body update-card-body">
 
             </div>
 

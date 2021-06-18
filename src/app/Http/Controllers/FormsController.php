@@ -102,6 +102,35 @@ class FormsController extends Controller
 
     }
 
+    public function get_element_card_template()
+    {
+        $section_index      = request()->get('section_index', null);
+        $element_index      = request()->get('element_index', null);
+        $label              = request()->get('label', null);
+        $description        = request()->get('description', null);
+        $required_text      = request()->get('required_text', null);
+        $required           = request()->get('required', null);
+        $type_id            = request()->get('type_id', null);
+        $table_id           = request()->get('table_id', null);
+        $options            = request()->get('options', []);
+        $default_language   = Config::get('app.locale');
+        $table              = \rl_tables::tables_model()::where('id', $table_id)->with('data')->first();
+
+        return view('rl_forms::admin.pages.forms.templates.card', [
+            'section_index'             => $section_index,
+            'element_index'             => $element_index,
+            'element_label'             => $label,
+            'element_description'       => $description,
+            'element_required_text'     => $required_text,
+            'element_required'          => $required,
+            'type_id'                   => $type_id,
+            'default_language'          => $default_language,
+            'table'                     => $table,
+            'options'                   => $options
+        ]);
+
+    }
+
     public function get_section_modal_template()
     {
         $languages          = Languages::all()->keyBy('iso_name');
