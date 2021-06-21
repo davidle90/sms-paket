@@ -151,6 +151,7 @@ class FormsController extends Controller
             'id'        => request()->get('form_id', null),
             'labels'    => request()->get('labels', []),
             'slug'      => request()->get('slug'),
+            'sections'  => request()->get('sections', null)
         ];
 
         $rules = [
@@ -182,14 +183,116 @@ class FormsController extends Controller
                 $form       = Forms::firstOrNew(['id' => $input['id']]);
                 $form->slug = $input['slug'];
                 $form->save();
+
                 /*
-                 * Insert translatable values
+                 * Setting translation
                  */
                 foreach($input['labels'] as $key => $translate){
                     $form->setTranslation($key, ['label' => $translate]);
                 }
 
                 $form->save();
+
+                if(isset($input['sections']) && !empty($input['sections'])) {
+                    $section_ids = [];
+
+                    foreach($input['sections'] as $section) {
+                        $new_section                = Forms\Sections::firstOrNew(['id' => $section['id']]);
+                        $new_section->form_id       = $form->id;
+                        $new_section->sort_order    = $section['sort_order'];
+                        $new_section->save();
+
+                        /*
+                         * Setting translations
+                         */
+                        foreach($section['labels'] as $key => $translate){
+                            $new_section->setTranslation($key, ['label' => $translate]);
+                        }
+
+                        foreach($section['descriptions'] as $key => $translate){
+                            $new_section->setTranslation($key, ['description' => $translate]);
+                        }
+
+                        $new_section->save();
+
+                        $section_ids[] = $new_section->id;
+
+                        if(isset($section['elements']) && !empty($section['elements'])) {
+                            $pivot_data = [];
+
+                            foreach($section['elements'] as $element) {
+                                $new_element            = Forms\Elements::firstOrNew(['id' => $element['id']]);
+                                $new_element->slug      = $element['slug'];
+                                $new_element->type_id   = $element['type_id'];
+                                $new_element->validator = $element['validator'];
+                                $new_element->table_id  = $element['table_id'];
+                                $new_element->save();
+
+                                /*
+                                 * Setting translations
+                                 */
+                                foreach($section['labels'] as $key => $translate){
+                                    $new_element->setTranslation($key, ['label' => $translate]);
+                                }
+
+                                foreach($section['descriptions'] as $key => $translate){
+                                    $new_element->setTranslation($key, ['description' => $translate]);
+                                }
+
+                                foreach($section['required'] as $key => $translate){
+                                    $new_element->setTranslation($key, ['required' => $translate]);
+                                }
+
+                                $new_element->save();
+
+                                $size_class = '';
+
+                                if(isset($element['size']) && !empty($element['size'])) {
+                                    $size_class += (isset($element['size']['xs'])) ? 'col-'.$element['size']['xs'].' ' : 'col-12 ';
+
+                                    foreach($element['size'] as $key => $value) {
+                                        if($key === 'xs') continue;
+
+                                        if(isset($value)) {
+                                            $size_class += 'col-'.$key.'-'.$value.' ';
+                                        }
+                                    }
+                                }
+
+                                $pivot_data[$new_element->id] = [
+                                    'required'   => $element['required'] ?? 0,
+                                    'sort_order' => $element['sort_order'],
+                                    'size'       => $element['size'],
+                                    'size_class' => $size_class
+                                ];
+
+                                $option_ids = [];
+
+                                if(isset($element['options']) && !empty($element['options'])) {
+                                    foreach ($element['options'] as $option) {
+                                        $new_option             = Forms\Elements\Options::firstOrNew(['id' => $option['id']]);
+                                        $new_option->element_id = $new_element->id;
+                                        $new_option->save();
+
+                                        /*
+                                         * Setting translation
+                                         */
+                                        foreach($option['labels'] as $key => $translate){
+                                            $new_element->setTranslation($key, ['label' => $translate]);
+                                        }
+
+                                        $new_option->save();
+
+                                        $option_ids[] = $new_option->id;
+                                    }
+                                }
+
+                            }
+
+                            $new_section->elements()->sync($pivot_data);
+                        }
+                    }
+                }
 
                 DB::commit();
 

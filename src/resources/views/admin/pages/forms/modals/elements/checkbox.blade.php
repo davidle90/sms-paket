@@ -44,6 +44,9 @@
     @endforeach
 </div>
 
+<!-- Slug -->
+@include('rl_forms::admin.pages.forms.modals.elements.includes.slug')
+
 <h6>
     <span class="bold">Beskrivning</span>
     <span
@@ -79,6 +82,9 @@
         </div>
     @endforeach
 </div>
+
+<!-- Validator -->
+@include('rl_forms::admin.pages.forms.modals.elements.includes.validator')
 
 <h6>
     <span class="bold">Krav text</span>
@@ -120,10 +126,10 @@
 
 <div class="row">
     <div class="col-12">
-        <div class="pmd-textfield pmd-textfield-floating-label form-group element-modal-table">
+        <div class="form-group element-modal-table">
             <select
                 id="section_{{ $section_index }}_element_{{ $element_index }}_table"
-                class="select-table pmd-select2 form-control"
+                class="select-table form-control"
                 aria-labelledby="labelTable_create"
                 name="sections[{{ $section_index }}][elements][{{ $element_index }}][table]"
                 style="width:100%;"
@@ -159,16 +165,18 @@
     @if(isset($element->options) && !empty($element->options))
         @foreach($element->options as $index => $option)
             <div id="elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $index }}">
+                <input type="hidden" name="sections[{{ $section_index }}][elements][{{ $element_index }}][options][{{ $index }}][id]" value="{{ $option->id }}" class="option-id">
+
                 <small>Svarsalternativ #<span class="option-label">{{ $index + 1 }}</span></small>
                 @foreach($languages as $key => $lang)
                     <!-- Checkbox - Option -->
                     <div class="row">
-                        <div class="col-12 @if($key !== $default_language) translation @endif" @if($key !== $default_language) style="display: none" @endif>
+                        <div class="col-12 element-modal-options @if($key !== $default_language) translation @endif" @if($key !== $default_language) style="display: none" @endif>
                             <div class="mb-3 form-label-group form-group">
                                 <input class="checkbox-iso" type="hidden" value="{{ $key }}">
                                 <input
                                         type="text"
-                                        name=""
+                                        name="sections[{{ $section_index }}][elements][{{ $element_index }}][options][{{ $index }}][labels][{{ $key }}]"
                                         id="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $index }}_{{ $key }}"
                                         class="form-control checkbox-input checkbox-in-{{ $key }}"
                                         value="{{ $option->in($key)->label ?? '' }}"
@@ -200,7 +208,7 @@
 </span>
 
 <!-- Add button for options -->
-<div class="row mt-3">
+<div class="row">
     <div class="col-12 col-md-6">
         <span class="doAddOption btn btn-block btn-outline-primary" data-section-index="{{ $section_index }}" data-element-index="{{ $element_index }}">
             <i class="essential-xs essential-add"></i> Lägg till svarsalternativ
@@ -224,6 +232,9 @@
         </div>
     </div>
 </div>
+
+<!-- Column size, collapsable -->
+@include('rl_forms::admin.pages.forms.modals.elements.includes.size')
 
 @if(!isset($template) || $template === false)
     @push('scripts')

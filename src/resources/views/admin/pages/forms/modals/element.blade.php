@@ -134,6 +134,25 @@
         $(document).ready(function(){
             let $modal = $('#elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}');
 
+            $('.select-size').select2({
+                placeholder: "Ej vald",
+                allowClear: true,
+                minimumResultsForSearch: -1
+            });
+
+            $(".collapse").off('show.bs.collapse').on('show.bs.collapse', function(){
+                let section_index = $(this).attr('data-section-index');
+                let element_index = $(this).attr('data-element-index');
+
+                $(this).parent().find('.collapse-icon').removeClass("icon-arrow-down").addClass("icon-arrow-up");
+
+                $(this).off('shown.bs.collapse').on('shown.bs.collapse', function(){
+                    $(`#elementEditModal_section_${ section_index }_element_${ element_index }_body`).scrollTop($(`#elementEditModal_section_${ section_index }_element_${ element_index }_body`)[0].scrollHeight);
+                });
+            }).off('hide.bs.collapse').on('hide.bs.collapse', function(){
+                $(this).parent().find('.collapse-icon').removeClass("icon-arrow-up").addClass("icon-arrow-down");
+            });
+
             $('#elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}').on('hidden.bs.modal', function(){
                 $(this).find('.translation').each(function(){
                     $(this).hide();
@@ -146,6 +165,9 @@
                     $(this).attr('data-mode', 'show');
                     $(this).text('Redigera språk');
                 });
+
+                $(this).find('.collapse-icon').removeClass("icon-arrow-up").addClass("icon-arrow-down");
+                $(this).find('.collapse').collapse('hide');
             });
 
             $('.edit-translation-all').off('click').on('click', function(){
@@ -220,6 +242,19 @@
                     cache: false,
                     success: function(res) {
                         $(`#section_${ section_index }_element_${ element_index }`).find('.update-card-body').html(res);
+
+                        $R(`#section_${ section_index }_element_${ element_index } .redactor-card`, {
+                            lang: 'sv',
+                            plugins: ['counter', 'fullscreen'],
+                            minHeight: '100px',
+                            maxHeight: '300px',
+                            formatting: ['p', 'blockquote'],
+                            buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
+                            toolbarFixedTopOffset: 72, // pixel
+                            pasteLinkTarget: '_blank',
+                            linkNofollow: true,
+                            breakline: true,
+                        });
                     }
                 });
             });

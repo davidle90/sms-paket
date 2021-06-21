@@ -112,6 +112,12 @@
                                        name="sections[{{ $section_index }}][sort_order]"
                                        id="sections_{{ $section_index }}_sort_order"
                                >
+                               <input
+                                        type="hidden"
+                                        class="section-id"
+                                        value="{{ $section->id }}"
+                                        name="sections[{{ $section_index }}][id]"
+                               >
                                <!-- Hidden inputs end -->
 
                                @include('rl_forms::admin.pages.forms.modals.section')
@@ -152,7 +158,13 @@
                                                                    name="sections[{{ $section_index }}][elements][{{ $element_index }}][sort_order]"
                                                                    id="sections_{{ $section_index }}_elements_{{ $element_index }}_sort_order"
                                                            >
-                                                           <input type="hidden" name="sections[{{ $section_index }}][elements][{{ $element_index }}][type_id]" value="{{ $element->type->id}}">
+                                                           <input type="hidden" name="sections[{{ $section_index }}][elements][{{ $element_index }}][type_id]" value="{{ $element->type->id}}" class="element-type-id">
+                                                           <input
+                                                                   type="hidden"
+                                                                   class="element-id"
+                                                                   value="{{ $element->id }}"
+                                                                   name="sections[{{ $section_index }}][elements][{{ $element_index }}][id]"
+                                                           >
 
                                                            @include('rl_forms::admin.pages.forms.modals.element')
 
@@ -341,7 +353,7 @@
    </div>
 
    <!-- Template Section -->
-   <div class="row hidden" id="template_section">
+   <div class="row hidden" id="template_section" data-element-count="{{ 0 }}">
        <!-- Hidden inputs -->
        <input
                type="hidden"
@@ -350,6 +362,12 @@
                value=""
                name=""
                id=""
+       >
+       <input
+               type="hidden"
+               class="section-id"
+               value=""
+               name=""
        >
 
        @include('rl_forms::admin.pages.forms.modals.templates.types')
@@ -470,6 +488,8 @@
 
                            let $sort_order_val     = $(this).find('.sortOrderUpdateElementVal');
                            let $sort_order_label   = $(this).find('.sortOrderUpdateElementLabel');
+                           let $type_id            = $(this).find('.element-type-id');
+                           let $element_id         = $(this).find('.element-id');
                            let $modal              = $(this).find('.element-modal-edit');
                            let $modal_button       = $(this).find('.element-modal-button');
 
@@ -478,6 +498,8 @@
                            $sort_order_label.text(sort_order);
                            $sort_order_val.val(sort_order);
                            $sort_order_val.attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][sort_order]`);
+                           $type_id.attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][type_id]`);
+                           $element_id.attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][id]`);
                            $modal_button.attr('data-target', `#elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
                            $modal_button.attr('data-section-index', section_index);
                            $modal_button.attr('data-element-index', sort_order - 1);
@@ -538,6 +560,12 @@
                                }
                            });
 
+                           let count_option_ids = 0;
+                           $modal.find('.option-id').each(function(){
+                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][options][${ count_option_ids }][id]`);
+                               count_option_ids++;
+                           });
+
                            $modal.find('.doAddOption').attr('data-section-index', section_index);
                            $modal.find('.doAddOption').attr('data-element-index', sort_order - 1);
 
@@ -552,9 +580,53 @@
                            $modal.find('.edit-translation-all').attr('data-section-index', section_index);
                            $modal.find('.edit-translation-all').attr('data-element-index', sort_order - 1);
 
+                           //Edit Modal - Delete element
+                           $modal.find('.onDeleteElement').attr('data-section-index', section_index);
+                           $modal.find('.onDeleteElement').attr('data-element-index', sort_order - 1);
+
+                           //Edit Modal - Collapse
+                           $modal.find('.collapse-button').attr('data-target', `#section_${ section_index }_element_${ sort_order - 1 }_collapseColumns`);
+                           $modal.find('.collapse').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_collapseColumns`);
+                           $modal.find('.collapse').attr('data-section-index', section_index);
+                           $modal.find('.collapse').attr('data-element-index', sort_order - 1);
+
+                           //Edit Modal - Sizes
+                           $modal.find('.size-xs').each(function(){
+                               $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_xs`);
+                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][xs]`);
+                           });
+                           $modal.find('.size-sm').each(function(){
+                               $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_sm`);
+                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][sm]`);
+                           });
+                           $modal.find('.size-md').each(function(){
+                               $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_md`);
+                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][md]`);
+                           });
+                           $modal.find('.size-lg').each(function(){
+                               $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_lg`);
+                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][lg]`);
+                           });
+                           $modal.find('.size-xl').each(function(){
+                               $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_xl`);
+                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][xl]`);
+                           });
+
+                           //Edit Modal - Slug
+                           $modal.find('.element-modal-slug').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_slug`);
+                           $modal.find('.element-modal-slug').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][slug]`);
+                           $modal.find('.element-modal-slug').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_slug`);
+
+                           //Edit Modal - Validator
+                           $modal.find('.element-modal-validator').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_validator`);
+                           $modal.find('.element-modal-validator').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][validator]`);
+                           $modal.find('.element-modal-validator').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_validator`);
 
                            sort_order++;
                        });
+
+                       let count = parseInt($(`#section_${ section_index }`).attr('data-element-count'));
+                       $(`#section_${ section_index }`).attr('data-element-count', count + 1);
                    }
                });
            }
@@ -575,6 +647,7 @@
                $template.attr('name', `sections[${ count }][sort_order]`);
                $template.find('.section-modal-button').attr('data-target', `#editSectionModal_${ count }`);
                $template.find('.section-types-button').attr('data-target', `#chooseTypeModal_${ count }`);
+               $template.find('.section-id').attr('name', `sections[${ count }][id]`);
                $template.removeClass('hidden');
                $template.appendTo('.sortable-sections');
 
@@ -635,6 +708,8 @@
                let type_label      = $(this).attr('data-type-label');
                let section_index   = $(this).attr('data-section-index');
                let count           = parseInt($(`#section_${ section_index }`).attr('data-element-count'));
+               let sort_order      = $(`#section_${ section_index } .sortable-elements`).children('div').length;
+
 
                $.ajax({
                    url: '{{ route('rl_forms.admin.forms.templates.element') }}',
@@ -643,7 +718,7 @@
                        type_label: type_label,
                        section_index: section_index,
                        element_index: count,
-                       sort_order: count + 1
+                       sort_order: sort_order
                    },
                    cache: false,
                    success: function(res) {

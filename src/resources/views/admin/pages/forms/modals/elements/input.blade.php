@@ -8,6 +8,7 @@
     </div>
 </div>
 
+<!-- Label -->
 <h6>
     <span class="bold">Label</span>
     <span
@@ -44,6 +45,10 @@
     @endforeach
 </div>
 
+<!-- Slug -->
+@include('rl_forms::admin.pages.forms.modals.elements.includes.slug')
+
+<!-- Description -->
 <h6>
     <span class="bold">Beskrivning</span>
     <span
@@ -79,6 +84,9 @@
         </div>
     @endforeach
 </div>
+
+<!-- Validator -->
+@include('rl_forms::admin.pages.forms.modals.elements.includes.validator')
 
 <h6>
     <span class="bold">Krav text</span>
@@ -117,7 +125,7 @@
 </div>
 
 <!-- Required checkbox -->
-<div class="row mt-3">
+<div class="row">
     <div class="col-12">
         <div class="custom-control custom-checkbox d-flex align-items-center mb-2 element-modal-required-checkbox">
             <input name="sections[{{ $section_index }}][elements][{{ $element_index }}][required]"
@@ -132,6 +140,15 @@
         </div>
     </div>
 </div>
+
+<!-- Column size, collapsable -->
+@include('rl_forms::admin.pages.forms.modals.elements.includes.size')
+
+<style>
+    .select2-selection__clear {
+        margin-top: 0px;
+    }
+</style>
 
 @if(!isset($template) || $template === false)
     @push('scripts')

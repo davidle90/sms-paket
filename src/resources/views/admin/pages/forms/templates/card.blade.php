@@ -33,7 +33,7 @@
             <div class="form-group mb-1">
                 <textarea
                         id="section_{{ $section_index }}_element_{{ $element_index }}_options_display"
-                        class="redactor-sv form-control u-form__input update-option"
+                        class="redactor-card form-control u-form__input update-option"
                 ></textarea>
             </div>
         </div>
