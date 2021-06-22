@@ -216,6 +216,7 @@
                 let type_id         = $(this).attr('data-type-id');
 
                 let label           = $(`#section_${ section_index }_element_${ element_index }_label_sv`).val();
+                let slug            = $(`#section_${ section_index }_element_${ element_index }_slug`).val();
                 let description     = $(`#section_${ section_index }_element_${ element_index }_description_sv`).val();
                 let required_text   = $(`#section_${ section_index }_element_${ element_index }_required_text_sv`).val();
                 let required        = $(`#section_${ section_index }_element_${ element_index }_required`).is(':checked');
@@ -233,6 +234,7 @@
                         element_index: element_index,
                         type_id: type_id,
                         label: label,
+                        slug: slug,
                         description: description,
                         required_text: required_text,
                         required: required,
@@ -241,6 +243,19 @@
                     },
                     cache: false,
                     success: function(res) {
+                        /*
+                        * If slug is not set, this will trigger.
+                        */
+                        if(res.stop_update && res.stop_update == 1) {
+                            let temp_event = function() {
+                                $modal.modal('show');
+                                $modal.off('hidden.bs.modal', temp_event);
+                            }
+
+                            $modal.on('hidden.bs.modal', temp_event);
+                            return;
+                        }
+
                         $(`#section_${ section_index }_element_${ element_index }`).find('.update-card-body').html(res);
 
                         $R(`#section_${ section_index }_element_${ element_index } .redactor-card`, {

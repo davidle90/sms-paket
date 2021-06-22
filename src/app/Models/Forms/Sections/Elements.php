@@ -15,6 +15,10 @@ class Elements extends Model
         return config('rl_forms.tables.forms_sections_elements');
     }
 
+    protected $casts = [
+      'size' => 'array'
+    ];
+
     protected $fillable = [
         'section_id',
         'element_id',

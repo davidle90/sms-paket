@@ -37,11 +37,15 @@ class FormsController extends Controller
         $default_language   = Config::get('app.locale');
         $fallback_language  = Config::get('app.fallback_locale');
         $languages          = Languages::all()->keyBy('iso_name');
+        $types              = Types::orderBy('sort_order', 'asc')->get();
+        $tables             = \rl_tables::tables_model()::get();
 
         return view('rl_forms::admin.pages.forms.edit', [
             'default_language'  => $default_language,
             'fallback_language' => $fallback_language,
-            'languages'         => $languages
+            'languages'         => $languages,
+            'types'             => $types,
+            'tables'            => $tables
         ]);
 
     }
@@ -107,6 +111,7 @@ class FormsController extends Controller
         $section_index      = request()->get('section_index', null);
         $element_index      = request()->get('element_index', null);
         $label              = request()->get('label', null);
+        $slug               = request()->get('slug', null);
         $description        = request()->get('description', null);
         $required_text      = request()->get('required_text', null);
         $required           = request()->get('required', null);
@@ -115,6 +120,10 @@ class FormsController extends Controller
         $options            = request()->get('options', []);
         $default_language   = Config::get('app.locale');
         $table              = \rl_tables::tables_model()::where('id', $table_id)->with('data')->first();
+
+        if(!isset($slug)) {
+            return response()->json(['stop_update' => 1]);
+        }
 
         return view('rl_forms::admin.pages.forms.templates.card', [
             'section_index'             => $section_index,
@@ -126,7 +135,7 @@ class FormsController extends Controller
             'type_id'                   => $type_id,
             'default_language'          => $default_language,
             'table'                     => $table,
-            'options'                   => $options
+            'options'                   => $options,
         ]);
 
     }
@@ -146,7 +155,6 @@ class FormsController extends Controller
 
     public function store()
     {
-        pre(request()->all());
         $input = [
             'id'        => request()->get('form_id', null),
             'labels'    => request()->get('labels', []),
@@ -193,8 +201,9 @@ class FormsController extends Controller
 
                 $form->save();
 
+                $section_ids = [];
+
                 if(isset($input['sections']) && !empty($input['sections'])) {
-                    $section_ids = [];
 
                     foreach($input['sections'] as $section) {
                         $new_section                = Forms\Sections::firstOrNew(['id' => $section['id']]);
@@ -217,44 +226,45 @@ class FormsController extends Controller
 
                         $section_ids[] = $new_section->id;
 
+                        $pivot_data = [];
+
                         if(isset($section['elements']) && !empty($section['elements'])) {
-                            $pivot_data = [];
 
                             foreach($section['elements'] as $element) {
                                 $new_element            = Forms\Elements::firstOrNew(['id' => $element['id']]);
                                 $new_element->slug      = $element['slug'];
                                 $new_element->type_id   = $element['type_id'];
                                 $new_element->validator = $element['validator'];
-                                $new_element->table_id  = $element['table_id'];
+                                $new_element->table_id  = $element['table'] ?? null;
+
                                 $new_element->save();
 
                                 /*
                                  * Setting translations
                                  */
-                                foreach($section['labels'] as $key => $translate){
+                                foreach($element['labels'] as $key => $translate){
                                     $new_element->setTranslation($key, ['label' => $translate]);
                                 }
 
-                                foreach($section['descriptions'] as $key => $translate){
+                                foreach($element['descriptions'] as $key => $translate){
                                     $new_element->setTranslation($key, ['description' => $translate]);
                                 }
 
-                                foreach($section['required'] as $key => $translate){
+                                foreach($element['required_texts'] as $key => $translate){
                                     $new_element->setTranslation($key, ['required' => $translate]);
                                 }
 
                                 $new_element->save();
 
                                 $size_class = '';
+                                $size_class = (isset($element['size']['xs'])) ? 'col-'.$element['size']['xs'].' ' : 'col-12 ';
 
                                 if(isset($element['size']) && !empty($element['size'])) {
-                                    $size_class += (isset($element['size']['xs'])) ? 'col-'.$element['size']['xs'].' ' : 'col-12 ';
-
                                     foreach($element['size'] as $key => $value) {
                                         if($key === 'xs') continue;
 
                                         if(isset($value)) {
-                                            $size_class += 'col-'.$key.'-'.$value.' ';
+                                            $size_class = $size_class.'col-'.$key.'-'.$value.' ';
                                         }
                                     }
                                 }
@@ -262,7 +272,7 @@ class FormsController extends Controller
                                 $pivot_data[$new_element->id] = [
                                     'required'   => $element['required'] ?? 0,
                                     'sort_order' => $element['sort_order'],
-                                    'size'       => $element['size'],
+                                    'size'       => json_encode($element['size']),
                                     'size_class' => $size_class
                                 ];
 
@@ -277,8 +287,10 @@ class FormsController extends Controller
                                         /*
                                          * Setting translation
                                          */
-                                        foreach($option['labels'] as $key => $translate){
-                                            $new_element->setTranslation($key, ['label' => $translate]);
+                                        if(isset($option['labels']) && !empty($option['labels'])) {
+                                            foreach($option['labels'] as $key => $translate){
+                                                $new_option->setTranslation($key, ['label' => $translate]);
+                                            }
                                         }
 
                                         $new_option->save();
@@ -287,12 +299,35 @@ class FormsController extends Controller
                                     }
                                 }
 
-                            }
+                                Forms\Elements\Options::where('element_id', $new_element->id)->whereNotIn('id', $option_ids)->delete();
 
-                            $new_section->elements()->sync($pivot_data);
+                            }
                         }
+
+                        $new_section->elements()->sync($pivot_data);
+
+                        $element_ids            = Forms\Sections\Elements::pluck('element_id');
+                        $element_to_delete_ids  = Forms\Elements::whereNotIn('id', $element_ids)->pluck('id');
+
+                        Forms\Elements::whereNotIn('id', $element_ids)->delete();
+                        Forms\Elements\Options::whereIn('element_id', $element_to_delete_ids)->delete();
+
                     }
                 }
+
+                /*
+                 * Delete sections and related items
+                 */
+                $section_to_delete_ids = Forms\Sections::where('form_id', $form->id)->whereNotIn('id', $section_ids)->pluck('id');
+
+                Forms\Sections::where('form_id', $form->id)->whereNotIn('id', $section_ids)->delete();
+                Forms\Sections\Elements::whereIn('section_id', $section_to_delete_ids)->delete();
+
+                $element_ids            = Forms\Sections\Elements::pluck('element_id');
+                $element_to_delete_ids  = Forms\Elements::whereNotIn('id', $element_ids)->pluck('id');
+
+                Forms\Elements::whereNotIn('id', $element_ids)->delete();
+                Forms\Elements\Options::whereIn('element_id', $element_to_delete_ids)->delete();
 
                 DB::commit();
 
@@ -341,10 +376,59 @@ class FormsController extends Controller
     }
 
 
-    public function drop(Request $request)
+    public function drop()
     {
+        $form_id = request()->get('id');
 
-        return response()->json($response);
+        DB::beginTransaction();
+
+        try {
+
+            Forms::where('id', $form_id)->delete();
+
+            /*
+             * Delete sections and related items
+             */
+            $section_to_delete_ids = Forms\Sections::where('form_id', $form_id)->pluck('id');
+
+            Forms\Sections::where('form_id', $form_id)->delete();
+            Forms\Sections\Elements::whereIn('section_id', $section_to_delete_ids)->delete();
+
+            $element_ids            = Forms\Sections\Elements::pluck('element_id');
+            $element_to_delete_ids  = Forms\Elements::whereNotIn('id', $element_ids)->pluck('id');
+
+            Forms\Elements::whereIn('id', $element_to_delete_ids)->delete();
+            Forms\Elements\Options::whereIn('element_id', $element_to_delete_ids)->delete();
+
+            DB::commit();
+
+            Session::flash('message', 'Formuläret har raderats');
+            Session::flash('message-title', 'Success!');
+            Session::flash('message-type', 'success');
+
+            $var                = array();
+            $var['status']      = 1;
+            $var['redirect']    = route('rl_forms.admin.forms.index');
+
+            return response()->json($var);
+
+        } catch (\Exception $e) {
+
+            DB::rollback();
+
+            throw $e;
+
+            $var = array();
+            $var['status']              = 0;
+            $var['error']               = $e->getMessage();
+            $var['line']                = $e->getLine();
+            $var['message']['title']    = 'Error!';
+            $var['message']['text']     = 'Unexpected error occurred';
+            $var['input']               = $input;
+
+            return response()->json($var);
+
+        }
 
     }
 

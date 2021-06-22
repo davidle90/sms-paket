@@ -13,7 +13,7 @@
                     value="{{ (isset($element)) ? $element->slug ?? '' : '' }}"
             >
             <label for="section_{{ $section_index }}_element_{{ $element_index }}_slug">
-                Slug
+                Slug <i class="fa fa-asterisk required-marker" aria-hidden="true"></i>
             </label>
         </div>
     </div>

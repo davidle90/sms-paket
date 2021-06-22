@@ -238,156 +238,159 @@
 
 @if(!isset($template) || $template === false)
     @push('scripts')
-        @endif
+@endif
 
-        <script type="text/javascript">
-            $(document).ready(function(){
+    <script type="text/javascript">
+        $(document).ready(function(){
 
-                $('.select-table').select2({
-                    placeholder: "Välj tabell",
-                    allowClear: true,
-                    minimumResultsForSearch: -1
-                });
+            $('.select-table').select2({
+                placeholder: "Välj tabell",
+                allowClear: true,
+                minimumResultsForSearch: -1
+            });
 
-                $('.edit-translation').off('click').on('click', function(){
-                    let target          = $(this).attr('data-target');
-                    let mode            = $(this).attr('data-mode');
-                    let section_index   = $(this).attr('data-section-index');
-                    let element_index   = $(this).attr('data-element-index');
+            $('.edit-translation').off('click').on('click', function(){
+                let target          = $(this).attr('data-target');
+                let mode            = $(this).attr('data-mode');
+                let section_index   = $(this).attr('data-section-index');
+                let element_index   = $(this).attr('data-element-index');
 
-                    $(`#elementEditModal_section_${ section_index }_element_${ element_index } .${ target }-wrapper`).find('.translation').each(function(){
-                        if(mode === 'hide') {
-                            $(this).hide();
-                        } else {
-                            $(this).show();
-                        }
-                    });
-
-                    if(mode === 'show') {
-                        $(this).attr('data-mode', 'hide');
-                        $(this).text('Dölj språk');
+                $(`#elementEditModal_section_${ section_index }_element_${ element_index } .${ target }-wrapper`).find('.translation').each(function(){
+                    if(mode === 'hide') {
+                        $(this).hide();
                     } else {
-                        $(this).attr('data-mode', 'show');
-                        $(this).text('Redigera språk');
+                        $(this).show();
                     }
                 });
 
-                $('.doAddOption').off('click').on('click', function(){
-                    let $template       = $('#option_template').clone();
-                    let section_index   = $(this).attr('data-section-index');
-                    let element_index   = $(this).attr('data-element-index');
-                    let $container      = $(`#elementEditModal_section_${ section_index }_element_${ element_index } .append-options-to`);
-                    let count           = $container.children('div').length;
+                if(mode === 'show') {
+                    $(this).attr('data-mode', 'hide');
+                    $(this).text('Dölj språk');
+                } else {
+                    $(this).attr('data-mode', 'show');
+                    $(this).text('Redigera språk');
+                }
+            });
 
-                    $template.attr('id', `elementEditModal_section_${ section_index }_element_${ element_index }_option_${ count }`);
-                    $template.removeClass('hidden');
-                    $template.find('.col-12').addClass('element-modal-options');
-                    $template.find('.doRemoveOption').attr('data-option-id', `elementEditModal_section_${ section_index }_element_${ element_index }_option_${ count }`);
-                    $template.children().each(function(){
-                        let iso = $(this).find('.checkbox-iso').val();
+            $('.doAddOption').off('click').on('click', function(){
+                let $template       = $('#option_template').clone();
+                let section_index   = $(this).attr('data-section-index');
+                let element_index   = $(this).attr('data-element-index');
+                let $container      = $(`#elementEditModal_section_${ section_index }_element_${ element_index } .append-options-to`);
+                let count           = $container.children('div').length;
 
-                        $(this).find('.checkbox-input').attr('name', `sections[${ section_index }][elements][${ element_index }][options][${ count }][labels][${ iso }]`);
-                        $(this).find('.checkbox-input').attr('id', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
-                        $(this).find('label').attr('for', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
-                        $(this).find('.option-label').text(count + 1);
+                $template.find('.option-id').attr('name', `sections[${ section_index }][elements][${ element_index }][options][${ count }][id]`);
+                $template.attr('id', `elementEditModal_section_${ section_index }_element_${ element_index }_option_${ count }`);
+                $template.removeClass('hidden');
+                $template.find('.col-12').addClass('element-modal-options');
+                $template.find('.doRemoveOption').attr('data-option-id', `elementEditModal_section_${ section_index }_element_${ element_index }_option_${ count }`);
+                $template.children().each(function(){
+                    let iso = $(this).find('.checkbox-iso').val();
 
-                        $(this).find('.checkbox-input').on('input', function() {
-                            let $field = $(this).closest('.form-label-group');
+                    $(this).find('.checkbox-input').attr('name', `sections[${ section_index }][elements][${ element_index }][options][${ count }][labels][${ iso }]`);
+                    $(this).find('.checkbox-input').attr('id', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
+                    $(this).find('label').attr('for', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
+                    $(this).find('.option-label').text(count + 1);
 
-                            if (this.value) {
-                                $field.addClass('field--not-empty');
-                                $field.removeClass('field--empty');
-                            } else {
-                                $field.removeClass('field--not-empty');
-                                $field.addClass('field--empty');
-                            }
-                        });
+                    $(this).find('.checkbox-input').on('input', function() {
+                        let $field = $(this).closest('.form-label-group');
 
-                        if($(`#elementEditModal_section_${ section_index }_element_${ element_index } .option-translation`).attr('data-mode') === 'hide') {
-                            $(this).find('.translation').show();
+                        if (this.value) {
+                            $field.addClass('field--not-empty');
+                            $field.removeClass('field--empty');
+                        } else {
+                            $field.removeClass('field--not-empty');
+                            $field.addClass('field--empty');
                         }
                     });
 
-                    $container.append($template);
-
-                    $(`#elementEditModal_section_${ section_index }_element_${ element_index }_body`).scrollTop($(`#elementEditModal_section_${ section_index }_element_${ element_index }_body`)[0].scrollHeight);
+                    if($(`#elementEditModal_section_${ section_index }_element_${ element_index } .option-translation`).attr('data-mode') === 'hide') {
+                        $(this).find('.translation').show();
+                    }
                 });
 
-                $(document).on('click', '.doRemoveOption', function(){
-                    let section_index   = $(this).attr('data-section-index');
-                    let element_index   = $(this).attr('data-element-index');
-                    let option_id       = $(this).attr('data-option-id');
+                $container.append($template);
 
-                    $(`#${ option_id }`).remove();
-
-                    let count       = 0;
-                    let $container  = $(`#elementEditModal_section_${ section_index }_element_${ element_index } .append-options-to`);
-
-                    $container.children('div').each(function(){
-                        $(this).find('.option-label').text(count + 1);
-
-                        $(this).children('div').each(function(){
-                            let iso = $(this).find('.checkbox-iso').val();
-                            $(this).find('.checkbox-input').attr('name', `sections[${ section_index }][elements][${ element_index }][options][${ count }][labels][${ iso }]`);
-                            $(this).find('.checkbox-input').attr('id', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
-                            $(this).find('label').attr('for', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
-                        })
-
-                        count++;
-                    });
-                });
-
+                $(`#elementEditModal_section_${ section_index }_element_${ element_index }_body`).scrollTop($(`#elementEditModal_section_${ section_index }_element_${ element_index }_body`)[0].scrollHeight);
             });
-        </script>
 
-        @if(!isset($template) || $template === false)
-            @endpush
-        @endif
+            $(document).on('click', '.doRemoveOption', function(){
+                let section_index   = $(this).attr('data-section-index');
+                let element_index   = $(this).attr('data-element-index');
+                let option_id       = $(this).attr('data-option-id');
 
-        <style>
-            .select2-selection__clear {
-                margin-top: 0px;
-            }
-        </style>
+                $(`#${ option_id }`).remove();
 
-        <!-- Templates -->
-        <div id="option_template" class="hidden">
-            <small>Svarsalternativ #<span class="option-label">99</span></small>
-        @foreach($languages as $key => $lang)
-            <!-- Checkbox - Option -->
-                <div class="row">
-                    <div class="col-12 @if($key !== $default_language) translation @endif" @if($key !== $default_language) style="display: none" @endif>
-                        <div class="mb-3 form-label-group form-group">
-                            <input class="checkbox-iso" type="hidden" value="{{ $key }}">
-                            <input
-                                    type="text"
-                                    name=""
-                                    id="section_{{ $section_index }}_element_{{ $element_index }}_option_template_{{ $key }}"
-                                    class="form-control checkbox-input checkbox-in-{{ $key }}"
-                                    value=""
-                            >
-                            <label for="section_{{ $section_index }}_element_{{ $element_index }}_option_template_{{ $key }}">
-                                @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
-                                @if($key == $default_language)
-                                    <i class="fa fa-asterisk required-marker" aria-hidden="true"></i>
-                                @endif
-                            </label>
-                            @if($key == $default_language)
-                                <span
-                                        class="pointer doRemoveOption"
-                                        style="position: absolute; right: 13px; top: 13px;"
-                                        data-option-id=""
-                                        data-section-index="{{ $section_index }}"
-                                        data-element-index="{{ $element_index }}"
-                                >
-                            <i class="fal fa-times text-danger"></i>
-                        </span>
-                            @endif
-                        </div>
-                    </div>
+                let count       = 0;
+                let $container  = $(`#elementEditModal_section_${ section_index }_element_${ element_index } .append-options-to`);
+
+                $container.children('div').each(function(){
+                    $(this).find('.option-label').text(count + 1);
+
+                    $(this).children('div').each(function(){
+                        let iso = $(this).find('.checkbox-iso').val();
+                        $(this).find('.checkbox-input').attr('name', `sections[${ section_index }][elements][${ element_index }][options][${ count }][labels][${ iso }]`);
+                        $(this).find('.checkbox-input').attr('id', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
+                        $(this).find('label').attr('for', `section_${ section_index }_element_${ element_index }_option_${ count }_${ iso }`);
+                    })
+
+                    count++;
+                });
+            });
+
+        });
+    </script>
+
+@if(!isset($template) || $template === false)
+    @endpush
+@endif
+
+<style>
+    .select2-selection__clear {
+        margin-top: 0px;
+    }
+</style>
+
+<!-- Templates -->
+<div id="option_template" class="hidden">
+    <input type="hidden" name="" value="" class="option-id">
+
+    <small>Svarsalternativ #<span class="option-label">99</span></small>
+    @foreach($languages as $key => $lang)
+        <!-- Checkbox - Option -->
+        <div class="row">
+            <div class="col-12 @if($key !== $default_language) translation @endif" @if($key !== $default_language) style="display: none" @endif>
+                <div class="mb-3 form-label-group form-group">
+                    <input class="checkbox-iso" type="hidden" value="{{ $key }}">
+                    <input
+                            type="text"
+                            name=""
+                            id="section_{{ $section_index }}_element_{{ $element_index }}_option_template_{{ $key }}"
+                            class="form-control checkbox-input checkbox-in-{{ $key }}"
+                            value=""
+                    >
+                    <label for="section_{{ $section_index }}_element_{{ $element_index }}_option_template_{{ $key }}">
+                        @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
+                        @if($key == $default_language)
+                            <i class="fa fa-asterisk required-marker" aria-hidden="true"></i>
+                        @endif
+                    </label>
+                    @if($key == $default_language)
+                        <span
+                                class="pointer doRemoveOption"
+                                style="position: absolute; right: 13px; top: 13px;"
+                                data-option-id=""
+                                data-section-index="{{ $section_index }}"
+                                data-element-index="{{ $element_index }}"
+                        >
+                    <i class="fal fa-times text-danger"></i>
+                </span>
+                    @endif
                 </div>
-            @endforeach
+            </div>
         </div>
+    @endforeach
+</div>
 
 
 

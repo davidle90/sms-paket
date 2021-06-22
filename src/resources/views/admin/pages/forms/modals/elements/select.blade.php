@@ -279,6 +279,7 @@
             let $container      = $(`#elementEditModal_section_${ section_index }_element_${ element_index } .append-options-to`);
             let count           = $container.children('div').length;
 
+            $template.find('.option-id').attr('name', `sections[${ section_index }][elements][${ element_index }][options][${ count }][id]`);
             $template.attr('id', `elementEditModal_section_${ section_index }_element_${ element_index }_option_${ count }`);
             $template.removeClass('hidden');
             $template.find('.col-12').addClass('element-modal-options');
@@ -352,6 +353,8 @@
 
 <!-- Templates -->
 <div id="option_template" class="hidden">
+    <input type="hidden" name="" value="" class="option-id">
+
     <small>Svarsalternativ #<span class="option-label">99</span></small>
 @foreach($languages as $key => $lang)
     <!-- Checkbox - Option -->

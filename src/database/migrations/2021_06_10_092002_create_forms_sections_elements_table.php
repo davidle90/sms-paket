@@ -19,7 +19,7 @@ class CreateFormsSectionsElementsTable extends Migration
             $table->integer('element_id')->unsigned();
             $table->boolean('required')->default(0);
             $table->integer('sort_order')->unsigned();
-            $table->text('size')->nullable();
+            $table->json('size')->nullable();
             $table->string('size_class')->nullable();
             $table->timestamps();
         });

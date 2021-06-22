@@ -99,8 +99,8 @@
                    </div>
                </div>
 
-               @if(isset($form->sections) && !$form->sections->isEmpty())
-                   <div class="sortable-sections">
+               <div class="sortable-sections">
+                    @if(isset($form->sections) && !$form->sections->isEmpty())
                        @foreach($form->sections as $section_index => $section)
                            <div class="row" id="section_{{ $section_index }}" data-element-count="{{ (isset($section->elements)) ? $section->elements->count() : 0 }}">
                                <!-- Hidden inputs start -->
@@ -141,7 +141,7 @@
 
                                        <div class="card-body">
                                            <h6 class="bold section-label">{{ $section->in($default_language)->label ?? '' }}</h6>
-                                           <p class="element-description">{{ $section->in($default_language)->description ?? '' }}</p>
+                                           <p class="section-description">{{ $section->in($default_language)->description ?? '' }}</p>
                                            <div class="sortable-elements" style="min-height: 100px;">
                                                <input class="section-index" type="hidden" value="{{ $section_index }}">
                                                <div id="filler_div"></div>
@@ -209,7 +209,7 @@
                                                                                                class="form-control update-option"
                                                                                        >
                                                                                        <label for="section_{{ $section_index }}_element_{{ $element_index }}_options_display">
-                                                                                           @ucfirst(language($key)->getNativeName()) ({{ language($default_language)->getName() }})
+                                                                                           @ucfirst(language($default_language)->getNativeName()) ({{ language($default_language)->getName() }})
                                                                                        </label>
                                                                                    </div>
                                                                                </div>
@@ -221,7 +221,7 @@
                                                                            <div class="row">
                                                                                <div class="col-12 col-sm-6 col-md-4 col-lg-4">
                                                                                    <small>
-                                                                                       @ucfirst(language($key)->getNativeName()) ({{ language($default_language)->getName() }})
+                                                                                       @ucfirst(language($default_language)->getNativeName()) ({{ language($default_language)->getName() }})
                                                                                    </small>
                                                                                    <div class="form-group mb-1">
                                                                                        <textarea
@@ -252,9 +252,11 @@
                                                                                        >
                                                                                            <option></option>
                                                                                            <!-- Table data -->
-                                                                                           @foreach($element->table->data as $data)
-                                                                                               <option>{{ $data->in($default_language)->text ?? '' }}</option>
-                                                                                           @endforeach
+                                                                                           @if(isset($element->table->data))
+                                                                                               @foreach($element->table->data as $data)
+                                                                                                   <option>{{ $data->in($default_language)->text ?? '' }}</option>
+                                                                                               @endforeach
+                                                                                           @endif
                                                                                            <!-- Option data -->
                                                                                            @foreach($element->options as $option)
                                                                                                <option>{{ $option->in($default_language)->label ?? '' }}</option>
@@ -267,19 +269,21 @@
                                                                            <!-- Checkbox -->
                                                                            @if($element->type_id === 4)
                                                                                <!-- Table data -->
-                                                                               @foreach($element->table->data as $data_index => $data)
-                                                                                   <div class="custom-control custom-checkbox d-flex align-items-center mb-2">
-                                                                                       <input
-                                                                                               type="checkbox"
-                                                                                               class="custom-control-input update-data"
-                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}"
-                                                                                               disabled
-                                                                                       >
-                                                                                       <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}">
-                                                                                           {{ $data->in($default_language)->text ?? '' }}
-                                                                                       </label>
-                                                                                   </div>
-                                                                               @endforeach
+                                                                               @if(isset($element->table->data))
+                                                                                   @foreach($element->table->data as $data_index => $data)
+                                                                                       <div class="custom-control custom-checkbox d-flex align-items-center mb-2">
+                                                                                           <input
+                                                                                                   type="checkbox"
+                                                                                                   class="custom-control-input update-data"
+                                                                                                   id="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}"
+                                                                                                   disabled
+                                                                                           >
+                                                                                           <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}">
+                                                                                               {{ $data->in($default_language)->text ?? '' }}
+                                                                                           </label>
+                                                                                       </div>
+                                                                                   @endforeach
+                                                                               @endif
                                                                                <!-- Option data -->
                                                                                @foreach($element->options as $option_index => $option)
                                                                                    <div class="custom-control custom-checkbox d-flex align-items-center mb-2">
@@ -299,19 +303,21 @@
                                                                            <!-- Radio -->
                                                                            @if($element->type_id === 5)
                                                                                <!-- Table data -->
-                                                                               @foreach($element->table->data as $data_index => $data)
-                                                                                   <div class="form-check form-check-inline d-flex align-items-center mb-2">
-                                                                                       <input
-                                                                                               type="radio"
-                                                                                               class="form-check-input update-data"
-                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}"
-                                                                                               disabled
-                                                                                       >
-                                                                                       <label class="form-check-label" for="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}">
-                                                                                           {{ $data->in($default_language)->text ?? '' }}
-                                                                                       </label>
-                                                                                   </div>
-                                                                               @endforeach
+                                                                               @if(isset($element->table->data))
+                                                                                   @foreach($element->table->data as $data_index => $data)
+                                                                                       <div class="form-check form-check-inline d-flex align-items-center mb-2">
+                                                                                           <input
+                                                                                                   type="radio"
+                                                                                                   class="form-check-input update-data"
+                                                                                                   id="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}"
+                                                                                                   disabled
+                                                                                           >
+                                                                                           <label class="form-check-label" for="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}">
+                                                                                               {{ $data->in($default_language)->text ?? '' }}
+                                                                                           </label>
+                                                                                       </div>
+                                                                                   @endforeach
+                                                                               @endif
                                                                                <!-- Option data -->
                                                                                @foreach($element->options as $option_index => $option)
                                                                                    <div class="form-check form-check-inline d-flex align-items-center mb-2">
@@ -344,9 +350,8 @@
                                </div>
                            </div>
                        @endforeach
-                   </div>
-               @endif
-
+                    @endif
+               </div>
            </form>
        </div>
 
@@ -390,7 +395,7 @@
 
                <div class="card-body">
                    <h6 class="bold section-label"></h6>
-                   <p><i class="text-danger section-description"></i></p>
+                   <p class="section-description"></p>
 
                    <div class="sortable-elements" style="min-height: 100px;">
                        <input class="section-index" type="hidden" value="">
@@ -561,7 +566,8 @@
                            });
 
                            let count_option_ids = 0;
-                           $modal.find('.option-id').each(function(){
+                           $modal.find(`.checkbox-wrapper .option-id`).each(function(){
+                               console.log(count_option_ids);
                                $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][options][${ count_option_ids }][id]`);
                                count_option_ids++;
                            });
@@ -642,9 +648,10 @@
                //Section
                $template.find('.sortOrderUpdateSectionVal').val(sort_order);
                $template.find('.sortOrderUpdateSectionLabel').text(sort_order);
+               $template.find('.sortOrderUpdateSectionVal').attr('name', `sections[${ count }][sort_order]`);
+               $template.find('.sortOrderUpdateSectionVal').attr('id', `sections_${ count }_sort_order`);
                $template.find('.section-index').val(count);
                $template.attr('id', 'section_' + count);
-               $template.attr('name', `sections[${ count }][sort_order]`);
                $template.find('.section-modal-button').attr('data-target', `#editSectionModal_${ count }`);
                $template.find('.section-types-button').attr('data-target', `#chooseTypeModal_${ count }`);
                $template.find('.section-id').attr('name', `sections[${ count }][id]`);
