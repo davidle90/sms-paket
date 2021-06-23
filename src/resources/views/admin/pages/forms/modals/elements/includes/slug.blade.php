@@ -1,5 +1,5 @@
 <h6>
-    <span class="bold">Slug</span>
+    <span class="bold element-slug-label">Slug</span>
 </h6>
 
 <div class="row">
@@ -9,7 +9,7 @@
                     type="text"
                     name="sections[{{ $section_index }}][elements][{{ $element_index }}][slug]"
                     id="section_{{ $section_index }}_element_{{ $element_index }}_slug"
-                    class="form-control"
+                    class="form-control element-slug"
                     value="{{ (isset($element)) ? $element->slug ?? '' : '' }}"
             >
             <label for="section_{{ $section_index }}_element_{{ $element_index }}_slug">

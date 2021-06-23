@@ -74,7 +74,7 @@ class FormsController extends Controller
 	public function view($id)
     {
 
-        $form               = Forms::find($id);
+        $form               = Forms::with(['sections.elements.options', 'sections.elements.table.data'])->find($id);
         $default_language   = Config::get('app.locale');
         $fallback_language  = Config::get('app.fallback_locale');
 
@@ -111,7 +111,6 @@ class FormsController extends Controller
         $section_index      = request()->get('section_index', null);
         $element_index      = request()->get('element_index', null);
         $label              = request()->get('label', null);
-        $slug               = request()->get('slug', null);
         $description        = request()->get('description', null);
         $required_text      = request()->get('required_text', null);
         $required           = request()->get('required', null);
@@ -120,10 +119,6 @@ class FormsController extends Controller
         $options            = request()->get('options', []);
         $default_language   = Config::get('app.locale');
         $table              = \rl_tables::tables_model()::where('id', $table_id)->with('data')->first();
-
-        if(!isset($slug)) {
-            return response()->json(['stop_update' => 1]);
-        }
 
         return view('rl_forms::admin.pages.forms.templates.card', [
             'section_index'             => $section_index,
@@ -272,7 +267,7 @@ class FormsController extends Controller
                                 $pivot_data[$new_element->id] = [
                                     'required'   => $element['required'] ?? 0,
                                     'sort_order' => $element['sort_order'],
-                                    'size'       => json_encode($element['size']),
+                                    'size'       => $element['size'],
                                     'size_class' => $size_class
                                 ];
 

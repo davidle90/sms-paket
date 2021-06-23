@@ -21,7 +21,7 @@ return [
         'forms'                     => \Rocketlabs\Forms\App\Models\Forms::class,
         'forms_sourceable'          => \Rocketlabs\Forms\App\Models\Forms\Sourceable::class,
         'forms_sections'            => \Rocketlabs\Forms\App\Models\Forms\Sections::class,
-        'forms_sections_elements'   => \Rocketlabs\Forms\App\Models\Forms\Elements::class,
+        'forms_sections_elements'   => \Rocketlabs\Forms\App\Models\Forms\Sections\Elements::class,
         'forms_elements'            => \Rocketlabs\Forms\App\Models\Forms\Elements::class,
         'forms_elements_types'      => \Rocketlabs\Forms\App\Models\Forms\Elements\Types::class,
         'forms_elements_options'    => \Rocketlabs\Forms\App\Models\Forms\Elements\Options::class,

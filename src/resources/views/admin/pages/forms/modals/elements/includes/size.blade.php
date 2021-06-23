@@ -1,7 +1,6 @@
 @php
-$size = json_decode($element->pivot->size ?? '');
+$size = $element->pivot->size ?? [];
 @endphp
-
 
 <!-- Column size, collapsable -->
 <div class="mt-2">
@@ -35,7 +34,7 @@ $size = json_decode($element->pivot->size ?? '');
             >
                 <option value="">Ej vald</option>
                 @for($i = 1; $i <= 12; $i++)
-                    @if(isset($size->xs) && $size->xs == $i)
+                    @if(isset($size['xs']) && $size['xs'] == $i)
                         <option value="{{ $i }}" selected>{{ $i }}</option>
                     @else
                         <option value="{{ $i }}">{{ $i }}</option>
@@ -56,7 +55,7 @@ $size = json_decode($element->pivot->size ?? '');
             >
                 <option value="">Ej vald</option>
                 @for($i = 1; $i <= 12; $i++)
-                    @if(isset($size->sm) && $size->sm == $i)
+                    @if(isset($size['sm']) && $size['sm'] == $i)
                         <option value="{{ $i }}" selected>{{ $i }}</option>
                     @else
                         <option value="{{ $i }}">{{ $i }}</option>
@@ -77,7 +76,7 @@ $size = json_decode($element->pivot->size ?? '');
             >
                 <option value="">Ej vald</option>
                 @for($i = 1; $i <= 12; $i++)
-                    @if(isset($size->md) && $size->md == $i)
+                    @if(isset($size['md']) && $size['md'] == $i)
                         <option value="{{ $i }}" selected>{{ $i }}</option>
                     @else
                         <option value="{{ $i }}">{{ $i }}</option>
@@ -98,7 +97,7 @@ $size = json_decode($element->pivot->size ?? '');
             >
                 <option value="">Ej vald</option>
                 @for($i = 1; $i <= 12; $i++)
-                    @if(isset($size->lg) && $size->lg == $i)
+                    @if(isset($size['lg']) && $size['lg'] == $i)
                         <option value="{{ $i }}" selected>{{ $i }}</option>
                     @else
                         <option value="{{ $i }}">{{ $i }}</option>
@@ -119,7 +118,7 @@ $size = json_decode($element->pivot->size ?? '');
             >
                 <option value="">Ej vald</option>
                 @for($i = 1; $i <= 12; $i++)
-                    @if(isset($size->xl) && $size->xl == $i)
+                    @if(isset($size['xl']) && $size['xl'] == $i)
                         <option value="{{ $i }}" selected>{{ $i }}</option>
                     @else
                         <option value="{{ $i }}">{{ $i }}</option>

@@ -1,11 +1,11 @@
 <!-- Modal -->
 @if(isset($template) && $template === true)
-    <div class="modal fade element-modal-edit" id="elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}" tabindex="-1" role="dialog" aria-labelledby="editSectionModalLabel" aria-hidden="true">
+    <div class="modal fade element-modal-edit" id="elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}" tabindex="-1" role="dialog" aria-labelledby="editSectionModalLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-dark">
                     <h5 class="modal-title text-white bold" id="elementEditModalLabel_section_{{ $section_index }}_element_{{ $element_index }}">Redigera fråga - {{ $type_label }}</h5>
-                    <span style="margin-top:0.15rem;" data-dismiss="modal" aria-label="Close">
+                    <span style="margin-top:0.15rem;" aria-label="Close" class="onCloseModal">
                         <i class="essential-sm essential-multiply pointer thin text-white"></i>
                     </span>
                 </div>
@@ -55,7 +55,6 @@
                             data-section-index="{{ $section_index }}"
                             data-element-index="{{ $element_index }}"
                             data-type-id="{{ $type_id }}"
-                            data-dismiss="modal"
                         >Uppdatera fråga</button>
                     </div>
                 </div>
@@ -64,12 +63,12 @@
         </div>
     </div>
 @else
-    <div class="modal fade element-modal-edit" id="elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}" tabindex="-1" role="dialog" aria-labelledby="editSectionModalLabel" aria-hidden="true">
+    <div class="modal fade element-modal-edit" id="elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}" tabindex="-1" role="dialog" aria-labelledby="editSectionModalLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-dark">
                     <h5 class="modal-title text-white bold" id="elementEditModalLabel_section_{{ $section_index }}_element_{{ $element_index }}">Redigera fråga - {{ $element->type->label }}</h5>
-                    <span style="margin-top:0.15rem;" data-dismiss="modal" aria-label="Close">
+                    <span style="margin-top:0.15rem;" aria-label="Close" class="onCloseModal">
                         <i class="essential-sm essential-multiply pointer thin text-white"></i>
                 </span>
                 </div>
@@ -117,7 +116,6 @@
                                 data-section-index="{{ $section_index }}"
                                 data-element-index="{{ $element_index }}"
                                 data-type-id="{{ $element->type->id }}"
-                                data-dismiss="modal"
                         >Uppdatera fråga</button>
                     </div>
                 </div>
@@ -133,6 +131,45 @@
     <script type="text/javascript">
         $(document).ready(function(){
             let $modal = $('#elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}');
+
+            let slug_remove_error = function() {
+                $modal.find('.element-slug').removeClass('is-invalid');
+                $modal.find('.error-block').remove();
+
+                $modal.find('.element-slug').off('input', slug_remove_error);
+            }
+
+            let slug_validator = function() {
+                toastr.error('Some form value is missing or not properly filled out, please check your input and try again', 'Form validation error!', toastr.options = {
+                    "closeButton": false,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": true,
+                    "positionClass": "toast-bottom-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                });
+
+                /** Mark form fields with errors warnings **/
+                $modal.find('.element-slug').removeClass('is-invalid');
+                $modal.find('.error-block').remove();
+                $modal.find('.element-slug').addClass('is-invalid');
+                $modal.find('.element-slug').parent().after("<div class='error-block'>" + 'The slug field is required.' + "</div>");
+
+                $modal.find('.element-slug-label')[0].scrollIntoView({
+                    behavior: "smooth"
+                });
+
+                $modal.find('.element-slug').on('input', slug_remove_error);
+            }
 
             $('.select-size').select2({
                 placeholder: "Ej vald",
@@ -227,6 +264,11 @@
                     options.push($(this).find('.checkbox-in-sv').val());
                 });
 
+                if(!slug || slug == '') {
+                    slug_validator();
+                    return;
+                }
+
                 $.ajax({
                     url: '{{ route('rl_forms.admin.forms.templates.card') }}',
                     data: {
@@ -234,7 +276,6 @@
                         element_index: element_index,
                         type_id: type_id,
                         label: label,
-                        slug: slug,
                         description: description,
                         required_text: required_text,
                         required: required,
@@ -243,19 +284,6 @@
                     },
                     cache: false,
                     success: function(res) {
-                        /*
-                        * If slug is not set, this will trigger.
-                        */
-                        if(res.stop_update && res.stop_update == 1) {
-                            let temp_event = function() {
-                                $modal.modal('show');
-                                $modal.off('hidden.bs.modal', temp_event);
-                            }
-
-                            $modal.on('hidden.bs.modal', temp_event);
-                            return;
-                        }
-
                         $(`#section_${ section_index }_element_${ element_index }`).find('.update-card-body').html(res);
 
                         $R(`#section_${ section_index }_element_${ element_index } .redactor-card`, {
@@ -270,6 +298,8 @@
                             linkNofollow: true,
                             breakline: true,
                         });
+
+                        $modal.modal('hide');
                     }
                 });
             });
@@ -278,14 +308,27 @@
                 let section_index = $(this).attr('data-section-index');
                 let element_index = $(this).attr('data-element-index');
 
-                $(`#elementEditModal_section_${ section_index }_element_${ element_index }`).on('hidden.bs.modal', function () {
+                let temp_event = function () {
 
                     $(`#deleteElementModal`).find('.doDeleteElement').attr('data-section-index', section_index);
                     $(`#deleteElementModal`).find('.doDeleteElement').attr('data-element-index', element_index);
                     $(`#deleteElementModal`).modal('show');
 
-                    $(`#elementEditModal_section_${ section_index }_element_${ element_index }`).off('hidden.bs.modal');
-                });
+                    $(`#elementEditModal_section_${ section_index }_element_${ element_index }`).off('hidden.bs.modal', temp_event);
+                }
+
+                $(`#elementEditModal_section_${ section_index }_element_${ element_index }`).on('hidden.bs.modal', temp_event);
+            });
+
+            $('.onCloseModal').on('click', function(){
+                let slug = $modal.find('.element-slug').val();
+
+                if(!slug || slug == '') {
+                    slug_validator();
+                    return;
+                }
+
+                $modal.modal('hide');
             });
 
         });

@@ -1,8 +1,8 @@
 <?php namespace Rocketlabs\Forms\App\Models\Forms\Sections;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class Elements extends Model
+class Elements extends Pivot
 {
 
     /**

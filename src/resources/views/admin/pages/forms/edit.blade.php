@@ -43,11 +43,12 @@
     </span>
     <span class="doSaveForm btn btn-block btn-outline-success">Spara</span>
     @if(isset($form) && !empty($form))
-        <span class="doDropForm btn btn-block btn-outline-danger" data-id="{{ $form->id ?? '' }}">Radera</span>
+        <span class="btn btn-block btn-outline-danger" data-toggle="modal" data-target="#deleteFormModal">Radera</span>
     @endif
 @endsection
 
 @section('modals')
+    @include('rl_forms::admin.pages.forms.modals.delete_form')
     @include('rl_forms::admin.pages.forms.modals.delete_section')
     @include('rl_forms::admin.pages.forms.modals.delete_element')
 @endsection

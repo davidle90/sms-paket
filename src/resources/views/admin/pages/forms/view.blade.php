@@ -1,6 +1,7 @@
 @extends('rl_webadmin::layouts.new_master')
 
 @section('styles')
+    <link href="{{ mix('css/app/multiselect.css') }}" rel="stylesheet" type="text/css">
 @endsection
 
 @section('breadcrumbs')
@@ -25,54 +26,231 @@
         </div>
 
         <div class="card-body">
+            <!-- Rendering form -->
+            @foreach($form->sections as $section_index => $section)
+                <h5 class="mt-3">{{ $section->in($default_language ?? $fallback_language)->label ?? '' }}</h5>
+                <p>{{ $section->in($default_language ?? $fallback_language)->description ?? '' }}</p>
 
-            <h5 class="bold">Formulär sektioner</h5>
+                <div class="row">
+                    @foreach($section->elements as $element_index => $element)
+                        @switch($element->type_id)
+                            @case(1)
+                                <!-- Input -->
+                                <div class="{{ $element->pivot->size_class }}">
+                                    <div class="mb-2">
+                                        <h6 class="mb-0">
+                                            {{ $element->in($default_language ?? $fallback_language)->label ?? '' }}
+                                        </h6>
+                                        @if(isset($element->in($default_language ?? $fallback_language)->description))
+                                            <p class="mb-0">{{ $element->in($default_language ?? $fallback_language)->description }}</p>
+                                        @endif
+                                    </div>
 
-            {{--@if(isset($form) && !empty($form))
-                @foreach($form->fields as $field)
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-
-                                <div class="card-header">
-                                    <h6 class="bold m-0">{!! $field->label ?? '<i>Namn ej angivet</i>' !!}</h6>
+                                    <div class="form-label-group form-group">
+                                        <input type="text" id="section_{{ $section_index }}_element_{{ $element_index }}" class="form-control">
+                                        <label
+                                                for="section_{{ $section_index }}_element_{{ $element_index }}"
+                                        >
+                                            {{ $element->in($default_language ?? $fallback_language)->label ?? '' }}
+                                        </label>
+                                    </div>
                                 </div>
+                                @break
+                            @case(2)
+                                <!-- Dropdown -->
+                                <div class="{{ $element->pivot->size_class }}">
+                                    <div class="mb-2">
+                                        <h6 class="mb-0">
+                                            {{ $element->in($default_language ?? $fallback_language)->label ?? '' }}
+                                        </h6>
+                                        @if(isset($element->in($default_language ?? $fallback_language)->description))
+                                            <p class="mb-0">{{ $element->in($default_language ?? $fallback_language)->description }}</p>
+                                        @endif
+                                    </div>
 
-                                <table class="table table-responsive-sm table-striped table-white table-outline table-hover mb-0 border-secondary border-0">
-                                    <thead class="thead-white"
-                                    <tr>
-                                        <th style="width: 12.5%">Tabell</th>
-                                        <th style="width: 12.5%">Input typ</th>
-                                        <th style="width: 12.5%" class="text-center">Ordning</th>
-                                        <th style="width: 12.5%" class="text-center">col</th>
-                                        <th style="width: 12.5%" class="text-center">col-sm</th>
-                                        <th style="width: 12.5%" class="text-center">col-md</th>
-                                        <th style="width: 12.5%" class="text-center">col-lg</th>
-                                        <th style="width: 12.5%" class="text-center">col-xl</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach($field->tables as $key => $t)
-                                        <tr>
-                                            <td>{{ $t->label ?? '' }}</td>
-                                            <td>{{ $t->pivot->input_type ?? '' }}</td>
-                                            <td class="text-center">{{ $t->pivot->sort_order ?? '' }}</td>
-                                            <td class="text-center">{{ $t->pivot->col ?? '' }}</td>
-                                            <td class="text-center">{!! $t->pivot->col_sm ?? '<span class="text-danger">Ej angivet</span>' !!}</td>
-                                            <td class="text-center">{!! $t->pivot->col_md ?? '<span class="text-danger">Ej angivet</span>' !!}</td>
-                                            <td class="text-center">{!! $t->pivot->col_lg ?? '<span class="text-danger">Ej angivet</span>' !!}</td>
-                                            <td class="text-center">{!! $t->pivot->col_xl ?? '<span class="text-danger">Ej angivet</span>' !!}</td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
+                                    <div class="pmd-textfield pmd-textfield-floating-label form-group">
+                                        <select id="section_{{ $section_index }}_element_{{ $element_index }}" class="select-single pmd-select2 form-control" style="width:100%;">
+                                            <option value=""></option>
+                                            <!-- Table data -->
+                                            @if(isset($element->table->data))
+                                                @foreach($element->table->data as $data)
+                                                    <option>{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}</option>
+                                                @endforeach
+                                            @endif
+                                            <!-- Option data -->
+                                            @if(isset($element->options))
+                                                @foreach($element->options as $option)
+                                                    <option>{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        <label for="section_{{ $section_index }}_element_{{ $element_index }}">{{ $element->in($default_language ?? $fallback_language)->label ?? '' }}</label>
+                                    </div>
+                                </div>
+                                @break
+                            @case(3)
+                                <!-- Dropdown, multiselect -->
+                                <div class="{{ $element->pivot->size_class }}">
+                                    <div class="mb-2">
+                                        <h6 class="mb-0">
+                                            {{ $element->in($default_language ?? $fallback_language)->label ?? '' }}
+                                        </h6>
+                                        @if(isset($element->in($default_language ?? $fallback_language)->description))
+                                            <p class="mb-0">{{ $element->in($default_language ?? $fallback_language)->description }}</p>
+                                        @endif
+                                    </div>
 
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            @endif--}}
+                                    <div class="form-group">
+                                        <select id="section_{{ $section_index }}_element_{{ $element_index }}" class="select-multiple form-control" multiple>
+                                            <!-- Table data -->
+                                            @if(isset($element->table->data))
+                                                @foreach($element->table->data as $data)
+                                                    <option value="{{ 'data_'.$data->id }}">{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}</option>
+                                                @endforeach
+                                            @endif
+                                            <!-- Option data -->
+                                            @if(isset($element->options))
+                                                @foreach($element->options as $option)
+                                                    <option value="{{ 'option_'.$option->id }}">{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                </div>
+                                @break
+                            @case(4)
+                                <!-- Checkbox -->
+                                <div class="{{ $element->pivot->size_class }}">
+                                    <div class="mb-2">
+                                        <h6 class="mb-0">
+                                            {{ $element->in($default_language ?? $fallback_language)->label ?? '' }}
+                                        </h6>
+                                        @if(isset($element->in($default_language ?? $fallback_language)->description))
+                                            <p class="mb-0">{{ $element->in($default_language ?? $fallback_language)->description }}</p>
+                                        @endif
+                                    </div>
 
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <!-- Table data -->
+                                            @if(isset($element->table->data))
+                                                @foreach($element->table->data as $data_index => $data)
+                                                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                        <div class="custom-control custom-checkbox">
+
+                                                            <input
+                                                                    type="checkbox"
+                                                                    class="custom-control-input pointer"
+                                                                    id="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}"
+                                                                    value="1"
+                                                            >
+                                                            <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}" style="margin-top: 3px;">
+                                                                {{ $data->in($default_language ?? $fallback_language)->text ?? '' }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @endif
+                                            <!-- Option data -->
+                                            @if(isset($element->options))
+                                                @foreach($element->options as $option_index => $option)
+                                                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                        <div class="custom-control custom-checkbox">
+
+                                                            <input
+                                                                    type="checkbox"
+                                                                    class="custom-control-input pointer"
+                                                                    id="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}"
+                                                                    value="1"
+                                                            >
+                                                            <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}" style="margin-top: 3px;">
+                                                                {{ $option->in($default_language ?? $fallback_language)->label ?? '' }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                @break
+                            @case(5)
+                                <!-- Radio -->
+                                <div class="{{ $element->pivot->size_class }}">
+                                    <div class="mb-2">
+                                        <h6 class="mb-0">
+                                            {{ $element->in($default_language ?? $fallback_language)->label ?? '' }}
+                                        </h6>
+                                        @if(isset($element->in($default_language ?? $fallback_language)->description))
+                                            <p class="mb-0">{{ $element->in($default_language ?? $fallback_language)->description }}</p>
+                                        @endif
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <!-- Table data -->
+                                            @if(isset($element->table->data))
+                                                @foreach($element->table->data as $data_index => $data)
+                                                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                        <div class="custom-control custom-radio">
+
+                                                            <input
+                                                                    type="radio"
+                                                                    class="custom-control-input pointer"
+                                                                    id="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}"
+                                                                    value="1"
+                                                                    name="section[{{ $section_index }}][element][{{ $element_index }}][check]"
+                                                            >
+                                                            <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}" style="margin-top: 3px;">
+                                                                {{ $data->in($default_language ?? $fallback_language)->text ?? '' }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @endif
+                                            <!-- Option data -->
+                                            @if(isset($element->options))
+                                                @foreach($element->options as $option_index => $option)
+                                                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                        <div class="custom-control custom-radio">
+
+                                                            <input
+                                                                    type="radio"
+                                                                    class="custom-control-input pointer"
+                                                                    id="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}"
+                                                                    value="1"
+                                                                    name="section[{{ $section_index }}][element][{{ $element_index }}][check]"
+                                                            >
+                                                            <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}" style="margin-top: 3px;">
+                                                                {{ $option->in($default_language ?? $fallback_language)->label ?? '' }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                @break
+                            @case(6)
+                                <!-- Textarea -->
+                                <div class="{{ $element->pivot->size_class }}">
+                                    <div class="mb-2">
+                                        <h6 class="mb-0">
+                                            {{ $element->in($default_language ?? $fallback_language)->label ?? '' }}
+                                        </h6>
+                                        @if(isset($element->in($default_language ?? $fallback_language)->description))
+                                            <p class="mb-0">{{ $element->in($default_language ?? $fallback_language)->description }}</p>
+                                        @endif
+                                    </div>
+
+                                    <textarea class="redactor-textarea form-control u-form__input"></textarea>
+                                </div>
+                                @break
+                        @endswitch
+                    @endforeach
+                </div>
+            @endforeach
         </div>
 
     </div>
@@ -80,6 +258,7 @@
 @stop
 
 @section('scripts')
+    <script src="{{ mix('js/app/multiselect.js') }}"></script>
 
     <script type="text/javascript">
         $(document).ready(function(){
@@ -89,8 +268,33 @@
                     window.location = goToURL;
                 }
             });
+
+            $('.select-single').select2({
+                placeholder: "",
+                allowClear: true,
+                minimumResultsForSearch: -1
+            });
+
+            $('.select-multiple').multiselect({
+                columns: 1,
+                placeholder: "Välj alternativ",
+                search: true,
+                selectAll: true
+            });
+
+            $R('.redactor-textarea', {
+                lang: 'sv',
+                plugins: ['counter', 'fullscreen'],
+                minHeight: '100px',
+                maxHeight: '300px',
+                formatting: ['p', 'blockquote'],
+                buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
+                toolbarFixedTopOffset: 72, // pixel
+                pasteLinkTarget: '_blank',
+                linkNofollow: true,
+                breakline: true,
+            });
         });
     </script>
-
 @stop
 
