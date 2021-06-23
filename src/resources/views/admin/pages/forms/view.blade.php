@@ -135,7 +135,7 @@
                                             <!-- Table data -->
                                             @if(isset($element->table->data))
                                                 @foreach($element->table->data as $data_index => $data)
-                                                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                    <div class="{{ (isset($element->alignment) && $element->alignment === 'horizontal') ? 'col-12 col-sm-6 col-md-4 col-lg-3' : 'col-12' }}">
                                                         <div class="custom-control custom-checkbox">
 
                                                             <input
@@ -154,7 +154,7 @@
                                             <!-- Option data -->
                                             @if(isset($element->options))
                                                 @foreach($element->options as $option_index => $option)
-                                                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                    <div class="{{ (isset($element->alignment) && $element->alignment === 'horizontal') ? 'col-12 col-sm-6 col-md-4 col-lg-3' : 'col-12' }}">
                                                         <div class="custom-control custom-checkbox">
 
                                                             <input
@@ -191,7 +191,7 @@
                                             <!-- Table data -->
                                             @if(isset($element->table->data))
                                                 @foreach($element->table->data as $data_index => $data)
-                                                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                    <div class="{{ (isset($element->alignment) && $element->alignment === 'horizontal') ? 'col-12 col-sm-6 col-md-4 col-lg-3' : 'col-12' }}">
                                                         <div class="custom-control custom-radio">
 
                                                             <input
@@ -211,7 +211,7 @@
                                             <!-- Option data -->
                                             @if(isset($element->options))
                                                 @foreach($element->options as $option_index => $option)
-                                                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                    <div class="{{ (isset($element->alignment) && $element->alignment === 'horizontal') ? 'col-12 col-sm-6 col-md-4 col-lg-3' : 'col-12' }}">
                                                         <div class="custom-control custom-radio">
 
                                                             <input

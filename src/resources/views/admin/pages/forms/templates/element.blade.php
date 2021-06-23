@@ -1,4 +1,4 @@
-<div class="row" id="section_{{ $section_index }}_element_{{ $element_index }}">
+<div class="row element-wrapper" id="section_{{ $section_index }}_element_{{ $element_index }}">
     <input
             type="hidden"
             min=1

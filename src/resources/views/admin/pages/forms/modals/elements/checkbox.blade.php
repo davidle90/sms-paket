@@ -216,6 +216,9 @@
     </div>
 </div>
 
+<!-- Alignment -->
+@include('rl_forms::admin.pages.forms.modals.elements.includes.alignment')
+
 <!-- Required checkbox -->
 <div class="row mt-3">
     <div class="col-12">

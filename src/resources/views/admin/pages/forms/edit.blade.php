@@ -150,7 +150,7 @@
                                                @if(isset($section->elements) && !empty($section->elements))
                                                    @foreach($section->elements as $element_index => $element)
 
-                                                       <div class="row" id="section_{{ $section_index }}_element_{{ $element_index }}">
+                                                       <div class="row element-wrapper" id="section_{{ $section_index }}_element_{{ $element_index }}">
                                                            <input
                                                                    type="hidden"
                                                                    min=1
@@ -486,6 +486,12 @@
 
                    },
                    update: function (event, ui) {
+                       $('.element-modal-edit').each(function(){
+                           console.log('sort: ' + $(this).closest('.element-wrapper').find('.sortOrderUpdateElementVal').val());
+                           console.log($(this).find('.element-modal-alignment-vertical').find('input'));
+                           console.log($(this).find('.element-modal-alignment-horizontal').find('input'));
+                       })
+
                        let sort_order = 1;
                        let section_index = $(this).find('.section-index').val();
 
@@ -517,14 +523,14 @@
                            $modal.find('.doUpdateElement').attr('data-section-index', section_index);
                            $modal.find('.doUpdateElement').attr('data-element-index', sort_order - 1);
 
-                           //Edit Modal - Label, Textareas, Required boolean/text
-                           $modal.find('.element-modal-labels').each(function() {
-                               let iso = $(this).find('.element-modal-labels-iso').val();
+                          //Edit Modal - Label, Textareas, Required boolean/text
+                          $modal.find('.element-modal-labels').each(function() {
+                              let iso = $(this).find('.element-modal-labels-iso').val();
 
-                               $(this).find('.element-modal-labels-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
-                               $(this).find('.element-modal-labels-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][labels][${ iso }]`);
-                               $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
-                           });
+                              $(this).find('.element-modal-labels-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
+                              $(this).find('.element-modal-labels-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][labels][${ iso }]`);
+                              $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
+                          });
 
                            $modal.find('.element-modal-textareas').each(function() {
                                let iso = $(this).find('input').val();
@@ -598,26 +604,16 @@
                            $modal.find('.collapse').attr('data-element-index', sort_order - 1);
 
                            //Edit Modal - Sizes
-                           $modal.find('.size-xs').each(function(){
-                               $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_xs`);
-                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][xs]`);
-                           });
-                           $modal.find('.size-sm').each(function(){
-                               $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_sm`);
-                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][sm]`);
-                           });
-                           $modal.find('.size-md').each(function(){
-                               $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_md`);
-                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][md]`);
-                           });
-                           $modal.find('.size-lg').each(function(){
-                               $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_lg`);
-                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][lg]`);
-                           });
-                           $modal.find('.size-xl').each(function(){
-                               $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_xl`);
-                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][xl]`);
-                           });
+                           $modal.find('.size-xs').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_xs`);
+                           $modal.find('.size-xs').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][xs]`);
+                           $modal.find('.size-sm').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_sm`);
+                           $modal.find('.size-sm').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][sm]`);
+                           $modal.find('.size-md').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_md`);
+                           $modal.find('.size-md').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][md]`);
+                           $modal.find('.size-lg').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_lg`);
+                           $modal.find('.size-lg').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][lg]`);
+                           $modal.find('.size-xl').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_xl`);
+                           $modal.find('.size-xl').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][xl]`);
 
                            //Edit Modal - Slug
                            $modal.find('.element-modal-slug').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_slug`);
@@ -628,6 +624,18 @@
                            $modal.find('.element-modal-validator').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_validator`);
                            $modal.find('.element-modal-validator').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][validator]`);
                            $modal.find('.element-modal-validator').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_validator`);
+
+                           /*console.log('sort: ' + $modal.closest('.element-wrapper').find('.sortOrderUpdateElementVal').val());
+                           console.log($modal.find('.element-modal-alignment-vertical').find('input'));
+                           console.log($modal.find('.element-modal-alignment-horizontal').find('input'));*/
+
+                           //Edit modal - Alignment, vertical & horizontall
+                           $modal.find('.element-modal-alignment-vertical').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][alignment]`);
+                           $modal.find('.element-modal-alignment-vertical').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_aligment_vertical`);
+                           $modal.find('.element-modal-alignment-vertical').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_aligment_vertical`);
+                           $modal.find('.element-modal-alignment-horizontal').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][alignment]`);
+                           $modal.find('.element-modal-alignment-horizontal').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_aligment_horizontal`);
+                           $modal.find('.element-modal-alignment-horizontal').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_aligment_horizontal`);
 
                            sort_order++;
                        });

@@ -231,6 +231,7 @@ class FormsController extends Controller
                                 $new_element->type_id   = $element['type_id'];
                                 $new_element->validator = $element['validator'];
                                 $new_element->table_id  = $element['table'] ?? null;
+                                $new_element->alignment = $element['alignment'] ?? null;
 
                                 $new_element->save();
 
