@@ -486,14 +486,9 @@
 
                    },
                    update: function (event, ui) {
-                       $('.element-modal-edit').each(function(){
-                           console.log('sort: ' + $(this).closest('.element-wrapper').find('.sortOrderUpdateElementVal').val());
-                           console.log($(this).find('.element-modal-alignment-vertical').find('input'));
-                           console.log($(this).find('.element-modal-alignment-horizontal').find('input'));
-                       })
-
-                       let sort_order = 1;
-                       let section_index = $(this).find('.section-index').val();
+                       let sort_order       = 1;
+                       let sort_order_radio = 1;
+                       let section_index    = $(this).find('.section-index').val();
 
                        $(this).children('div').each(function() {
                            if($(this).is('#filler_div')) return;
@@ -555,6 +550,7 @@
                            //Edit Modal - Options, Add option, Remove option, Table
                            let count_options   = 0;
                            let count_total     = 0;
+
                            $modal.find('.element-modal-options').each(function(){
                                let iso = $(this).find('.checkbox-iso').val();
 
@@ -573,8 +569,8 @@
                            });
 
                            let count_option_ids = 0;
+
                            $modal.find(`.checkbox-wrapper .option-id`).each(function(){
-                               console.log(count_option_ids);
                                $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][options][${ count_option_ids }][id]`);
                                count_option_ids++;
                            });
@@ -625,19 +621,29 @@
                            $modal.find('.element-modal-validator').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][validator]`);
                            $modal.find('.element-modal-validator').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_validator`);
 
-                           /*console.log('sort: ' + $modal.closest('.element-wrapper').find('.sortOrderUpdateElementVal').val());
-                           console.log($modal.find('.element-modal-alignment-vertical').find('input'));
-                           console.log($modal.find('.element-modal-alignment-horizontal').find('input'));*/
+                           let random_num = Math.floor(Math.random() * 1000);
 
-                           //Edit modal - Alignment, vertical & horizontall
-                           $modal.find('.element-modal-alignment-vertical').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][alignment]`);
+                           //Edit modal - Alignment, vertical & horizontall. Name prop is set temporarily, so the radio buttons doesn't overwrite each other.
+                           $modal.find('.element-modal-alignment-vertical').find('input').attr('name', `sections[${ section_index }][elements][temp_${ sort_order - 1 }][alignment]`);
                            $modal.find('.element-modal-alignment-vertical').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_aligment_vertical`);
                            $modal.find('.element-modal-alignment-vertical').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_aligment_vertical`);
-                           $modal.find('.element-modal-alignment-horizontal').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][alignment]`);
+                           $modal.find('.element-modal-alignment-horizontal').find('input').attr('name', `sections[${ section_index }][elements][temp_${ sort_order - 1 }][alignment]`);
                            $modal.find('.element-modal-alignment-horizontal').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_aligment_horizontal`);
                            $modal.find('.element-modal-alignment-horizontal').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_aligment_horizontal`);
 
                            sort_order++;
+                       });
+
+                       //Edit modal - Alignment, vertical & horizontal. Name prop is set to the correct name.
+                       $(this).children('div').each(function() {
+                           if ($(this).is('#filler_div')) return;
+
+                           let $modal = $(this).find('.element-modal-edit');
+
+                           $modal.find('.element-modal-alignment-vertical').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order_radio - 1 }][alignment]`);
+                           $modal.find('.element-modal-alignment-horizontal').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order_radio - 1 }][alignment]`);
+
+                           sort_order_radio++;
                        });
 
                        let count = parseInt($(`#section_${ section_index }`).attr('data-element-count'));

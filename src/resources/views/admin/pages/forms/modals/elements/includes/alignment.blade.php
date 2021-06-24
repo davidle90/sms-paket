@@ -11,7 +11,7 @@
                     value="vertical"
                     id="section_{{ $section_index }}_element_{{ $element_index }}_aligment_vertical"
                     name="sections[{{ $section_index }}][elements][{{ $element_index }}][alignment]"
-                    @if((isset($element->alignment) && $element->alignment === 'vertical') || !isset($element->alignment)) checked @endif
+                    @if((isset($element->alignment) && $element->alignment === 'vertical') || !isset($element->alignment)) checked="checked" @endif
             >
             <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_aligment_vertical" style="margin-top: 3px;">
                 Vertikalt
@@ -26,7 +26,7 @@
                     value="horizontal"
                     id="section_{{ $section_index }}_element_{{ $element_index }}_aligment_horizontal"
                     name="sections[{{ $section_index }}][elements][{{ $element_index }}][alignment]"
-                    @if(isset($element->alignment) && $element->alignment === 'horizontal') checked @endif
+                    @if(isset($element->alignment) && $element->alignment === 'horizontal') checked="checked" @endif
             >
             <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_aligment_horizontal" style="margin-top: 3px;">
                 Horisontellt

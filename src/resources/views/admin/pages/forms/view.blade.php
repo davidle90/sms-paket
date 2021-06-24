@@ -243,8 +243,9 @@
                                             <p class="mb-0">{{ $element->in($default_language ?? $fallback_language)->description }}</p>
                                         @endif
                                     </div>
-
-                                    <textarea class="redactor-textarea form-control u-form__input"></textarea>
+                                    <div class="form-group">
+                                        <textarea class="redactor-textarea form-control u-form__input"></textarea>
+                                    </div>
                                 </div>
                                 @break
                         @endswitch
