@@ -4,7 +4,7 @@
 
 <div class="row">
     <div class="col-3">
-        <div class="custom-control custom-radio element-modal-alignment-vertical">
+        <div class="custom-control custom-radio element-modal-alignment element-modal-alignment-vertical">
             <input
                     type="radio"
                     class="custom-control-input pointer"
@@ -19,7 +19,7 @@
         </div>
     </div>
     <div class="col-3">
-        <div class="custom-control custom-radio element-modal-alignment-horizontal">
+        <div class="custom-control custom-radio element-modal-alignment element-modal-alignment-horizontal">
             <input
                     type="radio"
                     class="custom-control-input pointer"

@@ -117,6 +117,7 @@ class FormsController extends Controller
         $type_id            = request()->get('type_id', null);
         $table_id           = request()->get('table_id', null);
         $options            = request()->get('options', []);
+        $alignment          = request()->get('alignment', null);
         $default_language   = Config::get('app.locale');
         $table              = \rl_tables::tables_model()::where('id', $table_id)->with('data')->first();
 
@@ -127,6 +128,7 @@ class FormsController extends Controller
             'element_description'       => $description,
             'element_required_text'     => $required_text,
             'element_required'          => $required,
+            'element_alignment'         => $alignment,
             'type_id'                   => $type_id,
             'default_language'          => $default_language,
             'table'                     => $table,

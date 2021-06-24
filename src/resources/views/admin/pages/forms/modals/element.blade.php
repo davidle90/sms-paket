@@ -253,11 +253,12 @@
                 let type_id         = $(this).attr('data-type-id');
 
                 let label           = $(`#section_${ section_index }_element_${ element_index }_label_sv`).val();
-                let slug            = $(`#section_${ section_index }_element_${ element_index }_slug`).val();
+                let slug            = $(`#section_${ section_index }_element_${ element_index }_slug`).val() ?? '';
                 let description     = $(`#section_${ section_index }_element_${ element_index }_description_sv`).val();
                 let required_text   = $(`#section_${ section_index }_element_${ element_index }_required_text_sv`).val();
                 let required        = $(`#section_${ section_index }_element_${ element_index }_required`).is(':checked');
                 let table_id        = $(`#section_${ section_index }_element_${ element_index }_table`).val();
+                let alignment       = $modal.find('.element-modal-alignment input:checked').val() ?? null;
                 let options         = [];
 
                 $modal.find('.checkbox-wrapper').children('div').each(function(){
@@ -280,7 +281,8 @@
                         required_text: required_text,
                         required: required,
                         table_id: table_id,
-                        options: options,
+                        alignment: alignment,
+                        options: options
                     },
                     cache: false,
                     success: function(res) {
