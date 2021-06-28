@@ -25,5 +25,10 @@ class Multiple extends Model
         return $this->hasOne(config('rl_tables.models.tables_data'), 'id', 'table_data_id');
     }
 
+    public function data()
+    {
+        return $this->morphOne(config('rl_forms.models.forms_responses_data'), 'sourceable');
+    }
+
 }
 

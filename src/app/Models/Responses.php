@@ -26,6 +26,11 @@ class Responses extends Model
         return $this->belongsTo(config('rl_forms.models.forms'), 'form_id', 'id');
     }
 
+    public function sourceable()
+    {
+        return $this->morphTo();
+    }
+
     public function data()
     {
         return $this->hasMany(config('rl_forms.models.forms_responses_data'), 'response_id', 'id');

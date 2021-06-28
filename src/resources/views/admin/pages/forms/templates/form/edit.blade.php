@@ -20,7 +20,7 @@
                             </div>
 
                             <div class="form-label-group form-group">
-                                <input type="text" id="section_{{ $section_index }}_element_{{ $element_index }}" class="form-control">
+                                <input type="text" name="bio[]" id="section_{{ $section_index }}_element_{{ $element_index }}" class="form-control">
                                 <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language ?? $fallback_language)->required)) ? '*'.$element->in($default_language ?? $fallback_language)->required : '' }}</i></span>
                                 <label
                                         for="section_{{ $section_index }}_element_{{ $element_index }}"

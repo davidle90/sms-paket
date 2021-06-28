@@ -19,4 +19,8 @@ class Text extends Model
         'value'
     ];
 
+    public function data()
+    {
+        return $this->morphOne(config('rl_forms.models.forms_responses_data'), 'sourceable');
+    }
 }

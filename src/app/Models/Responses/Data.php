@@ -32,4 +32,9 @@ class Data extends Model
         return $this->belongsTo(config('rl_forms.models.forms_elements'), 'element_id', 'id');
     }
 
+    public function sourceable()
+    {
+        return $this->morphTo();
+    }
+
 }
