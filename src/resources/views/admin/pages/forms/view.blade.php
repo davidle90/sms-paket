@@ -28,7 +28,7 @@
         <div class="card-body">
 
             <!-- Rendering form -->
-            @include('rl_forms::admin.pages.forms.templates.form')
+            @include('rl_forms::admin.pages.forms.templates.form.view')
 
         </div>
 

@@ -69,6 +69,11 @@ class Helpers
             'sourceable_id'   => $id
         ]);
 
+        if(!isset($form_id)) {
+            $sourceable->delete();
+            return $sourceable;
+        }
+
         $sourceable->form_id            = $form_id;
         $sourceable->sourceable_type    = $type;
         $sourceable->sourceable_id      = $id;
