@@ -82,6 +82,21 @@ class Helpers
         return $sourceable;
     }
 
+    public function get_form_via_sourceable($type, $id)
+    {
+        $form_sourceable = rl_forms::forms_sourceable_model()::where('sourceable_type', $type)
+            ->where('sourceable_id', $id)
+            ->first();
+
+        if(!isset($form_sourceable)) {
+            return null;
+        }
+
+        $form = rl_forms::forms_get($form_sourceable->form_id);
+
+        return $form;
+    }
+
     /*
      *  Responses
      */
