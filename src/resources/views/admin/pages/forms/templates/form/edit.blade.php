@@ -1,4 +1,7 @@
 @if(isset($form) && !empty($form))
+    <input type="hidden" name="form_id" value="{{ $form->id }}">
+    <input type="hidden" name="form_iso" value="{{ $default_language }}">
+
     @foreach($form->sections as $section_index => $section)
         <h5 class="mt-3">{{ $section->in($default_language ?? $fallback_language)->label ?? '' }}</h5>
         <p>{{ $section->in($default_language ?? $fallback_language)->description ?? '' }}</p>
@@ -19,8 +22,12 @@
                                 @endif
                             </div>
 
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][id]" value="{{ $element->id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][type_id]" value="{{ $element->type_id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
+
                             <div class="form-label-group form-group">
-                                <input type="text" name="bio[]" id="section_{{ $section_index }}_element_{{ $element_index }}" class="form-control">
+                                <input type="text" name="bio[{{ $section_index }}][{{ $element_index }}][value]" id="section_{{ $section_index }}_element_{{ $element_index }}" class="form-control">
                                 <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language ?? $fallback_language)->required)) ? '*'.$element->in($default_language ?? $fallback_language)->required : '' }}</i></span>
                                 <label
                                         for="section_{{ $section_index }}_element_{{ $element_index }}"
@@ -43,19 +50,23 @@
                                 @endif
                             </div>
 
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][id]" value="{{ $element->id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][type_id]" value="{{ $element->type_id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
+
                             <div class="pmd-textfield pmd-textfield-floating-label form-group">
-                                <select id="section_{{ $section_index }}_element_{{ $element_index }}" class="select-single pmd-select2 form-control" style="width:100%;">
+                                <select name="bio[{{ $section_index }}][{{ $element_index }}][value]" id="section_{{ $section_index }}_element_{{ $element_index }}" class="select-single pmd-select2 form-control" style="width:100%;">
                                     <option value=""></option>
                                     <!-- Table data -->
                                     @if(isset($element->table->data))
                                         @foreach($element->table->data as $data)
-                                            <option>{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}</option>
+                                            <option value="{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}">{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}</option>
                                         @endforeach
                                     @endif
-                                <!-- Option data -->
+                                    <!-- Option data -->
                                     @if(isset($element->options))
                                         @foreach($element->options as $option)
-                                            <option>{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}</option>
+                                            <option value="{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}">{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}</option>
                                         @endforeach
                                     @endif
                                 </select>
@@ -77,18 +88,22 @@
                                 @endif
                             </div>
 
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][id]" value="{{ $element->id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][type_id]" value="{{ $element->type_id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
+
                             <div class="form-group">
-                                <select id="section_{{ $section_index }}_element_{{ $element_index }}" class="select-multiple form-control" multiple>
+                                <select name="bio[{{ $section_index }}][{{ $element_index }}][value][]" id="section_{{ $section_index }}_element_{{ $element_index }}" class="select-multiple form-control" multiple>
                                     <!-- Table data -->
                                     @if(isset($element->table->data))
                                         @foreach($element->table->data as $data)
-                                            <option value="{{ 'data_'.$data->id }}">{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}</option>
+                                            <option value="{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}">{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}</option>
                                         @endforeach
                                     @endif
                                     <!-- Option data -->
                                     @if(isset($element->options))
                                         @foreach($element->options as $option)
-                                            <option value="{{ 'option_'.$option->id }}">{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}</option>
+                                            <option value="{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}">{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}</option>
                                         @endforeach
                                     @endif
                                 </select>
@@ -109,6 +124,10 @@
                                 @endif
                             </div>
 
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][id]" value="{{ $element->id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][type_id]" value="{{ $element->type_id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
+
                             <div class="form-group">
                                 <div class="row">
                                     <!-- Table data -->
@@ -121,7 +140,8 @@
                                                             type="checkbox"
                                                             class="custom-control-input pointer"
                                                             id="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}"
-                                                            value="1"
+                                                            value="{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}"
+                                                            name="bio[{{ $section_index }}][{{ $element_index }}][value][]"
                                                     >
                                                     <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}" style="margin-top: 3px;">
                                                         {{ $data->in($default_language ?? $fallback_language)->text ?? '' }}
@@ -140,7 +160,8 @@
                                                             type="checkbox"
                                                             class="custom-control-input pointer"
                                                             id="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}"
-                                                            value="1"
+                                                            value="{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}"
+                                                            name="bio[{{ $section_index }}][{{ $element_index }}][value][]"
                                                     >
                                                     <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}" style="margin-top: 3px;">
                                                         {{ $option->in($default_language ?? $fallback_language)->label ?? '' }}
@@ -167,6 +188,10 @@
                                 @endif
                             </div>
 
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][id]" value="{{ $element->id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][type_id]" value="{{ $element->type_id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
+
                             <div class="form-group">
                                 <div class="row">
                                     <!-- Table data -->
@@ -179,8 +204,8 @@
                                                             type="radio"
                                                             class="custom-control-input pointer"
                                                             id="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}"
-                                                            value="1"
-                                                            name="section[{{ $section_index }}][element][{{ $element_index }}][check]"
+                                                            value="{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}"
+                                                            name="bio[{{ $section_index }}][{{ $element_index }}][value]"
                                                     >
                                                     <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}" style="margin-top: 3px;">
                                                         {{ $data->in($default_language ?? $fallback_language)->text ?? '' }}
@@ -199,8 +224,8 @@
                                                             type="radio"
                                                             class="custom-control-input pointer"
                                                             id="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}"
-                                                            value="1"
-                                                            name="section[{{ $section_index }}][element][{{ $element_index }}][check]"
+                                                            value="{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}"
+                                                            name="bio[{{ $section_index }}][{{ $element_index }}][value]"
                                                     >
                                                     <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}" style="margin-top: 3px;">
                                                         {{ $option->in($default_language ?? $fallback_language)->label ?? '' }}
@@ -226,8 +251,13 @@
                                     <p class="mb-0">{{ $element->in($default_language ?? $fallback_language)->description }}</p>
                                 @endif
                             </div>
+
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][id]" value="{{ $element->id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][type_id]" value="{{ $element->type_id }}">
+                            <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
+
                             <div class="form-group">
-                                <textarea class="redactor-textarea form-control u-form__input"></textarea>
+                                <textarea name="bio[{{ $section_index }}][{{ $element_index }}][value]" class="redactor-textarea form-control u-form__input"></textarea>
                                 <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language ?? $fallback_language)->required)) ? '*'.$element->in($default_language ?? $fallback_language)->required : '' }}</i></span>
                             </div>
                         </div>

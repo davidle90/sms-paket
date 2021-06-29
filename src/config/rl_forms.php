@@ -18,15 +18,18 @@ return [
     ],
 
     'models' => [
-        'forms'                     => \Rocketlabs\Forms\App\Models\Forms::class,
-        'forms_sourceable'          => \Rocketlabs\Forms\App\Models\Forms\Sourceable::class,
-        'forms_sections'            => \Rocketlabs\Forms\App\Models\Forms\Sections::class,
-        'forms_sections_elements'   => \Rocketlabs\Forms\App\Models\Forms\Sections\Elements::class,
-        'forms_elements'            => \Rocketlabs\Forms\App\Models\Forms\Elements::class,
-        'forms_elements_types'      => \Rocketlabs\Forms\App\Models\Forms\Elements\Types::class,
-        'forms_elements_options'    => \Rocketlabs\Forms\App\Models\Forms\Elements\Options::class,
-        'forms_responses'           => \Rocketlabs\Forms\App\Models\Responses::class,
-        'forms_responses_data'      => \Rocketlabs\Forms\App\Models\Responses\Data::class
+        'forms'                         => \Rocketlabs\Forms\App\Models\Forms::class,
+        'forms_sourceable'              => \Rocketlabs\Forms\App\Models\Forms\Sourceable::class,
+        'forms_sections'                => \Rocketlabs\Forms\App\Models\Forms\Sections::class,
+        'forms_sections_elements'       => \Rocketlabs\Forms\App\Models\Forms\Sections\Elements::class,
+        'forms_elements'                => \Rocketlabs\Forms\App\Models\Forms\Elements::class,
+        'forms_elements_types'          => \Rocketlabs\Forms\App\Models\Forms\Elements\Types::class,
+        'forms_elements_options'        => \Rocketlabs\Forms\App\Models\Forms\Elements\Options::class,
+        'forms_responses'               => \Rocketlabs\Forms\App\Models\Responses::class,
+        'forms_responses_data'          => \Rocketlabs\Forms\App\Models\Responses\Data::class,
+        'forms_responses_data_single'   => \Rocketlabs\Forms\App\Models\Responses\Data\Single::class,
+        'forms_responses_data_text'     => \Rocketlabs\Forms\App\Models\Responses\Data\Text::class,
+        'forms_responses_data_multiple' => \Rocketlabs\Forms\App\Models\Responses\Data\Multiple::class,
     ],
 
 	'routes' => [

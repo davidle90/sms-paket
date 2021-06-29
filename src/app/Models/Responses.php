@@ -5,6 +5,10 @@ use Illuminate\Database\Eloquent\Model;
 class Responses extends Model
 {
 
+    protected $with = [
+        'data'
+    ];
+
     /**
      * The database table used by the model.
      *
@@ -18,7 +22,8 @@ class Responses extends Model
     protected $fillable = [
         'form_id',
         'iso',
-        'sourceable'
+        'sourceable_type',
+        'sourceable_id'
     ];
 
     public function form()

@@ -4,6 +4,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Data extends Model
 {
+    protected $with = [
+        'sourceable'
+    ];
 
     /**
      * The database table used by the model.
@@ -19,7 +22,8 @@ class Data extends Model
         'slug',
         'response_id',
         'element_id',
-        'sourceable'
+        'sourceable_type',
+        'sourceable_id'
     ];
 
     public function response()
@@ -36,5 +40,4 @@ class Data extends Model
     {
         return $this->morphTo();
     }
-
 }

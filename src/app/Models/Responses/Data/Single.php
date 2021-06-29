@@ -17,7 +17,7 @@ class Single extends Model
 
     protected $fillable = [
         'table_data_id',
-        'value'
+        'value',
     ];
 
     public function table_data()
