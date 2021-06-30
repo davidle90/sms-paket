@@ -257,6 +257,27 @@ class Helpers
         }
     }
 
+    public function forms_response_drop($sourceable_type, $sourceable_id)
+    {
+        $responses_to_delete = rl_forms::forms_responses_model()::with(['data.sourceable'])->where([
+            ['sourceable_type', '=', $sourceable_type],
+            ['sourceable_id',   '=', $sourceable_id],
+        ])->get();
+
+        foreach ($responses_to_delete as $response) {
+            $response_data_to_delete = \rl_forms::forms_responses_data_model()::where('response_id', $response->id)
+                ->get();
+
+            foreach ($response_data_to_delete as $data) {
+                $data->sourceable()->delete();
+                $data->delete();
+            }
+
+            $response->delete();
+        }
+
+    }
+
 }
 
 

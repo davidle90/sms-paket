@@ -26,7 +26,7 @@
                             <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][type_id]" value="{{ $element->type_id }}">
                             <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
 
-                            <div class="form-label-group form-group">
+                            <div class="form-group">
                                 <input
                                         type="text"
                                         name="bio[{{ $section_index }}][{{ $element_index }}][value]"
@@ -35,11 +35,6 @@
                                         value="{{ $element->data->where('response_id', $profile->current->form_response->id)->first()->sourceable->value ?? '' }}"
                                 >
                                 <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language ?? $fallback_language)->required)) ? '*'.$element->in($default_language ?? $fallback_language)->required : '' }}</i></span>
-                                <label
-                                        for="section_{{ $section_index }}_element_{{ $element_index }}"
-                                >
-                                    {{ $element->in($default_language ?? $fallback_language)->label ?? '' }}
-                                </label>
                             </div>
                         </div>
                         @break
@@ -60,7 +55,7 @@
                             <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][type_id]" value="{{ $element->type_id }}">
                             <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
 
-                            <div class="pmd-textfield pmd-textfield-floating-label form-group">
+                            <div class="pmd-textfield form-group">
                                 <select name="bio[{{ $section_index }}][{{ $element_index }}][value]" id="section_{{ $section_index }}_element_{{ $element_index }}" class="select-single pmd-select2 form-control" style="width:100%;">
                                     <option value=""></option>
                                     <!-- Table data -->
@@ -87,7 +82,6 @@
                                     @endif
                                 </select>
                                 <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language ?? $fallback_language)->required)) ? '*'.$element->in($default_language ?? $fallback_language)->required : '' }}</i></span>
-                                <label for="section_{{ $section_index }}_element_{{ $element_index }}">{{ $element->in($default_language ?? $fallback_language)->label ?? '' }}</label>
                             </div>
                         </div>
                         @break
@@ -327,3 +321,9 @@
         <h5 class="text-secondary text-center">Inget formulär kopplat.</h5>
     </div>
 @endif
+
+<style>
+    .select2-selection__clear {
+        margin-top: 0px;
+    }
+</style>

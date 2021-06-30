@@ -92,9 +92,8 @@
                <div class="row">
                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                        <!-- Slug -->
-                       <div class="mb-3 form-label-group form-group">
+                       <div class="mb-3 form-group">
                            <input type="text" name="slug" id="inputLabel" class="form-control" placeholder="" value="{{ $form->slug ?? '' }}">
-                           <label for="inputLabel">Slug <i class="fa fa-asterisk required-marker" aria-hidden="true"></i></label>
                        </div>
 
                    </div>
@@ -206,16 +205,13 @@
                                                                        @if($element->type_id === 1)
                                                                            <div class="row">
                                                                                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                                                                                   <div class="form-label-group form-group mb-1">
+                                                                                   <div class="form-group mb-1">
                                                                                        <input
                                                                                                type="text"
                                                                                                id="section_{{ $section_index }}_element_{{ $element_index }}_options_display"
                                                                                                class="form-control update-option"
                                                                                        >
                                                                                        <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language)->required)) ? '*'.$element->in($default_language)->required : '' }}</i></span>
-                                                                                       <label for="section_{{ $section_index }}_element_{{ $element_index }}_options_display">
-                                                                                           {{ $element->in($default_language)->label ?? '' }}
-                                                                                       </label>
                                                                                    </div>
                                                                                </div>
                                                                            </div>

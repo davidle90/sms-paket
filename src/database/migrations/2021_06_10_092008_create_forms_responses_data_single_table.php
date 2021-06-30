@@ -15,7 +15,6 @@ class CreateFormsResponsesDataSingleTable extends Migration
     {
         Schema::create('forms_responses_data_single', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('table_data_id')->unsigned()->nullable();
             $table->string('value');
             $table->timestamps();
         });

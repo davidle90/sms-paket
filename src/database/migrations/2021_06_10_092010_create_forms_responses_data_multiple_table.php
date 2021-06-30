@@ -15,7 +15,6 @@ class CreateFormsResponsesDataMultipleTable extends Migration
     {
         Schema::create('forms_responses_data_multiple', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('table_data_id')->unsigned()->nullable();
             $table->string('value');
             $table->timestamps();
         });
