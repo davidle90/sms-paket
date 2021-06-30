@@ -40,4 +40,9 @@ class Data extends Model
     {
         return $this->morphTo();
     }
+
+    public function scopeVersionData($query, $response_ids)
+    {
+        return $query->whereIn('response_id', $response_ids);
+    }
 }

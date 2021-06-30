@@ -5,9 +5,9 @@ use Illuminate\Database\Eloquent\Model;
 class Responses extends Model
 {
 
-    protected $with = [
-        'data'
-    ];
+    //protected $with = [
+    //    'data'
+    //];
 
     /**
      * The database table used by the model.

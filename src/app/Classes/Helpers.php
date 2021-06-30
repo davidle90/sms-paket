@@ -65,13 +65,29 @@ class Helpers
     /*
      *  Forms
      */
-    public function forms_get($id = null)
+    public function forms_get($id = null, $response_ids = null)
     {
-        if(isset($id)) {
-            return rl_forms::forms_model()::find($id);
+        $forms_query = rl_forms::forms_model()::query();
+
+        $forms_query->with([
+            'sections.elements.options',
+            'sections.elements.table.data',
+        ]);
+
+        if(!empty($response_ids)) {
+            $forms_query->with([
+                'sections.elements.data' => function($query) use($response_ids) {
+                    $query->versionData($response_ids);
+                },
+                'sections.elements.data.sourceable'
+            ]);
         }
 
-        return Forms::get();
+        if(isset($id)) {
+            return $forms_query->find($id);
+        }
+
+        return $forms_query->get();
     }
 
     public function forms_sections_get($form_id)
@@ -102,7 +118,7 @@ class Helpers
         return $sourceable;
     }
 
-    public function get_form_via_sourceable($type, $id)
+    public function get_form_via_sourceable($type, $id, $response_ids = null)
     {
         $form_sourceable = rl_forms::forms_sourceable_model()::where('sourceable_type', $type)
             ->where('sourceable_id', $id)
@@ -112,7 +128,7 @@ class Helpers
             return null;
         }
 
-        $form = rl_forms::forms_get($form_sourceable->form_id);
+        $form = rl_forms::forms_get($form_sourceable->form_id, $response_ids);
 
         return $form;
     }
@@ -120,11 +136,12 @@ class Helpers
     /*
      *  Responses
      */
-    public function forms_responses_get($form_id, $iso)
+    public function forms_response_get($sourceable_type, $sourceable_id, $iso)
     {
-        return rl_forms::forms_responses_model()::where([
-            ['form_id', '=', $form_id],
-            ['iso',     '=', $iso],
+        return rl_forms::forms_responses_model()::with(['data.sourceable'])->where([
+            ['sourceable_type', '=', $sourceable_type],
+            ['sourceable_id',   '=', $sourceable_id],
+            ['iso',             '=', $iso],
         ])->get();
     }
 

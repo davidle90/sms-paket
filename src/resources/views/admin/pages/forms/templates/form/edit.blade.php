@@ -27,7 +27,13 @@
                             <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
 
                             <div class="form-label-group form-group">
-                                <input type="text" name="bio[{{ $section_index }}][{{ $element_index }}][value]" id="section_{{ $section_index }}_element_{{ $element_index }}" class="form-control">
+                                <input
+                                        type="text"
+                                        name="bio[{{ $section_index }}][{{ $element_index }}][value]"
+                                        id="section_{{ $section_index }}_element_{{ $element_index }}"
+                                        class="form-control"
+                                        value="{{ $element->data->where('response_id', $profile->current->form_response->id)->first()->sourceable->value ?? '' }}"
+                                >
                                 <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language ?? $fallback_language)->required)) ? '*'.$element->in($default_language ?? $fallback_language)->required : '' }}</i></span>
                                 <label
                                         for="section_{{ $section_index }}_element_{{ $element_index }}"
@@ -60,13 +66,23 @@
                                     <!-- Table data -->
                                     @if(isset($element->table->data))
                                         @foreach($element->table->data as $data)
-                                            <option value="{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}">{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}</option>
+                                            <option
+                                                    value="{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}"
+                                                    @if(isset($element->data->where('response_id', $profile->current->form_response->id)->first()->sourceable->value) && $element->data->where('response_id', $profile->current->form_response->id)->first()->sourceable->value === $data->in($default_language ?? $fallback_language)->text)
+                                                        selected
+                                                    @endif
+                                            >{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}</option>
                                         @endforeach
                                     @endif
                                     <!-- Option data -->
                                     @if(isset($element->options))
                                         @foreach($element->options as $option)
-                                            <option value="{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}">{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}</option>
+                                            <option
+                                                    value="{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}"
+                                                    @if(isset($element->data->where('response_id', $profile->current->form_response->id)->first()->sourceable->value) && $element->data->where('response_id', $profile->current->form_response->id)->first()->sourceable->value === $option->in($default_language ?? $fallback_language)->label)
+                                                        selected
+                                                    @endif
+                                            >{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}</option>
                                         @endforeach
                                     @endif
                                 </select>
@@ -92,18 +108,36 @@
                             <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][type_id]" value="{{ $element->type_id }}">
                             <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
 
+                            @php
+                                $multiple_data_array = [];
+
+                                foreach ($element->data->where('response_id', $profile->current->form_response->id) as $response_data) {
+                                    $multiple_data_array[] = $response_data->sourceable->value;
+                                }
+                            @endphp
+
                             <div class="form-group">
                                 <select name="bio[{{ $section_index }}][{{ $element_index }}][value][]" id="section_{{ $section_index }}_element_{{ $element_index }}" class="select-multiple form-control" multiple>
                                     <!-- Table data -->
                                     @if(isset($element->table->data))
                                         @foreach($element->table->data as $data)
-                                            <option value="{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}">{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}</option>
+                                            <option
+                                                    value="{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}"
+                                                    @if(in_array($data->in($default_language ?? $fallback_language)->text, $multiple_data_array))
+                                                        selected
+                                                    @endif
+                                            >{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}</option>
                                         @endforeach
                                     @endif
                                     <!-- Option data -->
                                     @if(isset($element->options))
                                         @foreach($element->options as $option)
-                                            <option value="{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}">{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}</option>
+                                            <option
+                                                    value="{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}"
+                                                    @if(in_array($option->in($default_language ?? $fallback_language)->label, $multiple_data_array))
+                                                        selected
+                                                    @endif
+                                            >{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}</option>
                                         @endforeach
                                     @endif
                                 </select>
@@ -128,6 +162,14 @@
                             <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][type_id]" value="{{ $element->type_id }}">
                             <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
 
+                            @php
+                                $multiple_data_array = [];
+
+                                foreach ($element->data->where('response_id', $profile->current->form_response->id) as $response_data) {
+                                    $multiple_data_array[] = $response_data->sourceable->value;
+                                }
+                            @endphp
+
                             <div class="form-group">
                                 <div class="row">
                                     <!-- Table data -->
@@ -142,6 +184,9 @@
                                                             id="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}"
                                                             value="{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}"
                                                             name="bio[{{ $section_index }}][{{ $element_index }}][value][]"
+                                                            @if(in_array($data->in($default_language ?? $fallback_language)->text, $multiple_data_array))
+                                                            selected
+                                                            @endif
                                                     >
                                                     <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}" style="margin-top: 3px;">
                                                         {{ $data->in($default_language ?? $fallback_language)->text ?? '' }}
@@ -162,6 +207,9 @@
                                                             id="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}"
                                                             value="{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}"
                                                             name="bio[{{ $section_index }}][{{ $element_index }}][value][]"
+                                                            @if(in_array($option->in($default_language ?? $fallback_language)->label, $multiple_data_array))
+                                                                checked
+                                                            @endif
                                                     >
                                                     <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}" style="margin-top: 3px;">
                                                         {{ $option->in($default_language ?? $fallback_language)->label ?? '' }}
@@ -206,6 +254,9 @@
                                                             id="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}"
                                                             value="{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}"
                                                             name="bio[{{ $section_index }}][{{ $element_index }}][value]"
+                                                            @if(isset($element->data->where('response_id', $profile->current->form_response->id)->first()->sourceable->value) && $element->data->where('response_id', $profile->current->form_response->id)->first()->sourceable->value === $data->in($default_language ?? $fallback_language)->text)
+                                                            checked
+                                                            @endif
                                                     >
                                                     <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}" style="margin-top: 3px;">
                                                         {{ $data->in($default_language ?? $fallback_language)->text ?? '' }}
@@ -226,6 +277,9 @@
                                                             id="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}"
                                                             value="{{ $option->in($default_language ?? $fallback_language)->label ?? '' }}"
                                                             name="bio[{{ $section_index }}][{{ $element_index }}][value]"
+                                                            @if(isset($element->data->where('response_id', $profile->current->form_response->id)->first()->sourceable->value) && $element->data->where('response_id', $profile->current->form_response->id)->first()->sourceable->value === $option->in($default_language ?? $fallback_language)->label)
+                                                                checked
+                                                            @endif
                                                     >
                                                     <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_option_{{ $option_index }}" style="margin-top: 3px;">
                                                         {{ $option->in($default_language ?? $fallback_language)->label ?? '' }}
@@ -257,7 +311,9 @@
                             <input type="hidden" name="bio[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
 
                             <div class="form-group">
-                                <textarea name="bio[{{ $section_index }}][{{ $element_index }}][value]" class="redactor-textarea form-control u-form__input"></textarea>
+                                <textarea name="bio[{{ $section_index }}][{{ $element_index }}][value]" class="redactor-textarea form-control u-form__input">
+                                    {{ $element->data->where('response_id', $profile->current->form_response->id)->first()->sourceable->value ?? '' }}
+                                </textarea>
                                 <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language ?? $fallback_language)->required)) ? '*'.$element->in($default_language ?? $fallback_language)->required : '' }}</i></span>
                             </div>
                         </div>
