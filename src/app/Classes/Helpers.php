@@ -6,6 +6,8 @@ use Illuminate\Support\Collection as BaseCollection;
 /*
  * Helpers
  */
+
+use Illuminate\Support\Facades\Config;
 use rl_forms;
 use Lang;
 use DB;
@@ -143,6 +145,44 @@ class Helpers
             ['sourceable_id',   '=', $sourceable_id],
             ['iso',             '=', $iso],
         ])->get();
+    }
+
+    public function forms_get_formatted_response($sourceable_type, $sourceable_id, $iso)
+    {
+        $default_language   = Config::get('app.locale');
+        $fallback_language  = Config::get('app.fallback_locale');
+        $formatted_response = [];
+
+        $response = rl_forms::forms_responses_model()::with(['data.sourceable', 'data.element.sections'])->where([
+            ['sourceable_type', '=', $sourceable_type],
+            ['sourceable_id',   '=', $sourceable_id],
+            ['iso',             '=', $iso],
+        ])->first();
+
+        $form = rl_forms::forms_model()::with([
+            'sections.elements.data' => function($query) use($response) {
+                $query->versionData([$response->id]);
+            },
+            'sections.elements.data.sourceable'
+        ])->find($response->form_id);
+
+        foreach ($form->sections as $section) {
+            $formatted_response[$section->slug]['label'] = $section->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
+
+            foreach ($section->elements as $element) {
+                $formatted_response[$section->slug]['elements'][$element->slug]['label'] = $element->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
+
+                if($element->type_id === 3 || $element->type_id === 4) {
+                    foreach ($element->data as $data) {
+                        $formatted_response[$section->slug]['elements'][$element->slug]['value'][] = $data->sourceable->value ?? '';
+                    }
+                } else {
+                    $formatted_response[$section->slug]['elements'][$element->slug]['value'] = $element->data->first()->sourceable->value ?? '';
+                }
+            }
+        }
+
+        return $formatted_response;
     }
 
     public function forms_responses_store($sourceable_type, $sourceable_id, $form_id, $iso, $input)
