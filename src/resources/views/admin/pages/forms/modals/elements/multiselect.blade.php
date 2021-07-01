@@ -86,6 +86,23 @@
 <!-- Validator -->
 @include('rl_forms::admin.pages.forms.modals.elements.includes.validator')
 
+<!-- Required checkbox -->
+<div class="row">
+    <div class="col-12">
+        <div class="custom-control custom-checkbox d-flex align-items-center mb-3 element-modal-required-checkbox">
+            <input name="sections[{{ $section_index }}][elements][{{ $element_index }}][required]"
+                   type="checkbox"
+                   class="custom-control-input"
+                   id="section_{{ $section_index }}_element_{{ $element_index }}_required"
+                   @if(isset($element) && $element->pivot->required == 1) checked @endif
+                   value="1" >
+            <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_required">
+                Frågan är ett krav och måste besvaras
+            </label>
+        </div>
+    </div>
+</div>
+
 <h6>
     <span class="bold">Krav text</span>
     <span
@@ -208,28 +225,11 @@
 </span>
 
 <!-- Add button for options -->
-<div class="row">
+<div class="row mb-3">
     <div class="col-12 col-md-6">
         <span class="doAddOption btn btn-block btn-outline-primary" data-section-index="{{ $section_index }}" data-element-index="{{ $element_index }}">
             <i class="essential-xs essential-add"></i> Lägg till svarsalternativ
         </span>
-    </div>
-</div>
-
-<!-- Required checkbox -->
-<div class="row mt-3">
-    <div class="col-12">
-        <div class="custom-control custom-checkbox d-flex align-items-center mb-2 element-modal-required-checkbox">
-            <input name="sections[{{ $section_index }}][elements][{{ $element_index }}][required]"
-                   type="checkbox"
-                   class="custom-control-input"
-                   id="section_{{ $section_index }}_element_{{ $element_index }}_required"
-                   @if(isset($element) && $element->pivot->required == 1) checked @endif
-                   value="1" >
-            <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_required">
-                Frågan är ett krav och måste besvaras
-            </label>
-        </div>
     </div>
 </div>
 

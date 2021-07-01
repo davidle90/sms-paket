@@ -3,7 +3,7 @@ $size = $element->pivot->size ?? [];
 @endphp
 
 <!-- Column size, collapsable -->
-<div class="mt-2">
+<div class="mt-1">
     <h6
             class="bold pointer collapse-button"
             data-toggle="collapse"

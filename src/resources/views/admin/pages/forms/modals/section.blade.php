@@ -44,6 +44,25 @@
                     @endforeach
                 </div>
 
+                <!-- Slug -->
+                <h6>
+                    <span class="bold element-slug-label">Slug<i class="fa fa-asterisk required-marker" aria-hidden="true"></i></span>
+                </h6>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-3 form-group element-modal-slug">
+                            <input
+                                    type="text"
+                                    name="sections[{{ $section_index }}][slug]"
+                                    id="section_{{ $section_index }}_slug"
+                                    class="form-control section-slug"
+                                    value="{{ (isset($section)) ? $section->slug ?? '' : '' }}"
+                            >
+                        </div>
+                    </div>
+                </div>
+
                 <h6>
                     <span class="bold">Beskrivning</span>
                     <span

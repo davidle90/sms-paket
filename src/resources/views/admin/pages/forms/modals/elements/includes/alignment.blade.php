@@ -1,8 +1,8 @@
-<h6 class="mt-3">
+<h6>
     <span class="bold">Placering</span>
 </h6>
 
-<div class="row">
+<div class="row mb-3">
     <div class="col-3">
         <div class="custom-control custom-radio element-modal-alignment element-modal-alignment-vertical">
             <input

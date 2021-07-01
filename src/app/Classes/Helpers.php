@@ -135,6 +135,48 @@ class Helpers
         return $form;
     }
 
+    public function forms_rules_messages_get($form_data, $form_id)
+    {
+        $rules      = [];
+        $messages   = [];
+
+        $form   = rl_forms::forms_get($form_id);
+
+        foreach ($form->sections as $section_index => $section) {
+            foreach ($section->elements as $element_index => $element) {
+                if($element->pivot->required == 1){
+                    $rules['form.'.$section_index.'.'.$element_index.'.value']              = 'required|'.$element->validator;
+                    $messages['form.'.$section_index.'.'.$element_index.'.value.required']  = 'Detta fält är ett krav.';
+
+                    if(isset($element->in('sv')->required) && !empty($element->in('sv')->required) && !empty($element->validator)) {
+                        $valdation_rules = explode('|' ,$element->validator);
+
+                        foreach ($valdation_rules as $valdation_rule) {
+                            $rule = explode(':', $valdation_rule)[0] ?? '';
+                            $messages['form.'.$section_index.'.'.$element_index.'.value.'.$rule] = $element->in('sv')->required;
+                        }
+                    }
+                } elseif(!empty($form_data[$section_index][$element_index]['value']) && !empty($element->validator)) {
+                    $rules['form.'.$section_index.'.'.$element_index.'.value'] = ''.$element->validator;
+
+                    if(isset($element->in('sv')->required) && !empty($element->in('sv')->required)) {
+                        $valdation_rules = explode('|' ,$element->validator);
+
+                        foreach ($valdation_rules as $valdation_rule) {
+                            $rule = explode(':', $valdation_rule)[0] ?? '';
+                            $messages['form.'.$section_index.'.'.$element_index.'.value.'.$rule] = $element->in('sv')->required;
+                        }
+                    }
+                }
+            }
+        }
+
+        return [
+            'rules'     => $rules,
+            'messages'  => $messages,
+        ];
+    }
+
     /*
      *  Responses
      */
@@ -170,7 +212,8 @@ class Helpers
             $formatted_response[$section->slug]['label'] = $section->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
 
             foreach ($section->elements as $element) {
-                $formatted_response[$section->slug]['elements'][$element->slug]['label'] = $element->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
+                $formatted_response[$section->slug]['elements'][$element->slug]['label']    = $element->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
+                $formatted_response[$section->slug]['elements'][$element->slug]['type_id']  =  $element->type_id;
 
                 if($element->type_id === 3 || $element->type_id === 4) {
                     foreach ($element->data as $data) {

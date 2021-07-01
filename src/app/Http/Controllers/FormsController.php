@@ -206,6 +206,7 @@ class FormsController extends Controller
                         $new_section                = Forms\Sections::firstOrNew(['id' => $section['id']]);
                         $new_section->form_id       = $form->id;
                         $new_section->sort_order    = $section['sort_order'];
+                        $new_section->slug          = $section['slug'];
                         $new_section->save();
 
                         /*
