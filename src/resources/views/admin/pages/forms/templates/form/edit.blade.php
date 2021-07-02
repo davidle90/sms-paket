@@ -54,7 +54,7 @@
                             <input type="hidden" name="form[{{ $section_index }}][{{ $element_index }}][type_id]" value="{{ $element->type_id }}">
                             <input type="hidden" name="form[{{ $section_index }}][{{ $element_index }}][slug]" value="{{ $element->slug }}">
 
-                            <div class="pmd-textfield form-group">
+                            <div class="form-group">
                                 <select name="form[{{ $section_index }}][{{ $element_index }}][value]" id="section_{{ $section_index }}_element_{{ $element_index }}" class="select-single pmd-select2 form-control" style="width:100%;">
                                     <option value=""></option>
                                     <!-- Table data -->
