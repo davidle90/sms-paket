@@ -75,7 +75,7 @@
                    <div class="row">
                        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                            <div class="mb-3 form-label-group form-group">
-                               <input type="text" name="labels[{{ $key }}]" id="value_{{ $key ?? '' }}" class="form-control" placeholder="" value="{{ (isset($form)) ? $form->in($key)->label : '' }}">
+                               <input type="text" name="labels[{{ $key }}]" id="value_{{ $key ?? '' }}" class="form-control" placeholder="" value="{{ (isset($form)) ? $form->in($key)->label ?? '' : '' }}">
                                <label for="value_{{ $key ?? '' }}">
                                    @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
                                    @if($key == $default_language)
@@ -723,16 +723,6 @@
                section_count++;
 
                init_drag_drop();
-           });
-
-           //Update section label and description on the card
-           $(document).on('click', '.doUpdateSection', function(){
-               let index   = $(this).attr('data-section-index');
-               let label   = $(`#section_${ index }_label_{{ $default_language }}`).val();
-               let text    = $R(`#section_${ index }_description_{{ $default_language }}`, 'source.getCode');
-
-               $(`#section_${ index }`).find('.section-label').text(label);
-               $(`#section_${ index }`).find('.section-description').text(text);
            });
 
            //On type pick

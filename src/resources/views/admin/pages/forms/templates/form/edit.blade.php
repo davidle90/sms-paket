@@ -176,7 +176,7 @@
                                                             value="{{ $data->in($default_language ?? $fallback_language)->text ?? '' }}"
                                                             name="form[{{ $section_index }}][{{ $element_index }}][value][]"
                                                             @if(in_array($data->in($default_language ?? $fallback_language)->text, $multiple_data_array))
-                                                            selected
+                                                                checked
                                                             @endif
                                                     >
                                                     <label class="custom-control-label pointer" for="section_{{ $section_index }}_element_{{ $element_index }}_data_{{ $data_index }}" style="margin-top: 3px;">

@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header bg-dark">
                 <h5 class="modal-title text-white bold" id="editSectionModalLabel_{{ $section_index }}">Redigera sektion</h5>
-                <span style="margin-top:0.15rem;" data-dismiss="modal" aria-label="Close">
+                <span style="margin-top:0.15rem;" class="onCloseModal" aria-label="Close">
                         <i class="essential-sm essential-multiply pointer thin text-white"></i>
                     </span>
             </div>
@@ -51,7 +51,7 @@
 
                 <div class="row">
                     <div class="col-12">
-                        <div class="mb-3 form-group element-modal-slug">
+                        <div class="mb-3 form-group section-modal-slug">
                             <input
                                     type="text"
                                     name="sections[{{ $section_index }}][slug]"
@@ -112,7 +112,7 @@
                             data-mode="show"
                             data-section-index="{{ $section_index }}"
                     >Redigera språk</span>
-                    <button type="button" class="btn btn-outline-success active doUpdateSection" data-section-index="{{ $section_index }}" data-dismiss="modal">Uppdatera</button>
+                    <button type="button" class="btn btn-outline-success active doUpdateSection" data-section-index="{{ $section_index }}">Uppdatera</button>
                 </div>
             </div>
         </div>
@@ -124,6 +124,47 @@
 @endif
     <script type="text/javascript">
         $(document).ready(function(){
+            $modal = $('#editSectionModal_{{ $section_index }}');
+
+            let slug_remove_error = function() {
+                $modal.find('.section-slug').removeClass('is-invalid');
+                $modal.find('.error-block').remove();
+
+                $modal.find('.section-slug').off('input', slug_remove_error);
+            }
+
+            let slug_validator = function() {
+                toastr.error('Some form value is missing or not properly filled out, please check your input and try again', 'Form validation error!', toastr.options = {
+                    "closeButton": false,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": true,
+                    "positionClass": "toast-bottom-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                });
+
+                /** Mark form fields with errors warnings **/
+                $modal.find('.section-slug').removeClass('is-invalid');
+                $modal.find('.error-block').remove();
+                $modal.find('.section-slug').addClass('is-invalid');
+                $modal.find('.section-slug').parent().after("<div class='error-block'>" + 'The slug field is required.' + "</div>");
+
+                $modal.find('.section-slug-label')[0].scrollIntoView({
+                    behavior: "smooth"
+                });
+
+                $modal.find('.section-slug').on('input', slug_remove_error);
+            }
+
             $('#editSectionModal_{{ $section_index }}').on('hidden.bs.modal', function(){
                 $(this).find('.translation').each(function(){
                     $(this).hide();
@@ -200,6 +241,24 @@
                 });
             });
 
+            //Update section label and description on the card
+            $('.doUpdateSection').on('click', function(){
+                let index   = $(this).attr('data-section-index');
+                let label   = $(`#section_${ index }_label_{{ $default_language }}`).val();
+                let text    = $R(`#section_${ index }_description_{{ $default_language }}`, 'source.getCode');
+                let slug    = $modal.find('.section-slug').val();
+
+                if(!slug || slug == '') {
+                    slug_validator();
+                    return;
+                }
+
+                $(`#section_${ index }`).find('.section-label').text(label);
+                $(`#section_${ index }`).find('.section-description').text(text);
+
+                $modal.modal('hide');
+            });
+
             $('.onDeleteSection').off('click').on('click', function(){
                 let section_index = $(this).attr('data-section-index');
 
@@ -209,6 +268,17 @@
 
                     $(`#editSectionModal_${ section_index }`).off('hidden.bs.modal');
                 });
+            });
+
+            $('.onCloseModal').on('click', function(){
+                let slug = $modal.find('.section-slug').val();
+
+                if(!slug || slug == '') {
+                    slug_validator();
+                    return;
+                }
+
+                $modal.modal('hide');
             });
         });
     </script>

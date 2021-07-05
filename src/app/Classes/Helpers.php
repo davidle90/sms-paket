@@ -144,9 +144,40 @@ class Helpers
 
         foreach ($form->sections as $section_index => $section) {
             foreach ($section->elements as $element_index => $element) {
+                $table_validaton_str = '';
+
+                if((isset($element->table) && !empty($element->table)) || (isset($element->options) && !empty($element->options))) {
+                    $table_validaton_str = '|in:';
+
+                    if(isset($element->table) && !empty($element->table)) {
+                        foreach ($element->table->data as $table_data) {
+                            foreach ($table_data->translations as $value) {
+                                $table_validaton_str .= $value->translation.',';
+                            }
+                        }
+                    }
+
+                    if(isset($element->options) && !empty($element->options)) {
+                        foreach ($element->options as $option) {
+                            foreach ($option->translations as $value) {
+                                $table_validaton_str .= $value->translation.',';
+                            }
+                        }
+                    }
+
+                    $messages['form.'.$section_index.'.'.$element_index.'.value.in'] = 'Detta fält är ett krav.';
+                }
+
+
                 if($element->pivot->required == 1){
-                    $rules['form.'.$section_index.'.'.$element_index.'.value']              = 'required|'.$element->validator;
+                    $rules['form.'.$section_index.'.'.$element_index.'.value']              = 'required|';
                     $messages['form.'.$section_index.'.'.$element_index.'.value.required']  = 'Detta fält är ett krav.';
+
+                    if($element->type_id == 3 || $element->type_id == 4) {
+                        $rules['form.'.$section_index.'.'.$element_index.'.value.*'] = ''.$table_validaton_str;
+                    } else {
+                        $rules['form.'.$section_index.'.'.$element_index.'.value'] .= $element->validator.$table_validaton_str;
+                    }
 
                     if(isset($element->in('sv')->required) && !empty($element->in('sv')->required) && !empty($element->validator)) {
                         $valdation_rules = explode('|' ,$element->validator);
@@ -157,7 +188,11 @@ class Helpers
                         }
                     }
                 } elseif(!empty($form_data[$section_index][$element_index]['value']) && !empty($element->validator)) {
-                    $rules['form.'.$section_index.'.'.$element_index.'.value'] = ''.$element->validator;
+                    if($element->type_id == 3 || $element->type_id == 4) {
+                        $rules['form.'.$section_index.'.'.$element_index.'.value.*'] = ''.$table_validaton_str;
+                    } else {
+                        $rules['form.'.$section_index.'.'.$element_index.'.value'] = $element->validator.$table_validaton_str;
+                    }
 
                     if(isset($element->in('sv')->required) && !empty($element->in('sv')->required)) {
                         $valdation_rules = explode('|' ,$element->validator);
@@ -166,6 +201,12 @@ class Helpers
                             $rule = explode(':', $valdation_rule)[0] ?? '';
                             $messages['form.'.$section_index.'.'.$element_index.'.value.'.$rule] = $element->in('sv')->required;
                         }
+                    }
+                } elseif(!empty($form_data[$section_index][$element_index]['value']) && !empty($table_validaton_str)) {
+                    if($element->type_id == 3 || $element->type_id == 4) {
+                        $rules['form.'.$section_index.'.'.$element_index.'.value.*'] = ''.$table_validaton_str;
+                    } else {
+                        $rules['form.'.$section_index.'.'.$element_index.'.value'] = ''.$table_validaton_str;
                     }
                 }
             }
@@ -201,12 +242,20 @@ class Helpers
             ['iso',             '=', $iso],
         ])->first();
 
+        if(!isset($response->form_id)) {
+            return $formatted_response;
+        }
+
         $form = rl_forms::forms_model()::with([
             'sections.elements.data' => function($query) use($response) {
                 $query->versionData([$response->id]);
             },
             'sections.elements.data.sourceable'
         ])->find($response->form_id);
+
+        if(!isset($form)) {
+            return $formatted_response;
+        }
 
         foreach ($form->sections as $section) {
             $formatted_response[$section->slug]['label'] = $section->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
@@ -216,6 +265,8 @@ class Helpers
                 $formatted_response[$section->slug]['elements'][$element->slug]['type_id']  =  $element->type_id;
 
                 if($element->type_id === 3 || $element->type_id === 4) {
+                    $formatted_response[$section->slug]['elements'][$element->slug]['value'] = [];
+
                     foreach ($element->data as $data) {
                         $formatted_response[$section->slug]['elements'][$element->slug]['value'][] = $data->sourceable->value ?? '';
                     }

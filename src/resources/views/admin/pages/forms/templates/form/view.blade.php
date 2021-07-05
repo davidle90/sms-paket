@@ -18,14 +18,9 @@
                             @endif
                         </div>
 
-                        <div class="form-label-group form-group">
+                        <div class="form-group">
                             <input type="text" id="section_{{ $section_index }}_element_{{ $element_index }}" class="form-control">
                             <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language ?? $fallback_language)->required)) ? '*'.$element->in($default_language ?? $fallback_language)->required : '' }}</i></span>
-                            <label
-                                    for="section_{{ $section_index }}_element_{{ $element_index }}"
-                            >
-                                {{ $element->in($default_language ?? $fallback_language)->label ?? '' }}
-                            </label>
                         </div>
                     </div>
                     @break
@@ -42,7 +37,7 @@
                             @endif
                         </div>
 
-                        <div class="pmd-textfield pmd-textfield-floating-label form-group">
+                        <div class="pmd-textfield form-group">
                             <select id="section_{{ $section_index }}_element_{{ $element_index }}" class="select-single pmd-select2 form-control" style="width:100%;">
                                 <option value=""></option>
                                 <!-- Table data -->
@@ -59,7 +54,6 @@
                                 @endif
                             </select>
                             <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language ?? $fallback_language)->required)) ? '*'.$element->in($default_language ?? $fallback_language)->required : '' }}</i></span>
-                            <label for="section_{{ $section_index }}_element_{{ $element_index }}">{{ $element->in($default_language ?? $fallback_language)->label ?? '' }}</label>
                         </div>
                     </div>
                     @break

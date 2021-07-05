@@ -12,16 +12,13 @@
 @if($type_id == 1)
     <div class="row">
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="form-label-group form-group mb-1">
+            <div class="form-group mb-1">
                 <input
                         type="text"
                         id="section_{{ $section_index }}_element_{{ $element_index }}_options_display"
                         class="form-control update-option"
                 >
                 <span><i class="text-danger element-required-text">{{ (isset($element_required_text)) ? '*'.$element_required_text : '' }}</i></span>
-                <label for="section_{{ $section_index }}_element_{{ $element_index }}_options_display">
-                    {{ $element_label ?? '' }}
-                </label>
             </div>
         </div>
     </div>
