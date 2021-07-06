@@ -140,7 +140,7 @@ class Helpers
         $rules      = [];
         $messages   = [];
 
-        $form   = rl_forms::forms_get($form_id);
+        $form = rl_forms::forms_get($form_id);
 
         foreach ($form->sections as $section_index => $section) {
             foreach ($section->elements as $element_index => $element) {
