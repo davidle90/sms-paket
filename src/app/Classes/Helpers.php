@@ -34,6 +34,11 @@ class Helpers
         return config('rl_forms.models.forms_sections');
     }
 
+    public function forms_elements_model()
+    {
+        return config('rl_forms.models.forms_elements');
+    }
+
     public function forms_responses_model()
     {
         return config('rl_forms.models.forms_responses');
