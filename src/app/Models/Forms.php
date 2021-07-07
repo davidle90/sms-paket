@@ -1,43 +1,46 @@
 <?php namespace Rocketlabs\Forms\App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Rocketlabs\Languages\App\Traits\Translatable;
 
 class Forms extends Model
 {
+    use Translatable;
 
-	protected $relations = [
-		'responses'					=>	'Rocketlabs\Forms\App\Models\Forms\Response',
-		'elements'					=>	'Rocketlabs\Forms\App\Models\Forms\Elements',
-		'sections'					=>	'Rocketlabs\Forms\App\Models\Forms\Sections',
-	];
+    protected $with = ['translations'];
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    public function getTable()
+    {
+        return config('rl_forms.tables.forms');
+    }
 
     protected $fillable = [
-		'label'
-	];
+        'slug'
+    ];
 
-    /*
-     * The database table used by the model.
-     */
-    protected $table = 'forms';
+    public $translatable = [
+        'label'
+    ];
 
-	public function responses()
-	{
-		return $this->hasMany($this->relations['responses'],'form_id', 'id');
-	}
-
-	public function elements()
-	{
-		return $this->hasMany($this->relations['elements'],'form_id','id');
-	}
-
-	public function sections()
-	{
-		return $this->hasMany($this->relations['sections'],'form_id','id');
-	}
-
-    public function tickets()
+    public function sections()
     {
-        //return $this->belongsToMany();
+        return $this->hasMany(config('rl_forms.models.forms_sections'), 'form_id', 'id');
+    }
+
+    public function responses()
+    {
+        return $this->hasMany(config('rl_forms.models.forms_responses'), 'form_id', 'id');
+    }
+
+    public function sourceable()
+    {
+        return $this->belongsTo(config('rl_forms.models.forms_sourceable'), 'id', 'form_id');
     }
 
 }
+

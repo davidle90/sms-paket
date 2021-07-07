@@ -1,114 +1,7 @@
-@extends('rl_webadmin::layouts.master')
+@extends('rl_webadmin::layouts.new_master')
 
 @section('styles')
-	<style>
-		div.element {
-			background-color:#fff;
-			border:1px solid #d5e0ed;
-			margin-bottom:15px;
-			border-radius: 3px;
-		}
-
-        div.element .element-drag {
-            background-color:#f7f7f9;
-            border-bottom:1px solid #d5e0ed;
-            padding:10px;
-            cursor:grabbing;
-            width:100%;
-            display:block;
-            border-top-left-radius: 2px;
-            border-top-right-radius: 2px;
-        }
-
-        div.element:hover .element-drag {
-            background-color:#e8f5ff;
-            border-color:#10a9e6;
-        }
-
-        div.element:hover {
-            border-color:#10a9e6;
-        }
-
-		div.element .form-control {
-			color: #333;
-			background-color:#fff;
-			border:1px solid #dfe1e6;
-			padding: 7px 5px 7px 5px;
-		}
-
-		div.element .element-settings {
-            right: 0px;
-            top: -5px;
-            position: relative;
-            color: #4a4a4a;
-		}
-
-        div.element .element-view {
-            padding:10px;
-        }
-
-		div.element .form-control:focus {
-			background-color:#fff;
-			border-color: #0096db;
-			outline: none;
-		}
-
-		div.element .input-group .flaticon {
-			color:#9ea5b5;
-		}
-
-		div.element .input-group .form-control {
-			border-right:0px;
-		}
-
-		div.element .input-group .form-control:focus {
-			border:1px solid #0096db;
-		}
-
-		div.element .input-group-addon {
-			padding: 0.2rem 0.55rem;
-			margin-bottom: 0;
-			font-size: 1.4rem;
-			font-weight: normal;
-			line-height: 1.25;
-			color: #989ca7;
-			text-align: center;
-			background-color: #fff;
-			border:1px solid #dfe1e6;
-			border-left:0px;
-			border-radius: 0rem;
-		}
-
-        div.element .element-answers .answer {
-            margin-bottom:10px;
-        }
-
-		.survey-section-header {
-			background-color:#319cd6;
-			border-radius: 0 5px 5px;
-			margin:15px 0;
-			color:#fff;
-			padding:10px;
-		}
-
-		.survey-section-header.first-child {
-			margin-top:0;
-		}
-
-		.survey-section-header .c-button {
-			padding: 0px 7px;
-		}
-
-		.survey-droparea {
-			display:block;
-			width:100%;
-			background-color:#e8f5ff;
-			border:2px dashed #319cd6;
-			border-radius:4px;
-			text-align:center;
-			color:#43ace0;
-			padding:50px;
-		}
+    <style>
         .placeholder {
             background-color:#e8f5ff;
             border:2px dashed #319cd6;
@@ -119,1031 +12,777 @@
             font-weight:bold;
             margin-bottom:15px;
         }
-	</style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css" />
+    </style>
+
+    <link href="{{ mix('css/app/multiselect.css') }}" rel="stylesheet" type="text/css">
 @endsection
 
 @section('breadcrumbs')
     <!-- Breadcrumb -->
     <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Formulär</li>
-        <!-- Breadcrumb Menu-->
-        <li class="breadcrumb-menu d-md-down-none">
-            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                <a class="btn" href="{{ route('rl_forms.admin.forms.create') }}"><i class="icon-user"></i> Lägg till nytt formulär</a>
-            </div>
-        </li>
+        <li class="breadcrumb-item"><a href="{{ route('rl_forms.admin.forms.index') }}">Formulär</a></li>
+
+        @if(isset($form) && !empty($form))
+            <li class="breadcrumb-item"><a href="{{ route('rl_forms.admin.forms.view', ['id' => $form->id]) }}">{{ $form->in($default_language)->label ?? '' }}</a></li>
+            <li class="breadcrumb-item active">Redigera</li>
+        @else
+            <li class="breadcrumb-item active">Skapa formulär</li>
+        @endif
+
     </ol>
 @endsection
 
-@section('content')
-
-    <div class="card">
-
-        <!-- Card header -->
-        <div class="card-header">
-            <strong>Formlär</strong>
-        </div>
-        <div class="card-body">
-
-
-
-            <div class="float-left">
-                <h5 class="page-title">Formulär</h5>
-            </div>
-
-            <div class="float-right">
-
-
-                <!-- Button group -->
-                @if(isset($form) && !empty($form))
-                    <span class="btn btn-link" id="doDeleteForm" data-form-id="{{ $form->id ?? '' }}">Radera</span>
-
-                    <div class="btn-group">
-                        <a class="btn btn-success" href="{{ route('rl_forms.admin.forms.create') }}">Skapa nytt formulär</a>
-                        <a class="btn btn-secondary" href="{{ route('rl_forms.admin.forms.view', ['id' => $form->id]) }}" role="button">Visa formulär</a>
-                    </div>
-                @endif
-
-                <!-- Post button group -->
-                <span class="form-save btn btn-success">Spara</span>
-
-
-            </div>
-
-            <div class="clearfix"></div>
-
-            <div class="row">
-                <div class="col-9">
-
-                    <form id="eventForm" method="post" action="{{ URL::route('rl_forms.admin.forms.store') }}" novalidate>
-
-                        <div class="form-group">
-                            <label for="label" class="control-label">Titel på formulär</label>
-                            <input type="text" name="label" value="{{ $form->label ?? '' }}" class="form-control" />
-                        </div>
-
-                        <input type="hidden" name="form_id" value="{{ $form->id ?? '' }}" />
-
-                        <div id="survey-sections" data-elements-count="{{ $form->elements_count or 0 }}" data-sections-count="{{ $form->sections_count or 0 }}">
-
-                            @if(!isset($form->sections) || $form->sections->isEmpty())
-                                <div class="survey-droparea">
-                                    <span class="survey-droparea-text">
-                                        <h3>Dynamiska formulär</h3>
-                                        <p>
-                                            Klicka på något av objekten i listan till höger för att lägga till det i ditt formulär.<br />
-                                            Efter att du har lagt till objekt kan du flytta dem genom att "dra och släppa" dem där du vill ha dem.
-                                        </p>
-                                    </span>
-                                </div>
-                            @endif
-
-                            @if(isset($form->sections) && !$form->sections->isEmpty())
-                                <?php $y=0; ?>
-                                <?php $i=0; ?>
-                                @foreach($form->sections as $section)
-
-                                    <div class="survey-section" data-unique-id="{{$y}}">
-
-                                        <input class="section-id" type="hidden" name="section[{{$y}}][id]" value="{{$form->id}}" />
-                                        <input class="section-sort-order" type="hidden" name="section[{{$y}}][sort_order]" value="{{$form->sort_order or 0}}" />
-
-                                        {{--
-                                        <div class="survey-section-header first-child" style="display:none;">
-
-                                                <span class="float-left">
-                                                    <b>Page title:</b> <span class="section-page-label section-drag">{{$form->label}}</span>
-                                                </span>
-
-                                            <div class="float-right">
-                                                <b>Page:</b> <span class="section-page">{{ $y+1 }}</span> of <span class="section-page-of">{{ $form->sections_count ?? '0' }}</span>
-                                                <span class="c-button survey-section-modal"><i class="text-white thin flaticon flaticon-pencil"></i></span>
-                                            </div>
-
-                                            <div class="clearfix"></div>
-
-                                        </div>
-                                        --}}
-
-                                        <div class="@if($loop->first && $section->elements->isEmpty()) survey-droparea @endif survey-section-elements">
-
-                                            @if($loop->first && $section->elements->isEmpty())
-                                                <span class="survey-droparea-text">
-                                                    <h3>Survey items</h3>
-                                                    <p>Click on a survey item in the right menu to add it to this page section.<br />After adding items you can move them around by "drag and drop" on the item title.</p>
-                                                </span>
-                                            @endif
-
-                                            @if(isset($section->elements) && !$section->elements->isEmpty())
-                                                @foreach($section->elements as $element)
-                                                    @include('rl_forms::admin.pages.forms.templates.'.$element->template->template)
-                                                    <?php $i++; ?>
-                                                @endforeach
-                                            @endif
-                                        </div>
-
-
-                                        {{-- @include('app.surveys.edit.modal.section')--}}
-                                    </div>
-                                    <?php $y++; ?>
-                                @endforeach
-                            @endif
-
-                        </div>
-
-                    </form>
-
-                </div>
-
-                <div class="col-3">
-
-                    <div class="panel" style="margin-top:87px;">
-                        <div class="panel-body">
-
-                            <a class="btn btn-block btn-primary survey-section-add" style="display: none;" href="#">Add new page</a>
-
-                            @foreach($listElements as $e)
-                                <a class="btn btn-block btn-condensed btn-left btn-secondary survey-element-add" href="" data-url="{{ route('rl_forms.admin.forms.template', ['template' => $e->template]) }}">{{ $e->label }}</a>
-                            @endforeach
-
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-
-
-
-
-
-
-
-
-
-            <div id="surveySectionTemplate" style="display: none;">
-
-                <input class="section-id" type="hidden" name="section_id" value="" />
-                <input class="section-sort-order" type="hidden" name="sort_order" value="" />
-
-                <div class="survey-section-header" style="display: none;">
-
-                    <span class="float-left">
-                        <b>Page title:</b> <span class="section-page-label section-drag">Untitled page</span>
-                    </span>
-
-                    <div class="float-right">
-                        <b>Page:</b> <span class="section-page">1</span> of <span class="section-page-of">2</span>
-                        <span class="c-button survey-section-modal"><i class="text-white thin flaticon flaticon-pencil"></i></span>
-                    </div>
-
-                    <div class="clearfix"></div>
-
-                </div>
-
-                <div class="survey-section-elements"></div>
-
-
-                <!-- Modal -->
-                <div class="modal fade" id="surveySectionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLongTitle">
-                                    Page settings
-                                    <button type="button" class="close pull-right" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true"><i class="essential essential-multiply"></i></span>
-                                    </button>
-                                </h5>
-
-                            </div>
-                            <div class="modal-body">
-
-                                <div class="form-group">
-                                    <label class="control-label">Page name</label>
-                                    <input type="text" name="replace_label" class="form-control" value="Untitled page" />
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="control-label">Page description</label>
-                                    <textarea class="form-control" name="replace_description"></textarea>
-                                </div>
-
-
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger float-left section-delete" data-dismiss="modal">Delete</button>
-                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
+@section('sidebar')
+    @if(isset($form) && !empty($form))
+        <a class="btn btn-block btn-outline-primary" href="{{ route('rl_forms.admin.forms.view', ['id' => $form->id]) }}"><i class="fal fa-angle-left mr-2"></i> {{ $form->in($default_language)->label ?? '' }}</a>
+    @else
+        <a class="btn btn-block btn-outline-primary" href="{{ route('rl_forms.admin.forms.index') }}"><i class="fal fa-angle-left mr-2"></i> Formulär</a>
+    @endif
+    <span class="doAddSection btn btn-block btn-outline-primary">
+        <i class="essential-xs essential-add"></i> Lägg till sektion
+    </span>
+    <span class="doSaveForm btn btn-block btn-outline-success">Spara</span>
+    @if(isset($form) && !empty($form))
+        <span class="btn btn-block btn-outline-danger" data-toggle="modal" data-target="#deleteFormModal">Radera</span>
+    @endif
 @endsection
+
+@section('modals')
+    @include('rl_forms::admin.pages.forms.modals.delete_form')
+    @include('rl_forms::admin.pages.forms.modals.delete_section')
+    @include('rl_forms::admin.pages.forms.modals.delete_element')
+@endsection
+
+@section('content')
+   <div class="card">
+       <div class="card-header">
+           @if(isset($form) && !empty($form))
+               <b>Redigera formulär</b>
+           @else
+               <b>Skapa formulär</b>
+           @endif
+       </div>
+
+       <div class="card-body">
+           <form id="form_form" method="post" action="{{ route('rl_forms.admin.forms.store') }}" autocomplete="off">
+
+               <input type="hidden" name="form_id" value="{{ $form->id ?? '' }}" />
+
+               <h6 class="bold">Label</h6>
+
+               @foreach($languages as $key => $lang)
+                   <!-- Label -->
+                   <div class="row">
+                       <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                           <div class="mb-3 form-label-group form-group">
+                               <input type="text" name="labels[{{ $key }}]" id="value_{{ $key ?? '' }}" class="form-control" placeholder="" value="{{ (isset($form)) ? $form->in($key)->label ?? '' : '' }}">
+                               <label for="value_{{ $key ?? '' }}">
+                                   @ucfirst(language($key)->getNativeName()) ({{ language($key)->getName() }})
+                                   @if($key == $default_language)
+                                       <i class="fa fa-asterisk required-marker" aria-hidden="true"></i>
+                                   @endif
+                               </label>
+                           </div>
+                       </div>
+                   </div>
+               @endforeach
+
+               <h6 class="bold">Slug</h6>
+
+               <div class="row">
+                   <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                       <!-- Slug -->
+                       <div class="mb-3 form-group">
+                           <input type="text" name="slug" id="inputLabel" class="form-control" placeholder="" value="{{ $form->slug ?? '' }}">
+                       </div>
+
+                   </div>
+               </div>
+
+               <div class="sortable-sections">
+                    @if(isset($form->sections) && !$form->sections->isEmpty())
+                       @foreach($form->sections as $section_index => $section)
+                           <div class="row" id="section_{{ $section_index }}" data-element-count="{{ (isset($section->elements)) ? $section->elements->count() : 0 }}">
+                               <!-- Hidden inputs start -->
+                               <input
+                                       type="hidden"
+                                       min=1
+                                       class="sortOrderUpdateSectionVal"
+                                       value="{{ $section->sort_order  ?? ''}}"
+                                       name="sections[{{ $section_index }}][sort_order]"
+                                       id="sections_{{ $section_index }}_sort_order"
+                               >
+                               <input
+                                        type="hidden"
+                                        class="section-id"
+                                        value="{{ $section->id }}"
+                                        name="sections[{{ $section_index }}][id]"
+                               >
+                               <!-- Hidden inputs end -->
+
+                               @include('rl_forms::admin.pages.forms.modals.section')
+                               @include('rl_forms::admin.pages.forms.modals.types')
+
+                               <div class="col-12">
+                                   <div class="card">
+
+                                       <div class="card-header handle-section" style="background-color: #e9f3fc; cursor: grabbing;">
+                                           <b>Sektion <span class="sortOrderUpdateSectionLabel">{{ $section->sort_order ?? '' }}</span></b>
+
+                                           <span class="float-right">
+                                               <span class="m-0 mr-3 pointer" data-toggle="modal" data-target="#chooseTypeModal_{{ $section_index }}" data-index="{{ $section_index }}">
+                                                   <i class="essential-xs essential-add"></i> Lägg till fråga
+                                               </span>
+                                               <span class="m-0 pointer" data-toggle="modal" data-target="#editSectionModal_{{ $section_index }}" data-index="{{ $section_index }}">
+                                                   <i class="fal fa-pencil-alt"></i>
+                                               </span>
+                                           </span>
+                                       </div>
+
+                                       <div class="card-body">
+                                           <h6 class="bold section-label">{{ $section->in($default_language)->label ?? '' }}</h6>
+                                           <p class="section-description">{{ $section->in($default_language)->description ?? '' }}</p>
+                                           <div class="sortable-elements" style="min-height: 100px;">
+                                               <input class="section-index" type="hidden" value="{{ $section_index }}">
+                                               <div id="filler_div"></div>
+
+                                               @if(isset($section->elements) && !empty($section->elements))
+                                                   @foreach($section->elements as $element_index => $element)
+
+                                                       <div class="row element-wrapper" id="section_{{ $section_index }}_element_{{ $element_index }}">
+                                                           <input
+                                                                   type="hidden"
+                                                                   min=1
+                                                                   class="sortOrderUpdateElementVal"
+                                                                   value="{{ $element->pivot->sort_order ?? '' }}"
+                                                                   name="sections[{{ $section_index }}][elements][{{ $element_index }}][sort_order]"
+                                                                   id="sections_{{ $section_index }}_elements_{{ $element_index }}_sort_order"
+                                                           >
+                                                           <input type="hidden" name="sections[{{ $section_index }}][elements][{{ $element_index }}][type_id]" value="{{ $element->type->id}}" class="element-type-id">
+                                                           <input
+                                                                   type="hidden"
+                                                                   class="element-id"
+                                                                   value="{{ $element->id }}"
+                                                                   name="sections[{{ $section_index }}][elements][{{ $element_index }}][id]"
+                                                           >
+
+                                                           @include('rl_forms::admin.pages.forms.modals.element')
+
+                                                           <div class="col-12">
+                                                               <div class="card">
+
+                                                                   <div class="card-header handle-element" style="background-color: #dcefdc; cursor: grabbing;">
+                                                                       <b>Fråga
+                                                                           <span class="sortOrderUpdateElementLabel">{{ $element->pivot->sort_order ?? '' }}</span> -
+                                                                           {{ $element->type->label ?? '' }}
+                                                                       </b>
+
+                                                                       <span class="float-right">
+                                                                       <span
+                                                                           class="m-0 pointer element-modal-button"
+                                                                           data-toggle="modal"
+                                                                           data-target="#elementEditModal_section_{{ $section_index }}_element_{{ $element_index }}"
+                                                                           data-section-index="{{ $section_index }}"
+                                                                           data-element-index="{{ $element_index }}"
+                                                                       >
+                                                                           <i class="fal fa-pencil-alt"></i>
+                                                                       </span>
+                                                                   </span>
+                                                                   </div>
+
+                                                                   <div class="card-body update-card-body">
+                                                                       <div class="mb-2">
+                                                                           <h6 class="mb-0 element-label">
+                                                                               {{ $element->in($default_language)->label ?? '' }}
+                                                                               @if($element->pivot->required == 1 && isset($element->in($default_language)->label)) <i class="fa fa-asterisk required-marker" aria-hidden="true"></i> @endif
+                                                                           </h6>
+                                                                           @if(isset($element->in($default_language ?? $fallback_language)->description))
+                                                                               <p class="element-description mb-0">{{ $element->in($default_language)->description ?? '' }}</p>
+                                                                           @endif
+                                                                       </div>
+
+                                                                       <!-- Input -->
+                                                                       @if($element->type_id === 1)
+                                                                           <div class="row">
+                                                                               <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                                                   <div class="form-group mb-1">
+                                                                                       <input
+                                                                                               type="text"
+                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_options_display"
+                                                                                               class="form-control update-option"
+                                                                                       >
+                                                                                       <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language)->required)) ? '*'.$element->in($default_language)->required : '' }}</i></span>
+                                                                                   </div>
+                                                                               </div>
+                                                                           </div>
+                                                                       @endif
+
+                                                                       <!-- Textarea -->
+                                                                       @if($element->type_id === 6)
+                                                                           <div class="row">
+                                                                               <div class="col-12 col-sm-6 col-md-4 col-lg-4">
+                                                                                   <div class="form-group mb-1">
+                                                                                       <textarea
+                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_options_display"
+                                                                                               class="redactor-sv form-control u-form__input update-option"
+                                                                                       ></textarea>
+                                                                                       <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language)->required)) ? '*'.$element->in($default_language)->required : '' }}</i></span>
+                                                                                   </div>
+                                                                               </div>
+                                                                           </div>
+                                                                       @endif
+
+                                                                       <!-- Options -->
+                                                                       @if((isset($element->options) && !$element->options->isEmpty()) || isset($element->table_id))
+                                                                           <!-- Dropdown, Dropdown, multiselect-->
+                                                                           @if($element->type_id === 2 || $element->type_id === 3)
+                                                                               <div class="row">
+                                                                                   <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                                                       <select
+                                                                                               id="section_{{ $section_index }}_element_{{ $element_index }}_options_display"
+                                                                                               class="form-control update-option"
+                                                                                       >
+                                                                                           <option></option>
+                                                                                           <!-- Table data -->
+                                                                                           @if(isset($element->table->data))
+                                                                                               @foreach($element->table->data as $data)
+                                                                                                   <option>{{ $data->in($default_language)->text ?? '' }}</option>
+                                                                                               @endforeach
+                                                                                           @endif
+                                                                                           <!-- Option data -->
+                                                                                           @foreach($element->options as $option)
+                                                                                               <option>{{ $option->in($default_language)->label ?? '' }}</option>
+                                                                                           @endforeach
+                                                                                       </select>
+                                                                                       <span><i class="text-danger element-required-text">{{ (isset($element->in($default_language)->required)) ? '*'.$element->in($default_language)->required : '' }}</i></span>
+                                                                                   </div>
+                                                                               </div>
+                                                                           @endif
+
+                                                                           <!-- Checkbox -->
+                                                                           @if($element->type_id === 4)
+                                                                               <div class="row">
+                                                                                   <!-- Table data -->
+                                                                                   @if(isset($element->table->data))
+                                                                                       @foreach($element->table->data as $data_index => $data)
+                                                                                           <div class="{{ (isset($element->alignment) && $element->alignment === 'horizontal') ? 'col-12 col-sm-6 col-md-4 col-lg-3' : 'col-12' }}">
+                                                                                               <div class="custom-control custom-checkbox d-flex align-items-center">
+                                                                                                   <input
+                                                                                                           type="checkbox"
+                                                                                                           class="custom-control-input update-data"
+                                                                                                           id="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}"
+                                                                                                           disabled
+                                                                                                   >
+                                                                                                   <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}">
+                                                                                                       {{ $data->in($default_language)->text ?? '' }}
+                                                                                                   </label>
+                                                                                               </div>
+                                                                                           </div>
+                                                                                       @endforeach
+                                                                                   @endif
+                                                                                   <!-- Option data -->
+                                                                                   @foreach($element->options as $option_index => $option)
+                                                                                       <div class="{{ (isset($element->alignment) && $element->alignment === 'horizontal') ? 'col-12 col-sm-6 col-md-4 col-lg-3' : 'col-12' }}">
+                                                                                           <div class="custom-control custom-checkbox d-flex align-items-center">
+                                                                                               <input
+                                                                                                       type="checkbox"
+                                                                                                       class="custom-control-input update-option"
+                                                                                                       id="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}"
+                                                                                                       disabled
+                                                                                               >
+                                                                                               <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}">
+                                                                                                   {{ $option->in($default_language)->label ?? '' }}
+                                                                                               </label>
+                                                                                           </div>
+                                                                                       </div>
+                                                                                   @endforeach
+                                                                               </div>
+                                                                               <div class="mt-1"><i class="text-danger element-required-text">{{ (isset($element->in($default_language)->required)) ? '*'.$element->in($default_language)->required : '' }}</i></div>
+                                                                           @endif
+
+                                                                           <!-- Radio -->
+                                                                           @if($element->type_id === 5)
+                                                                               <div class="row">
+                                                                                   <!-- Table data -->
+                                                                                   @if(isset($element->table->data))
+                                                                                       @foreach($element->table->data as $data_index => $data)
+                                                                                           <div class="{{ (isset($element->alignment) && $element->alignment === 'horizontal') ? 'col-12 col-sm-6 col-md-4 col-lg-3' : 'col-12' }}">
+                                                                                               <div class="custom-control custom-radio">
+                                                                                                   <input
+                                                                                                           type="radio"
+                                                                                                           class="custom-control-input"
+                                                                                                           id="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}"
+                                                                                                           disabled
+                                                                                                   >
+                                                                                                   <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_table_data_display_{{ $data_index }}">
+                                                                                                       {{ $data->in($default_language)->text ?? '' }}
+                                                                                                   </label>
+                                                                                               </div>
+                                                                                           </div>
+                                                                                       @endforeach
+                                                                                   @endif
+                                                                                   <!-- Option data -->
+                                                                                   @foreach($element->options as $option_index => $option)
+                                                                                       <div class="{{ (isset($element->alignment) && $element->alignment === 'horizontal') ? 'col-12 col-sm-6 col-md-4 col-lg-3' : 'col-12' }}">
+                                                                                           <div class="custom-control custom-radio">
+                                                                                               <input
+                                                                                                       type="radio"
+                                                                                                       class="custom-control-input"
+                                                                                                       id="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}"
+                                                                                                       disabled
+                                                                                               >
+                                                                                               <label class="custom-control-label" for="section_{{ $section_index }}_element_{{ $element_index }}_options_display_{{ $option_index }}">
+                                                                                                   {{ $option->in($default_language)->label ?? '' }}
+                                                                                               </label>
+                                                                                           </div>
+                                                                                       </div>
+                                                                                   @endforeach
+                                                                               </div>
+                                                                               <div class="mt-1"><i class="text-danger element-required-text">{{ (isset($element->in($default_language)->required)) ? '*'.$element->in($default_language)->required : '' }}</i></div>
+                                                                           @endif
+
+                                                                       @endif
+
+                                                                       <!-- Imported Table -->
+                                                                       @if(isset($element->table_id))
+                                                                           <p class="mt-3 mb-0"><span class="bold">Importerad tabell:</span> {{ $element->table->label }}</p>
+                                                                       @endif
+                                                                   </div>
+
+                                                               </div>
+                                                           </div>
+                                                       </div>
+
+                                                   @endforeach
+                                               @endif
+                                           </div>
+                                       </div>
+
+                                   </div>
+                               </div>
+                           </div>
+                       @endforeach
+                    @endif
+               </div>
+           </form>
+       </div>
+
+   </div>
+
+   <!-- Template Section -->
+   <div class="row hidden" id="template_section" data-element-count="{{ 0 }}">
+       <!-- Hidden inputs -->
+       <input
+               type="hidden"
+               min=1
+               class="sortOrderUpdateSectionVal"
+               value=""
+               name=""
+               id=""
+       >
+       <input
+               type="hidden"
+               class="section-id"
+               value=""
+               name=""
+       >
+
+       @include('rl_forms::admin.pages.forms.modals.templates.types')
+
+       <div class="col-12">
+           <div class="card">
+
+               <div class="card-header handle-section" style="background-color: #e9f3fc; cursor: grabbing;">
+                   <b>Sektion <span class="sortOrderUpdateSectionLabel"></span></b>
+
+                   <span class="float-right">
+                       <span class="m-0 mr-3 pointer section-types-button" data-toggle="modal" data-target="">
+                           <i class="essential-xs essential-add"></i> Lägg till fråga
+                       </span>
+                       <span class="m-0 pointer section-modal-button" data-toggle="modal" data-target="">
+                           <i class="fal fa-pencil-alt"></i>
+                       </span>
+                   </span>
+               </div>
+
+               <div class="card-body">
+                   <h6 class="bold section-label"></h6>
+                   <p class="section-description"></p>
+
+                   <div class="sortable-elements" style="min-height: 100px;">
+                       <input class="section-index" type="hidden" value="">
+                       <div id="filler_div"></div>
+
+                   </div>
+               </div>
+
+           </div>
+       </div>
+   </div>
+@stop
 
 @section('scripts')
 
-	{{-- <script src="{{ elixir('js/jquery-ui.min.js') }}"></script>--}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
-
-	<script type="text/javascript">
-
-        function recalculatePages()
-        {
-            var NumOfPages = $('.survey-section').length;
-
-            $('.survey-section').each(function(index, test){
-                $(this).find('.section-page').html(index+1);
-                $(this).find('.section-page-of').html(NumOfPages);
-                $(this).find('.section-sort-order').val(index);
-            });
-
-        }
-
-        function rebindElementSettings()
-        {
-            $('.element-settings').off('click').on('click', function(e){
-                e.preventDefault();
-                var uniqueId = parseInt($(this).closest('.element').attr('data-unique-id'));
-                $('#ElementSettingsModal_'+uniqueId).modal('show');
-            });
-        }
-
-        function sortAllElementOptions()
-        {
-
-        }
-
-        function rebindDeleteOptions()
-        {
-            $('.element-answers-delete-option').off('click').on('click', function(e){
-                e.preventDefault();
-                $(this).closest('.answer').remove();
-                resortOptions();
-            });
-        }
-
-        function rebindAddOptions()
-        {
-            $('.element-answers-add-option').off('click').on('click', function(e){
-                e.preventDefault();
-
-                var $template = $(this).closest('.element').find('.template-answer').clone();
-
-                var elementCount = parseInt($(this).closest('.element').attr('data-unique-id'));
-                var sectionUniqueId = parseInt($(this).closest('.survey-section').attr('data-unique-id'));
-
-                var currentCount = parseInt($(this).closest('.element').find('.element-answers').attr('data-answers-count'));
-                var sort_order = $(this).closest('.element').find('.element-answers > .answers > .answer').length;
-                var expectedCount = currentCount+1;
-                $(this).closest('.element').find('.element-answers').attr('data-answers-count',expectedCount);
-                console.log(expectedCount);
-
-                $template.removeClass('template-answer');
-                $template.find('[name="replace_id"]').attr('name', 'section['+sectionUniqueId+'][element]['+elementCount+'][options]['+expectedCount+'][id]');
-                $template.find('[name="replace_other"]').attr('name', 'section['+sectionUniqueId+'][element]['+elementCount+'][options]['+expectedCount+'][other]');
-                $template.find('[name="replace_sort_order"]').attr('name', 'section['+sectionUniqueId+'][element]['+elementCount+'][options]['+expectedCount+'][sort_order]').val(sort_order);
-                $template.find('[name="replace_label"]').attr('name', 'section['+sectionUniqueId+'][element]['+elementCount+'][options]['+expectedCount+'][label]');
-                $template.find('.answer-number').html(sort_order+1);
-
-                $(this).closest('.element').find('.element-answers > .answers').append($template);
-
-                rebindDeleteOptions();
-                sortableOptions();
-                resortOptions();
-            });
-        }
-
-        function rebindToggleOtherOptions()
-        {
-
-            $('.element-option-other-toggle').off('change').on('change', function(e){
-                e.preventDefault();
-                if($(this).is(':checked')){
-                    var $template = $(this).closest('.element').find('.template-answer').clone();
-                    var elementCount = parseInt($(this).closest('.element').attr('data-unique-id'));
-                    var currentCount = parseInt($(this).closest('.element').find('.element-answers').attr('data-answers-count'));
-                    var sort_order = $(this).closest('.element').find('.element-answers > .answer').length;
-                    var expectedCount = currentCount+1;
-                    $(this).closest('.element').find('.element-answers').attr('data-answers-count',expectedCount);
-
-                    $template.removeClass('template-answer');
-                    $template.find('[name="replace_id"]').attr('name', 'element['+elementCount+'][options]['+expectedCount+'][id]');
-                    $template.find('[name="replace_other"]').attr('name', 'element['+elementCount+'][options]['+expectedCount+'][other]').val(1);
-                    $template.find('[name="replace_sort_order"]').attr('name', 'element['+elementCount+'][options]['+expectedCount+'][sort_order]').val(999);
-                    $template.find('[name="replace_label"]').attr('name', 'element['+elementCount+'][options]['+expectedCount+'][label]');
-                    $template.find('.control-label').html('Other');
-                    $(this).closest('.element').find('.element-answers > .other').append($template);
-                } else {
-                    $(this).closest('.element').find('.element-answers > .other').html('');
-                }
-            });
-        }
-
-        function rebindDeleteElementButtons()
-        {
-            $('.element-delete').off('click').on('click', function(e){
-                $(this).closest('.modal').on('hidden.bs.modal', function (e) {
-                    $(this).closest('.element').remove();
-                    resortElements();
-
-                    if($('.element').length == 0){
-                        $('.survey-droparea').show();
-                    }
-
-                });
-            });
-        }
-
-
-        function rebindSectionSettings()
-        {
-            $('.survey-section-modal').off('click').on('click', function(e){
-                e.preventDefault();
-                var sectionUniqueId = parseInt($(this).closest('.survey-section').attr('data-unique-id'));
-                $('#surveySectionModal_'+sectionUniqueId).modal('show');
-            });
-        }
-
-        function rebindDeleteSectionButtons()
-        {
-            $('.section-delete').off('click').on('click', function(e){
-                $(this).closest('.modal').on('hidden.bs.modal', function (e) {
-
-                    if($('.survey-section').length > 1){
-                        $(this).closest('.survey-section').remove();
-                    }
-                    recalculatePages();
-                    resortElements();
-                });
-            });
-        }
-
-        function resortElements()
-        {
-            $('.element').each(function(index, element){
-                $(this).find('.element-number').html(index+1);
-                $(this).find('.element-sort-order').val(index);
-            });
-        }
-
-        function resortOptions()
-        {
-            $('.element').each(function(){
-                $(this).find('.answer').each(function(index, element){
-                    $(this).find('.element-option-number').html(index+1);
-                    $(this).find('.element-option-sort-order').val(index);
-                });
-            });
-        }
-
-        function sortableElements()
-        {
-            $('.survey-section-elements').sortable({
-
-                connectWith: '.survey-section-elements',
-                handle: '.element-drag',
-                cursor: 'move',
-                placeholder: 'placeholder',
-                forcePlaceholderSize: false,
-                opacity: 0.4,
-                tolerance: 'pointer',
-                stop: function(event, ui)
-                {
-
-                    var $el = $(ui.item);
-
-                    var sectionUniqueId = parseInt($el.closest('.survey-section').attr('data-unique-id'));
-                    var elementUniqueId = parseInt($el.attr('data-unique-id'));
-
-                    $el.find('.element-id').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][id]');
-                    $el.find('.element-list-element-id').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][list_element_id]');
-                    $el.find('.element-sort-order').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][sort_order]');
-                    $el.find('.element-label').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][label]');
-                    $el.find('.element-help-text').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][help_text]');
-
-                    $el.find('.element-settings-options-required').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][required]');
-                    $el.find('.element-settings-options-multiple').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][multiple]');
-                    $el.find('.element-settings-options-other').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][other]');
-
-                    $el.find('.answer').not('.template-answer').each(function(index, element){
-                        console.log(index);
-                        console.log(element);
-                        $(this).find('.element-option-id').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][options]['+index+'][id]');
-                        $(this).find('.element-option-other').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][options]['+index+'][other]');
-                        $(this).find('.element-option-sort-order').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][options]['+index+'][sort_order]');
-                        $(this).find('.element-option-label').attr('name','section['+sectionUniqueId+'][element]['+elementUniqueId+'][options]['+index+'][label]');
-                    });
-
-                    resortElements();
-                },
-                start: function (e, ui) {
-                    ui.placeholder.height(ui.item.height());
-                    ui.placeholder.html('Placera fråga här').css('padding', ui.item.height()/2-12+'px 0px');
-                }
-            });
-        }
-
-        function sortableOptions()
-        {
-            $('.answers').sortable({
-                connectWith: '.answers',
-                handle: 'label',
-                cursor: 'move',
-                placeholder: 'placeholder',
-                forcePlaceholderSize: false,
-                opacity: 0.4,
-                tolerance: 'pointer',
-                stop: function(event, ui)
-                {
-                    var $el = $(ui.item);
-
-                    var sectionUniqueId = parseInt($el.closest('.survey-section').attr('data-unique-id'));
-                    var elementUniqueId = parseInt($el.closest('.element').attr('data-unique-id'));
-
-                    $el.closest('.element').find('.answer').not('.template-answer').each(function(index, element) {
-                        $(this).find('.element-option-id').attr('name', 'section[' + sectionUniqueId + '][element][' + elementUniqueId + '][options][' + index + '][id]');
-                        $(this).find('.element-option-other').attr('name', 'section[' + sectionUniqueId + '][element][' + elementUniqueId + '][options][' + index + '][other]');
-                        $(this).find('.element-option-sort-order').attr('name', 'section[' + sectionUniqueId + '][element][' + elementUniqueId + '][options][' + index + '][sort_order]');
-                        $(this).find('.element-option-label').attr('name', 'section[' + sectionUniqueId + '][element][' + elementUniqueId + '][options][' + index + '][label]');
-                    });
-                    resortOptions();
-
-                },
-                start: function (e, ui) {
-                    ui.placeholder.height(ui.item.height());
-                    ui.placeholder.html('Placera svar här').css('padding', ui.item.height()/2-12+'px 0px');
-                }
-            });
-        }
-
-
-		function updateFormObjects($that){
-			element     = $that.attr('data-element');
-			id          = $that.attr('data-id');
-			title       = $that.find('input[id^="input_title_"]').val();
-			helptext    = $that.find('textarea[id^="input_helptext_"]').val();
-
-			if(!title){
-				title = '<i class="text-danger">Titel på din fråga</i>';
-			}
-			if(!helptext){
-				helptext = '<i class="text-danger">Hjälp text som förklarar vad man förväntas att välja</i>';
-			}
-
-			$('#element_' + id + '_title').html(title);
-			$('#element_' + id + '_helptext').html(helptext);
-
-			console.log($('#element_' + id + '_helptext'));
-
-			if($that.find('input[id^="input_required_"]').is(':checked')){
-				$('#element_' + id + '_required').hide();
-			} else {
-				$('#element_' + id + '_required').show();
-			}
-
-			if(element == 'dropdown'){
-				answers = $that.find('.element-option-label').serializeArray();
-				$('#element_' + id + '_select').empty().append('<option value=""></option>');
-				$.each( answers, function( key, value ) {
-					$('#element_' + id + '_select').append('<option value="' + key + '">' + value.value + '</option>');
-				});
-			}
-
-			if(element == 'multiple'){
-				if($that.find('input[id^="input_checkbox_"]').is(':checked')){
-					multiple_type = 'checkbox';
-				} else {
-					multiple_type = 'radio';
-				}
-				answers = $that.find('.element-option-label').serializeArray();
-				$('#element_' + id + '_multiple').empty();
-				$.each( answers, function( key, value ) {
-					$('#element_' + id + '_multiple').append('<div class="' + multiple_type + '"><label><input type="' + multiple_type + '" name="optradio" disabled> ' + value.value + '</label></div>');
-				});
-			}
-		}
-
-
-        $(document).ready(function(){
-
-            /*
-             * On modal hide
-             */
-            $('.form-element-modal').on('hide.bs.modal', function (e) {
-				updateFormObjects($(this));
-            });
-
-            rebindDeleteOptions();
-            rebindAddOptions();
-            rebindToggleOtherOptions();
-            rebindElementSettings();
-            rebindDeleteElementButtons();
-            rebindSectionSettings();
-            rebindDeleteSectionButtons();
-            sortableElements();
-            sortableOptions();
-
-            $('.survey-section-add').on('click', function(e){
-                e.preventDefault();
-
-                var $sectionsContainer = $('#survey-sections');
-
-                var currentCount = parseInt($sectionsContainer.attr('data-sections-count'));
-                expectedCount = currentCount+1;
-                $sectionsContainer.attr('data-sections-count',expectedCount);
-
-                $template = $('#surveySectionTemplate')
-                    .clone()
-                    .removeAttr('id')
-                    .addClass('survey-section')
-                    .attr('data-unique-id', expectedCount)
-                    .css('display','');
-
-                $template.find('input[name=section_id]').attr('name','section['+expectedCount+'][id]');
-                $template.find('input[name=sort_order]').attr('name','section['+expectedCount+'][sort_order]');
-
-                $template.find('#surveySectionModal').attr('id', 'surveySectionModal_'+expectedCount);
-                $template.find('input[name=replace_label]').attr('name', 'section['+expectedCount+'][label]');
-                $template.find('textarea[name=replace_description]').attr('name', 'section['+expectedCount+'][description]');
-
-                $sectionsContainer.append($template);
-
-                recalculatePages();
-                rebindSectionSettings();
-                rebindDeleteSectionButtons();
-                sortableElements();
-
-            });
-
-
-
-			/*
-			 * Add new element to last page
-			 */
-            $('.survey-element-add').on('click', function(e){
-                e.preventDefault();
-
-                if(parseInt($('#survey-sections').attr('data-sections-count')) == 0){
-                    $('.survey-section-add').trigger('click');
-                }
-
-                if($('.survey-section').length > 0){
-                    $('.survey-droparea').hide();
-                }
-
-                var url = $(this).attr('data-url');
-                var $surveyContainer = $('#survey-sections');
-                var currentCount = parseInt($surveyContainer.attr('data-elements-count'));
-                expectedCount = currentCount+1;
-                $surveyContainer.attr('data-elements-count',expectedCount);
-
-                var sectionId = $('.survey-section:last').closest('.survey-section').attr('data-unique-id');
-
-                $.get(url+'?count='+expectedCount+'&sections='+sectionId, function(data){
-
-                    $('.survey-section:last').find('.survey-droparea').removeClass('survey-droparea').html('');
-                    $('.survey-section:last').find('.survey-section-elements').append(data);
-
-                    rebindDeleteOptions();
-                    rebindAddOptions();
-                    rebindToggleOtherOptions();
-                    rebindElementSettings();
-                    rebindDeleteElementButtons();
-                    sortableElements();
-                    resortElements();
-                    resortOptions();
-
-					$('.form-element-modal').off('hide.bs.modal').on('hide.bs.modal', function (e) {
-						updateFormObjects($(this));
-					});
-
-				});
-            });
-
-
-			/*
-			 * Save survey
-			 */
-            $('.form-save').on('click', function(e){
-                e.preventDefault();
-
-                var $form = $('#eventForm');
-
-                $.ajax({
-                    type: "POST",
-                    url: $form.attr('action'),
-                    cache: false,
-                    dataType: 'json',
-                    data: $form.serialize(),
-                    beforeSend: function(){},
-                    success: function (data) {
-
-                        if(data.status == 1) {
-
-							swal({
-								title: data.message.title,
-								text: data.message.text,
-								type: "success",
-								timer: 6000,
-								confirmButtonText: "OK"
-							},function(){
-								if(data.redirect){
-									window.location = data.redirect;
-								}
-							});
-
-                        } else if(data.status == 0) {
-
-                            swal({
-                                title: data.message.title,
-                                text: data.message.text,
-                                type: "error",
-                                timer: 6000,
-                                confirmButtonText: "OK"
-                            });
-
-                            /** Collect errors from response **/
-                            errors = data.errors;
-
-                            /** Mark form fields with errors warnings **/
-                            $.each(errors, function(id, message) {
-                                $("input[name="+id+"], select[name="+id+"], textarea[name="+id+"]").parent().addClass('has-danger');
-                                $("input[name="+id+"], select[name="+id+"], textarea[name="+id+"]").after('<div class="tooltip-static tooltip-error"><div class="tooltip tooltip-bottom" role="tooltip"><div class="tooltip-inner">' + message + "</div></div></div>");
-                            });
-
-                        }
-
-                    },
-                    error: function(xhr, textStatus, errorThrown){
-
-                        swal({
-                            title: 'Error!',
-                            text: 'An unexpected error has occurred.',
-                            type: "error",
-                            timer: 6000,
-                            confirmButtonText: "OK"
-                        });
-
-                    }
-                });
-
-
-            });
-
-
-			/*
-			 * Delete survey
-			 */
-            $('.survey-delete').on('click', function(e){
-                e.preventDefault();
-
-                var url = $(this).attr('data-url');
-                var surveyId = $(this).attr('data-survey-id');
-
-                swal({
-                        title: "Delete survey data!",
-                        text: "All data of this survey. including statistics and participant data will be deleted.\n\n Type DELETE to delete the participant.",
-                        type: "input",
-                        inputType: "text",
-                        showCancelButton: true,
-                        closeOnConfirm: false,
-                        showLoaderOnConfirm: true,
-                        animation: "slide-from-top",
-                        inputPlaceholder: "Type DELETE"
-                    },
-                    function(inputValue){
-
-                        if (inputValue === false) {
-                            return false;
-                        }
-
-                        if (inputValue === "") {
-                            swal.showInputError("You need to type the word: DELETE");
-                            return false
-                        }
-
-                        if(inputValue.toLowerCase() != 'delete'){
-                            swal.showInputError("You need to type the word: DELETE");
-                            return false
-                        }
-
-                        $.ajax({
-                            type: "POST",
-                            url: url,
-                            cache: false,
-                            dataType: 'json',
-                            data: {
-                                survey_id: surveyId
-                            },
-                            beforeSend: function(){},
-                            success: function (data) {
-
-                                if(data.status == 1) {
-
-                                    swal({
-                                            title: data.message.title,
-                                            text: data.message.text,
-                                            type: "success",
-                                            timer: 6000,
-                                            confirmButtonText: "OK"
-                                        },
-                                        function(){
-											{{-- window.location = '{{ URL::route('survey-index') }}';--}}
-                                        });
-
-                                } else if(data.status == 0) {
-
-                                    swal({
-                                        title: data.message.title,
-                                        text: data.message.text,
-                                        type: "error",
-                                        timer: 6000,
-                                        confirmButtonText: "OK"
-                                    });
-
-                                }
-
-                            },
-                            error: function(xhr, textStatus, errorThrown){
-
-                                swal({
-                                    title: 'Error!',
-                                    text: 'An unexpected error has occurred.',
-                                    type: "error",
-                                    timer: 6000,
-                                    confirmButtonText: "OK"
-                                });
-
-                            }
-                        });
-
-
-                    });
-
-
-
-            });
-
-
-
-			/*
-			 * Open survey settings modal
-			 */
-            $('.survey-settings').on('click', function(e){
-                e.preventDefault();
-                $('#surveySettingsModal').modal('show');
-            });
-
-			/*
-			 * Save survey settings from modal
-			 */
-            $('.survey-settings-save').on('click', function(e){
-                e.preventDefault();
-
-                $form = $('#surveySettingsForm');
-
-                $.ajax({
-                    type: "POST",
-                    url: $form.attr('action'),
-                    cache: false,
-                    dataType: 'json',
-                    data: $form.serialize(),
-                    beforeSend: function(){},
-                    success: function (data) {
-
-                        $('#surveySettingsModal').modal('hide');
-
-                        if(data.status == 1) {
-
-
-                            $('.survey-label').html(data.survey.label);
-
-
-
-                            swal({
-                                title: data.message.title,
-                                text: data.message.text,
-                                type: "success",
-                                timer: 6000,
-                                confirmButtonText: "OK"
-                            });
-
-                        } else if(data.status == 0) {
-
-                            swal({
-                                title: data.message.title,
-                                text: data.message.text,
-                                type: "error",
-                                timer: 6000,
-                                confirmButtonText: "OK"
-                            });
-
-                        }
-
-                    },
-                    error: function(xhr, textStatus, errorThrown){
-                        swal({
-                            title: 'Error!',
-                            text: 'An unexpected error has occurred.',
-                            type: "error",
-                            timer: 6000,
-                            confirmButtonText: "OK"
-                        });
-                    }
-                });
-
-
-            });
-
-
-			/*
-			 * Publish/Unpublish survey
-			 */
-            $('.survey-publish').on('click', function(e){
-                e.preventDefault();
-                console.log('click');
-
-                var $button = $(this);
-                var url = $(this).attr('data-url');
-                var published = parseInt($(this).attr('data-published'));
-                var surveyId = $(this).attr('data-survey-id');
-
-                var newPublish = 0;
-                if(published == 0){
-                    newPublish = 1;
-                }
-
-                $.ajax({
-                    type: "POST",
-                    url: url,
-                    cache: false,
-                    dataType: 'json',
-                    data: {
-                        survey_id: surveyId,
-                        published: newPublish
-                    },
-                    beforeSend: function(){},
-                    success: function (data) {
-
-                        if(data.status == 1) {
-
-
-                            if(newPublish == 1){
-                                $button.html('Unpublish');
-                            } else {
-                                $button.html('Publish');
-                            }
-
-                            $button.attr('data-published',newPublish);
-
-                            swal({
-                                title: data.message.title,
-                                text: data.message.text,
-                                allowEscapeKey: false,
-                                type: "success",
-                                timer: 6000,
-                                confirmButtonText: "OK"
-                            },function(){
-                                location.reload();
-                            });
-
-                        } else if(data.status == 0) {
-
-                            swal({
-                                title: data.message.title,
-                                text: data.message.text,
-                                type: "error",
-                                timer: 6000,
-                                confirmButtonText: "OK"
-                            });
-
-                        }
-
-                    },
-                    error: function(xhr, textStatus, errorThrown){
-                        swal({
-                            title: 'Error!',
-                            text: 'An unexpected error has occurred.',
-                            type: "error",
-                            timer: 6000,
-                            confirmButtonText: "OK"
-                        });
-                    }
-                });
-
-
-            });
-
-
-
-
-			$('#doDeleteForm').on('click', function(){
-
-				form_id = $(this).attr('data-form-id');
-
-
-
-
-
-				swal({
-						title: "Radera formulär!",
-						text: "All data tillhörande formuläret kommer raderas, det går inte att återställa. Vänligen skriv RADERA för att ta bort.",
-						type: "input",
-						inputType: "text",
-						showCancelButton: true,
-						closeOnConfirm: false,
-						showLoaderOnConfirm: true,
-						animation: "slide-from-top",
-						inputPlaceholder: "Skriv RADERA"
-					},
-					function(inputValue){
-
-						if (inputValue === false) {
-							return false;
-						}
-
-						if (inputValue === "") {
-							swal.showInputError("Du behöver skriva ordet: RADERA");
-							return false
-						}
-
-						if(inputValue.toLowerCase() != 'radera'){
-							swal.showInputError("Du behöver skriva ordet: RADERA");
-							return false
-						}
-
-						$.ajax({
-							type: "POST",
-							url: "{{ URL::route('rl_forms.admin.forms.destroy') }}",
-							cache: false,
-							dataType: 'json',
-							data: {
-								form_id: form_id,
-							},
-							beforeSend: function(){},
-							success: function (data) {
-
-								/** Print response to screen **/
-								//alert(JSON.stringify(data));
-
-								if(data.status == 1) {
-
-									swal({
-										title: 'Klart!',
-										text: 'Formuläret har blivit raderat.',
-										type: "success",
-										timer: 6000,
-										confirmButtonText: "OK"
-									},function(){
-										if(data.redirect){
-											window.location = data.redirect;
-										}
-									});
-
-								} else if(data.status == 0) {
-
-									swal({
-										title: data.message.title,
-										text: data.message.text,
-										type: "error",
-										timer: 6000,
-										confirmButtonText: "OK"
-									});
-
-								}
-
-							},
-							error: function(xhr, textStatus, errorThrown){
-
-								/** Something went terribly wrong! Print json response to screen **/
-								swal({
-									title: 'Error!',
-									text: 'An unexpected error has occurred, if errors persists, contact support!',
-									type: "error",
-									timer: 6000,
-									confirmButtonText: "OK"
-								});
-
-							}
-						});
-
-
-					});
-
-
-			});
-
-
-        });
-
-	</script>
-@endsection
+   <script type="text/javascript">
+
+       $(document).ready(function(){
+           let section_count = $('.sortable-sections').children('div').length;
+
+           $('.go-to-url').on('click', function(e){
+               if(!$(e.target).hasClass('dropdown-toggle') && !$(e.target).hasClass('do-delete-row')){
+                   goToURL = $(this).attr('data-url');
+                   window.location = goToURL;
+               }
+           });
+
+           $R('.redactor-sv', {
+               lang: 'sv',
+               plugins: ['counter', 'fullscreen'],
+               minHeight: '100px',
+               maxHeight: '300px',
+               formatting: ['p', 'blockquote'],
+               buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
+               toolbarFixedTopOffset: 72, // pixel
+               pasteLinkTarget: '_blank',
+               linkNofollow: true,
+               breakline: true,
+           });
+
+           $R('.redactor-en', {
+               lang: 'en',
+               plugins: ['counter', 'fullscreen'],
+               minHeight: '100px',
+               maxHeight: '300px',
+               formatting: ['p', 'blockquote'],
+               buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
+               toolbarFixedTopOffset: 72, // pixel
+               pasteLinkTarget: '_blank',
+               linkNofollow: true,
+               breakline: true,
+           });
+
+           function init_drag_drop() {
+               $('.sortable-sections').sortable({
+                   animation: 150, // default: 0
+                   axis: "y",
+                   handle: ".handle-section",
+                   cursor: "move",
+                   placeholder: 'placeholder',
+                   forcePlaceholderSize: true,
+                   connectWith: '',
+                   start: function start(e, ui) {
+
+                   },
+                   update: function (event, ui) {
+                       let sort_order = 1;
+
+                       $(this).children('div').each(function() {
+                           $(this).find('.sortOrderUpdateSectionVal').val(sort_order);
+                           $(this).find('.sortOrderUpdateSectionLabel').text(sort_order);
+
+                           sort_order++;
+                       });
+                   }
+               });
+
+               $('.sortable-elements').sortable({
+                   animation: 150, // default: 0
+                   axis: "y",
+                   handle: ".handle-element",
+                   cursor: "move",
+                   placeholder: 'placeholder',
+                   forcePlaceholderSize: true,
+                   connectWith: '.sortable-elements',
+                   start: function start(e, ui) {
+
+                   },
+                   update: function (event, ui) {
+                       let sort_order       = 1;
+                       let sort_order_radio = 1;
+                       let section_index    = $(this).find('.section-index').val();
+
+                       $(this).children('div').each(function() {
+                           if($(this).is('#filler_div')) return;
+
+                           let $sort_order_val     = $(this).find('.sortOrderUpdateElementVal');
+                           let $sort_order_label   = $(this).find('.sortOrderUpdateElementLabel');
+                           let $type_id            = $(this).find('.element-type-id');
+                           let $element_id         = $(this).find('.element-id');
+                           let $modal              = $(this).find('.element-modal-edit');
+                           let $modal_button       = $(this).find('.element-modal-button');
+
+                           //Element
+                           $(this).attr('id', `section_${ section_index }_element_${ sort_order - 1 }`);
+                           $sort_order_label.text(sort_order);
+                           $sort_order_val.val(sort_order);
+                           $sort_order_val.attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][sort_order]`);
+                           $type_id.attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][type_id]`);
+                           $element_id.attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][id]`);
+                           $modal_button.attr('data-target', `#elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
+                           $modal_button.attr('data-section-index', section_index);
+                           $modal_button.attr('data-element-index', sort_order - 1);
+
+                           //Edit Modal
+                           $modal.attr('id', `elementEditModal_section_${ section_index }_element_${ sort_order - 1 }`);
+                           $modal.find('.modal-title').attr('id', `elementEditModalLabel_section_${ section_index }_element_${ sort_order - 1 }`);
+                           $modal.find('.modal-body').attr('id', `elementEditModal_section_${ section_index }_element_${ sort_order - 1 }_body`);
+                           $modal.find('.doUpdateElement').attr('data-section-index', section_index);
+                           $modal.find('.doUpdateElement').attr('data-element-index', sort_order - 1);
+
+                          //Edit Modal - Label, Textareas, Required boolean/text
+                          $modal.find('.element-modal-labels').each(function() {
+                              let iso = $(this).find('.element-modal-labels-iso').val();
+
+                              $(this).find('.element-modal-labels-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
+                              $(this).find('.element-modal-labels-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][labels][${ iso }]`);
+                              $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_label_${ iso }`);
+                          });
+
+                           $modal.find('.element-modal-textareas').each(function() {
+                               let iso = $(this).find('input').val();
+
+                               $(this).find('textarea').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_description_${ iso }`);
+                               $(this).find('textarea').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][descriptions][${ iso }]`);
+                               $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_description_${ iso }`);
+                           });
+
+                           $modal.find('.element-modal-required-text').each(function() {
+                               let iso = $(this).find('.element-modal-required-text-iso').val();
+
+                               $(this).find('.element-modal-required-text-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_required_text_${ iso }`);
+                               $(this).find('.element-modal-required-text-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][required_texts][${ iso }]`);
+                               $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_required_text_${ iso }`);
+                           });
+
+                           $modal.find('.element-modal-required-checkbox input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_required`);
+                           $modal.find('.element-modal-required-checkbox input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][required]`);
+                           $modal.find('.element-modal-required-checkbox label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_required`);
+
+                           //Edit Modal - Options, Add option, Remove option, Table
+                           let count_options   = 0;
+                           let count_total     = 0;
+
+                           $modal.find('.element-modal-options').each(function(){
+                               let iso = $(this).find('.checkbox-iso').val();
+
+                               $(this).find('.checkbox-input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][options][${ count_options }][labels][${ iso }]`);
+                               $(this).find('.checkbox-input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_option_${ count_options }_${ iso }`);
+                               $(this).find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_option_${ count_options }_${ iso }`);
+                               $(this).find('.option-label').text(count_options + 1);
+                               $(this).find('.doRemoveOption').attr('data-section-index', section_index);
+                               $(this).find('.doRemoveOption').attr('data-element-index', sort_order - 1);
+
+                               count_total++;
+
+                               if(count_total % 2 === 0) {
+                                   count_options++;
+                               }
+                           });
+
+                           let count_option_ids = 0;
+
+                           $modal.find(`.checkbox-wrapper .option-id`).each(function(){
+                               $(this).attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][options][${ count_option_ids }][id]`);
+                               count_option_ids++;
+                           });
+
+                           $modal.find('.doAddOption').attr('data-section-index', section_index);
+                           $modal.find('.doAddOption').attr('data-element-index', sort_order - 1);
+
+                           $modal.find('.element-modal-table select').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_table`);
+                           $modal.find('.element-modal-table select').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][table]`);
+
+                           //Edit Modal - Language toggles
+                           $modal.find('.edit-translation').each(function(){
+                               $(this).attr('data-section-index', section_index);
+                               $(this).attr('data-element-index', sort_order - 1);
+                           });
+                           $modal.find('.edit-translation-all').attr('data-section-index', section_index);
+                           $modal.find('.edit-translation-all').attr('data-element-index', sort_order - 1);
+
+                           //Edit Modal - Delete element
+                           $modal.find('.onDeleteElement').attr('data-section-index', section_index);
+                           $modal.find('.onDeleteElement').attr('data-element-index', sort_order - 1);
+
+                           //Edit Modal - Collapse
+                           $modal.find('.collapse-button').attr('data-target', `#section_${ section_index }_element_${ sort_order - 1 }_collapseColumns`);
+                           $modal.find('.collapse').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_collapseColumns`);
+                           $modal.find('.collapse').attr('data-section-index', section_index);
+                           $modal.find('.collapse').attr('data-element-index', sort_order - 1);
+
+                           //Edit Modal - Sizes
+                           $modal.find('.size-xs').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_xs`);
+                           $modal.find('.size-xs').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][xs]`);
+                           $modal.find('.size-sm').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_sm`);
+                           $modal.find('.size-sm').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][sm]`);
+                           $modal.find('.size-md').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_md`);
+                           $modal.find('.size-md').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][md]`);
+                           $modal.find('.size-lg').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_lg`);
+                           $modal.find('.size-lg').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][lg]`);
+                           $modal.find('.size-xl').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_size_xl`);
+                           $modal.find('.size-xl').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][size][xl]`);
+
+                           //Edit Modal - Slug
+                           $modal.find('.element-modal-slug').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_slug`);
+                           $modal.find('.element-modal-slug').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][slug]`);
+                           $modal.find('.element-modal-slug').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_slug`);
+
+                           //Edit Modal - Validator
+                           $modal.find('.element-modal-validator').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_validator`);
+                           $modal.find('.element-modal-validator').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order - 1 }][validator]`);
+                           $modal.find('.element-modal-validator').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_validator`);
+
+                           let random_num = Math.floor(Math.random() * 1000);
+
+                           //Edit modal - Alignment, vertical & horizontall. Name prop is set temporarily, so the radio buttons doesn't overwrite each other.
+                           $modal.find('.element-modal-alignment-vertical').find('input').attr('name', `sections[${ section_index }][elements][temp_${ sort_order - 1 }][alignment]`);
+                           $modal.find('.element-modal-alignment-vertical').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_aligment_vertical`);
+                           $modal.find('.element-modal-alignment-vertical').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_aligment_vertical`);
+                           $modal.find('.element-modal-alignment-horizontal').find('input').attr('name', `sections[${ section_index }][elements][temp_${ sort_order - 1 }][alignment]`);
+                           $modal.find('.element-modal-alignment-horizontal').find('input').attr('id', `section_${ section_index }_element_${ sort_order - 1 }_aligment_horizontal`);
+                           $modal.find('.element-modal-alignment-horizontal').find('label').attr('for', `section_${ section_index }_element_${ sort_order - 1 }_aligment_horizontal`);
+
+                           sort_order++;
+                       });
+
+                       //Edit modal - Alignment, vertical & horizontal. Name prop is set to the correct name.
+                       $(this).children('div').each(function() {
+                           if ($(this).is('#filler_div')) return;
+
+                           let $modal = $(this).find('.element-modal-edit');
+
+                           $modal.find('.element-modal-alignment-vertical').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order_radio - 1 }][alignment]`);
+                           $modal.find('.element-modal-alignment-horizontal').find('input').attr('name', `sections[${ section_index }][elements][${ sort_order_radio - 1 }][alignment]`);
+
+                           sort_order_radio++;
+                       });
+
+                       let count = parseInt($(`#section_${ section_index }`).attr('data-element-count'));
+                       $(`#section_${ section_index }`).attr('data-element-count', count + 1);
+                   }
+               });
+           }
+
+           //Add new section
+           $('.doAddSection').on('click', function(){
+               let $template   = $('#template_section').clone();
+               let $modal      = $template.find('#editSectionModal_template');
+               let $modal_type = $template.find('#chooseTypeModal_template');
+               let count       = section_count;
+               let sort_order  = $('.sortable-sections').children('div').length + 1;
+
+               //Section
+               $template.find('.sortOrderUpdateSectionVal').val(sort_order);
+               $template.find('.sortOrderUpdateSectionLabel').text(sort_order);
+               $template.find('.sortOrderUpdateSectionVal').attr('name', `sections[${ count }][sort_order]`);
+               $template.find('.sortOrderUpdateSectionVal').attr('id', `sections_${ count }_sort_order`);
+               $template.find('.section-index').val(count);
+               $template.attr('id', 'section_' + count);
+               $template.find('.section-modal-button').attr('data-target', `#editSectionModal_${ count }`);
+               $template.find('.section-types-button').attr('data-target', `#chooseTypeModal_${ count }`);
+               $template.find('.section-id').attr('name', `sections[${ count }][id]`);
+               $template.removeClass('hidden');
+               $template.appendTo('.sortable-sections');
+
+               //Section edit modal
+               $.ajax({
+                   url: '{{ route('rl_forms.admin.forms.modals.section') }}',
+                   data: {
+                       section_index: count,
+                   },
+                   cache: false,
+                   success: function(res) {
+                       $template.append(res);
+
+                       $(`#editSectionModal_${ count }`).modal('show');
+
+                       $('.section-modal-textareas').each(function(){
+                           let iso = $(this).find('input').val();
+
+                           $R(`#section_${ count }_description_${ iso }`, {
+                               lang: iso,
+                               plugins: ['counter', 'fullscreen'],
+                               minHeight: '100px',
+                               maxHeight: '300px',
+                               formatting: ['p', 'blockquote'],
+                               buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
+                               toolbarFixedTopOffset: 72, // pixel
+                               pasteLinkTarget: '_blank',
+                               linkNofollow: true,
+                               breakline: true,
+                           });
+                       });
+                   }
+               });
+
+               //Section type modal
+               $modal_type.attr('id', `chooseTypeModal_${ count }`);
+               $modal_type.find('.doChooseType').attr('data-section-index', count);
+               $modal_type.find('#chooseTypeModalLabel_template').attr('id', `chooseTypeModalLabel_${ count }`);
+
+               section_count++;
+
+               init_drag_drop();
+           });
+
+           //On type pick
+           $(document).on('click', '.doChooseType', function(){
+               let type_id         = $(this).attr('data-type-id');
+               let type_label      = $(this).attr('data-type-label');
+               let section_index   = $(this).attr('data-section-index');
+               let count           = parseInt($(`#section_${ section_index }`).attr('data-element-count'));
+               let sort_order      = $(`#section_${ section_index } .sortable-elements`).children('div').length;
+
+
+               $.ajax({
+                   url: '{{ route('rl_forms.admin.forms.templates.element') }}',
+                   data: {
+                       type_id: type_id,
+                       type_label: type_label,
+                       section_index: section_index,
+                       element_index: count,
+                       sort_order: sort_order
+                   },
+                   cache: false,
+                   success: function(res) {
+
+                       $(`#section_${ section_index } .sortable-elements`).append(res);
+
+                       $(`#chooseTypeModal_${ section_index }`).on('hidden.bs.modal', function () {
+                           $(`#elementEditModal_section_${ section_index }_element_${ count }`).modal('show');
+
+                           $(`#chooseTypeModal_${ section_index }`).off('hidden.bs.modal');
+                       });
+
+                       $('.element-modal-textareas').each(function(){
+                           let iso = $(this).find('input').val();
+
+                           $R(`#section_${ section_index }_element_${ count }_description_${ iso }`, {
+                               lang: iso,
+                               plugins: ['counter', 'fullscreen'],
+                               minHeight: '100px',
+                               maxHeight: '300px',
+                               formatting: ['p', 'blockquote'],
+                               buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists', 'fullscreen'],
+                               toolbarFixedTopOffset: 72, // pixel
+                               pasteLinkTarget: '_blank',
+                               linkNofollow: true,
+                               breakline: true,
+                           });
+                       });
+
+                       $(`#section_${ section_index }`).attr('data-element-count', count + 1);
+                   }
+               });
+           });
+
+           init_drag_drop();
+       });
+
+   </script>
+
+   @include('rl_forms::admin.pages.forms.scripts.store')
+   @include('rl_forms::admin.pages.forms.scripts.drop')
+
+@stop
+
