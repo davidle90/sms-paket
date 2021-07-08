@@ -235,7 +235,7 @@ class Helpers
         ])->get();
     }
 
-    public function forms_get_formatted_response($sourceable_type, $sourceable_id, $iso, $compressed = true, $collection = true)
+    public function forms_get_formatted_response($sourceable_type, $sourceable_id, $iso, $compressed = true)
     {
         $default_language   = Config::get('app.locale');
         $fallback_language  = Config::get('app.fallback_locale');
@@ -306,12 +306,9 @@ class Helpers
         }
 
         /*
-         * Return data as array or collection
+         * Return formatted response
          */
-        if($collection == false) {
-            return $formatted_response;
-        }
-        return collect($formatted_response);
+        return $formatted_response;
     }
 
     public function forms_responses_store($sourceable_type, $sourceable_id, $form_id, $iso, $input)
