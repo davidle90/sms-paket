@@ -235,7 +235,7 @@ class Helpers
         ])->get();
     }
 
-    public function forms_get_formatted_response($sourceable_type, $sourceable_id, $iso)
+    public function forms_get_formatted_response($sourceable_type, $sourceable_id, $iso, $compressed = true, $collection = true)
     {
         $default_language   = Config::get('app.locale');
         $fallback_language  = Config::get('app.fallback_locale');
@@ -263,25 +263,55 @@ class Helpers
         }
 
         foreach ($form->sections as $section) {
-            $formatted_response[$section->slug]['label'] = $section->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
 
-            foreach ($section->elements as $element) {
-                $formatted_response[$section->slug]['elements'][$element->slug]['label']    = $element->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
-                $formatted_response[$section->slug]['elements'][$element->slug]['type_id']  =  $element->type_id;
+            if($compressed == true){
 
-                if($element->type_id === 3 || $element->type_id === 4) {
-                    $formatted_response[$section->slug]['elements'][$element->slug]['value'] = [];
+                foreach ($section->elements as $element) {
+                    $formatted_response[$element->slug]['label']    = $element->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
+                    $formatted_response[$element->slug]['type_id']  =  $element->type_id;
 
-                    foreach ($element->data as $data) {
-                        $formatted_response[$section->slug]['elements'][$element->slug]['value'][] = $data->sourceable->value ?? '';
+                    if($element->type_id === 3 || $element->type_id === 4) {
+                        $formatted_response[$element->slug]['value'] = [];
+
+                        foreach ($element->data as $data) {
+                            $formatted_response[$element->slug]['value'][] = $data->sourceable->value ?? '';
+                        }
+                    } else {
+                        $formatted_response[$element->slug]['value'] = $element->data->first()->sourceable->value ?? '';
                     }
-                } else {
-                    $formatted_response[$section->slug]['elements'][$element->slug]['value'] = $element->data->first()->sourceable->value ?? '';
                 }
+
+
+            } else {
+
+                $formatted_response[$section->slug]['label'] = $section->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
+
+                foreach ($section->elements as $element) {
+                    $formatted_response[$section->slug]['elements'][$element->slug]['label']    = $element->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
+                    $formatted_response[$section->slug]['elements'][$element->slug]['type_id']  =  $element->type_id;
+
+                    if($element->type_id === 3 || $element->type_id === 4) {
+                        $formatted_response[$section->slug]['elements'][$element->slug]['value'] = [];
+
+                        foreach ($element->data as $data) {
+                            $formatted_response[$section->slug]['elements'][$element->slug]['value'][] = $data->sourceable->value ?? '';
+                        }
+                    } else {
+                        $formatted_response[$section->slug]['elements'][$element->slug]['value'] = $element->data->first()->sourceable->value ?? '';
+                    }
+                }
+
             }
+
         }
 
-        return $formatted_response;
+        /*
+         * Return data as array or collection
+         */
+        if($collection == false) {
+            return $formatted_response;
+        }
+        return collect($formatted_response);
     }
 
     public function forms_responses_store($sourceable_type, $sourceable_id, $form_id, $iso, $input)
