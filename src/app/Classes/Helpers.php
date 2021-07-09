@@ -147,14 +147,17 @@ class Helpers
 
         $form = rl_forms::forms_get($form_id);
 
+        //pre($form->toArray());
+
         foreach ($form->sections as $section_index => $section) {
             foreach ($section->elements as $element_index => $element) {
                 $table_validaton_str = '';
 
-                if((isset($element->table) && !empty($element->table)) || (isset($element->options) && !empty($element->options))) {
+                if(isset($element->table) || (isset($element->options) && !$element->options->isEmpty())) {
+
                     $table_validaton_str = '|in:';
 
-                    if(isset($element->table) && !empty($element->table)) {
+                    if(isset($element->table)) {
                         foreach ($element->table->data as $table_data) {
                             foreach ($table_data->translations as $value) {
                                 $table_validaton_str .= $value->translation.',';
@@ -162,7 +165,7 @@ class Helpers
                         }
                     }
 
-                    if(isset($element->options) && !empty($element->options)) {
+                    if(isset($element->options) && !$element->options->isEmpty()) {
                         foreach ($element->options as $option) {
                             foreach ($option->translations as $value) {
                                 $table_validaton_str .= $value->translation.',';
@@ -235,7 +238,7 @@ class Helpers
         ])->get();
     }
 
-    public function forms_get_formatted_response($sourceable_type, $sourceable_id, $iso)
+    public function forms_get_formatted_response($sourceable_type, $sourceable_id, $iso, $compressed = true)
     {
         $default_language   = Config::get('app.locale');
         $fallback_language  = Config::get('app.fallback_locale');
@@ -263,24 +266,51 @@ class Helpers
         }
 
         foreach ($form->sections as $section) {
-            $formatted_response[$section->slug]['label'] = $section->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
 
-            foreach ($section->elements as $element) {
-                $formatted_response[$section->slug]['elements'][$element->slug]['label']    = $element->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
-                $formatted_response[$section->slug]['elements'][$element->slug]['type_id']  =  $element->type_id;
+            if($compressed == true){
 
-                if($element->type_id === 3 || $element->type_id === 4) {
-                    $formatted_response[$section->slug]['elements'][$element->slug]['value'] = [];
+                foreach ($section->elements as $element) {
+                    $formatted_response[$element->slug]['label']    = $element->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
+                    $formatted_response[$element->slug]['type_id']  =  $element->type_id;
 
-                    foreach ($element->data as $data) {
-                        $formatted_response[$section->slug]['elements'][$element->slug]['value'][] = $data->sourceable->value ?? '';
+                    if($element->type_id === 3 || $element->type_id === 4) {
+                        $formatted_response[$element->slug]['value'] = [];
+
+                        foreach ($element->data as $data) {
+                            $formatted_response[$element->slug]['value'][] = $data->sourceable->value ?? '';
+                        }
+                    } else {
+                        $formatted_response[$element->slug]['value'] = $element->data->first()->sourceable->value ?? '';
                     }
-                } else {
-                    $formatted_response[$section->slug]['elements'][$element->slug]['value'] = $element->data->first()->sourceable->value ?? '';
                 }
+
+
+            } else {
+
+                $formatted_response[$section->slug]['label'] = $section->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
+
+                foreach ($section->elements as $element) {
+                    $formatted_response[$section->slug]['elements'][$element->slug]['label']    = $element->in($iso ?? $default_language ?? $fallback_language ?? 'sv')->label ?? '';
+                    $formatted_response[$section->slug]['elements'][$element->slug]['type_id']  =  $element->type_id;
+
+                    if($element->type_id === 3 || $element->type_id === 4) {
+                        $formatted_response[$section->slug]['elements'][$element->slug]['value'] = [];
+
+                        foreach ($element->data as $data) {
+                            $formatted_response[$section->slug]['elements'][$element->slug]['value'][] = $data->sourceable->value ?? '';
+                        }
+                    } else {
+                        $formatted_response[$section->slug]['elements'][$element->slug]['value'] = $element->data->first()->sourceable->value ?? '';
+                    }
+                }
+
             }
+
         }
 
+        /*
+         * Return formatted response
+         */
         return $formatted_response;
     }
 
@@ -313,7 +343,6 @@ class Helpers
 
                                 //Storing value in forms_responses_data_single table.
                                 $single_data = rl_forms::forms_responses_data_single_model()::create([
-                                    'table_data_id' => null,
                                     'value' => $element['value'],
                                 ]);
 
@@ -337,7 +366,6 @@ class Helpers
 
                                     //Storing value in forms_responses_data_multiple table.
                                     $multiple_data = rl_forms::forms_responses_data_multiple_model()::create([
-                                        'table_data_id' => null,
                                         'value' => $value,
                                     ]);
 
@@ -362,7 +390,6 @@ class Helpers
 
                                 //Storing value in forms_responses_data_text table.
                                 $text_data = rl_forms::forms_responses_data_text_model()::create([
-                                    'table_data_id' => null,
                                     'value' => $element['value'],
                                 ]);
 
