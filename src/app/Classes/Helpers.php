@@ -147,14 +147,17 @@ class Helpers
 
         $form = rl_forms::forms_get($form_id);
 
+        //pre($form->toArray());
+
         foreach ($form->sections as $section_index => $section) {
             foreach ($section->elements as $element_index => $element) {
                 $table_validaton_str = '';
 
-                if((isset($element->table) && !empty($element->table)) || (isset($element->options) && !empty($element->options))) {
+                if(isset($element->table) || (isset($element->options) && !$element->options->isEmpty())) {
+
                     $table_validaton_str = '|in:';
 
-                    if(isset($element->table) && !empty($element->table)) {
+                    if(isset($element->table)) {
                         foreach ($element->table->data as $table_data) {
                             foreach ($table_data->translations as $value) {
                                 $table_validaton_str .= $value->translation.',';
@@ -162,7 +165,7 @@ class Helpers
                         }
                     }
 
-                    if(isset($element->options) && !empty($element->options)) {
+                    if(isset($element->options) && !$element->options->isEmpty()) {
                         foreach ($element->options as $option) {
                             foreach ($option->translations as $value) {
                                 $table_validaton_str .= $value->translation.',';
@@ -340,7 +343,6 @@ class Helpers
 
                                 //Storing value in forms_responses_data_single table.
                                 $single_data = rl_forms::forms_responses_data_single_model()::create([
-                                    'table_data_id' => null,
                                     'value' => $element['value'],
                                 ]);
 
@@ -364,7 +366,6 @@ class Helpers
 
                                     //Storing value in forms_responses_data_multiple table.
                                     $multiple_data = rl_forms::forms_responses_data_multiple_model()::create([
-                                        'table_data_id' => null,
                                         'value' => $value,
                                     ]);
 
@@ -389,7 +390,6 @@ class Helpers
 
                                 //Storing value in forms_responses_data_text table.
                                 $text_data = rl_forms::forms_responses_data_text_model()::create([
-                                    'table_data_id' => null,
                                     'value' => $element['value'],
                                 ]);
 
