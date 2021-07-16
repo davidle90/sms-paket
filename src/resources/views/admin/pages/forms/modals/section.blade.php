@@ -124,7 +124,7 @@
 @endif
     <script type="text/javascript">
         $(document).ready(function(){
-            $modal = $('#editSectionModal_{{ $section_index }}');
+            let $modal = $('#editSectionModal_{{ $section_index }}');
 
             let slug_remove_error = function() {
                 $modal.find('.section-slug').removeClass('is-invalid');
@@ -242,7 +242,7 @@
             });
 
             //Update section label and description on the card
-            $('.doUpdateSection').on('click', function(){
+            $modal.find('.doUpdateSection').on('click', function(){
                 let index   = $(this).attr('data-section-index');
                 let label   = $(`#section_${ index }_label_{{ $default_language }}`).val();
                 let text    = $R(`#section_${ index }_description_{{ $default_language }}`, 'source.getCode');
@@ -259,7 +259,7 @@
                 $modal.modal('hide');
             });
 
-            $('.onDeleteSection').off('click').on('click', function(){
+            $modal.find('.onDeleteSection').off('click').on('click', function(){
                 let section_index = $(this).attr('data-section-index');
 
                 $(`#editSectionModal_${ section_index }`).on('hidden.bs.modal', function () {
@@ -270,14 +270,14 @@
                 });
             });
 
-            $('.onCloseModal').on('click', function(){
+            $modal.find('.onCloseModal').on('click', function(){
                 let slug = $modal.find('.section-slug').val();
 
                 if(!slug || slug == '') {
                     slug_validator();
                     return;
                 }
-
+                console.log(slug);
                 $modal.modal('hide');
             });
         });
