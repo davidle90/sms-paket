@@ -277,7 +277,7 @@
                     slug_validator();
                     return;
                 }
-                console.log(slug);
+
                 $modal.modal('hide');
             });
         });
