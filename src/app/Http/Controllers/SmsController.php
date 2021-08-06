@@ -17,7 +17,7 @@ class SmsController extends Controller
 	public function index()
 	{
 
-       return;
+       return view('rl_sms::admin.pages.sms.index');
 
 	}
 

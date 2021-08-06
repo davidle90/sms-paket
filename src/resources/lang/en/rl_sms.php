@@ -2,6 +2,6 @@
 
 return [
 
-    'package_name' => 'Sms',
+    'package_name' => 'SMS',
 
 ];

@@ -6,7 +6,7 @@
 @section('breadcrumbs')
 	<!-- Breadcrumb -->
 	<ol class="breadcrumb">
-		<li class="breadcrumb-item active">Sms</li>
+		<li class="breadcrumb-item active">SMS</li>
 	</ol>
 @endsection
 
