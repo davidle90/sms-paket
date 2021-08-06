@@ -1,8 +1,8 @@
-<?php namespace Rocketlabs\Forms\App\Facades;
+<?php namespace Rocketlabs\Sms\App\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class Forms extends Facade {
+class Sms extends Facade {
     /**
      * Get the binding in the IoC container
      *

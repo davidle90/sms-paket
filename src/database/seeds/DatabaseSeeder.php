@@ -1,10 +1,9 @@
-<?php namespace Rocketlabs\Forms\Seeds;
+<?php namespace Rocketlabs\Sms\Seeds;
 
 use Illuminate\Database\Seeder;
 
 use DB;
-use Rocketlabs\Forms\Seeds\AclAbilitiesTableSeeder;
-use Rocketlabs\Forms\Seeds\ElementsTypesTableSeeder;
+use Rocketlabs\Sms\Seeds\AclAbilitiesTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,10 +20,6 @@ class DatabaseSeeder extends Seeder
          */
         $this->call(AclAbilitiesTableSeeder::class);
 
-        /*
-         * Element types
-         */
-        $this->call(ElementsTypesTableSeeder::class);
 
     }
 }

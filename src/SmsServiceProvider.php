@@ -1,10 +1,10 @@
-<?php namespace Rocketlabs\Forms;
+<?php namespace Rocketlabs\Sms;
 
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\View\View;
 
-class FormsServiceProvider extends ServiceProvider
+class SmsServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
@@ -18,15 +18,15 @@ class FormsServiceProvider extends ServiceProvider
         $this->registerRoutes();
 
         // Register view with namespace
-        $this->loadViewsFrom(__DIR__.'/resources/views', 'rl_forms');
-        $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'rl_forms');
+        $this->loadViewsFrom(__DIR__.'/resources/views', 'rl_sms');
+        $this->loadTranslationsFrom(__DIR__.'/resources/lang', 'rl_sms');
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
 
         // Register publish command to publish views folder to vendor
-        $this->publishes([__DIR__.'/resources/views' => resource_path('views/vendor/rl_forms')], 'views');
+        $this->publishes([__DIR__.'/resources/views' => resource_path('views/vendor/rl_sms')], 'views');
         $this->publishes([__DIR__.'/resources/assets' => resource_path('assets')], 'assets');
-        $this->publishes([__DIR__.'/resources/lang' => resource_path('lang/vendor/rl_forms')], 'lang');
-        $this->publishes([__DIR__.'/config/rl_urls.php' => config_path('rl_forms.php')], 'config');
+        $this->publishes([__DIR__.'/resources/lang' => resource_path('lang/vendor/rl_sms')], 'lang');
+        $this->publishes([__DIR__.'/config/rl_urls.php' => config_path('rl_sms.php')], 'config');
 
         // Register middlewares
         $this->registerMiddlewares($router);
@@ -40,7 +40,7 @@ class FormsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__.'/config/rl_forms.php', 'rl_forms'
+            __DIR__.'/config/rl_sms.php', 'rl_sms'
         );
     }
 
@@ -56,7 +56,7 @@ class FormsServiceProvider extends ServiceProvider
      */
     public function registerRoutes()
     {
-        $this->loadRoutesFrom(__DIR__.'/routes/forms.php');
+        $this->loadRoutesFrom(__DIR__.'/routes/sms.php');
     }
 
 }

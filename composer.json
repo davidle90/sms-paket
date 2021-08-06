@@ -1,6 +1,6 @@
 {
-	"name": "rocketlabs/forms",
-	"description": "Forms package for RocketLabs",
+	"name": "rocketlabs/sms",
+	"description": "SMS package for RocketLabs",
 	"authors": [
 		{
 		    "name": "RocketLabs",
@@ -12,9 +12,9 @@
 			"src/database"
 		],
 		"psr-4": {
-			"Rocketlabs\\Forms\\": "src/",
-			"Rocketlabs\\Forms\\App\\": "src/app/",
-			"Rocketlabs\\Forms\\Seeds\\": "src/database/seeds/"
+			"Rocketlabs\\Sms\\": "src/",
+			"Rocketlabs\\Sms\\App\\": "src/app/",
+			"Rocketlabs\\Sms\\Seeds\\": "src/database/seeds/"
 		}
 	},
 	"minimum-stability": "dev",
@@ -22,10 +22,10 @@
 	"extra": {
 		"laravel": {
 			"providers": [
-				"Rocketlabs\\Forms\\FormsServiceProvider"
+				"Rocketlabs\\Sms\\SmsServiceProvider"
 			],
 			"aliases": {
-				"rl_forms": "Rocketlabs\\Forms\\App\\Facades\\Forms"
+				"rl_sms": "Rocketlabs\\Sms\\App\\Facades\\Sms"
 			}
 		}
 	}

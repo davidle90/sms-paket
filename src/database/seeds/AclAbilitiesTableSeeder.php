@@ -1,4 +1,4 @@
-<?php namespace Rocketlabs\Forms\Seeds;
+<?php namespace Rocketlabs\Sms\Seeds;
 
 use Illuminate\Database\Seeder;
 use DB;
@@ -17,25 +17,25 @@ class AclAbilitiesTableSeeder extends Seeder
     {
 
         /*
-         * Forms
+         * Sms
          */
         $ability_notifications_view = Bouncer::ability()->firstOrCreate([
-            'name' => 'forms_view',
+            'name' => 'sms_view',
             'title' => 'View forms',
         ]);
 
         $ability_notifications_create = Bouncer::ability()->firstOrCreate([
-            'name' => 'forms_create',
+            'name' => 'sms_create',
             'title' => 'Create forms',
         ]);
 
         $ability_notifications_edit = Bouncer::ability()->firstOrCreate([
-            'name' => 'forms_edit',
+            'name' => 'sms_edit',
             'title' => 'Edit forms',
         ]);
 
         $ability_notifications_delete = Bouncer::ability()->firstOrCreate([
-            'name' => 'forms_delete',
+            'name' => 'sms_delete',
             'title' => 'Delete forms',
         ]);
 

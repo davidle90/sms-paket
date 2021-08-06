@@ -6,35 +6,16 @@
 @section('breadcrumbs')
 	<!-- Breadcrumb -->
 	<ol class="breadcrumb">
-		<li class="breadcrumb-item active">Formulär</li>
+		<li class="breadcrumb-item active">Sms</li>
 	</ol>
 @endsection
 
 @section('sidebar')
-	<a class="btn btn-block btn-outline-primary" href="{{ route('rl_forms.admin.forms.create') }}"><i class="essential-xs essential-add mr-1"></i>Skapa formulär</a>
+	{{--<a class="btn btn-block btn-outline-primary" href="{{ route('rl_sms.admin.sms.create') }}"><i class="essential-xs essential-add mr-1"></i>Skapa sms</a>--}}
 @endsection
 
 @section('content')
-
-	<table class="table table-striped table-white table-outline table-hover mb-0 border-secondary">
-		<thead>
-		<tr>
-			<th class="w-25">Namn</th>
-			<th>Slug</th>
-		</tr>
-		</thead>
-		<tbody>
-		@if(isset($forms) && !empty($forms))
-			@foreach($forms as $f)
-				<tr class="pointer go-to-url" data-url="{{ route('rl_forms.admin.forms.view', array('id' => $f->id)) }}">
-					<td>{{ $f->in($default_language ?? $fallback_language)->label ?? '' }}</td>
-					<td>{{ $f->slug ?? '' }}</td>
-				</tr>
-			@endforeach
-		@endif
-		</tbody>
-	</table>
-
+	<h1>This is SMS</h1>
 @stop
 
 @section('scripts')

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateFormsElementsOptionsTable extends Migration
+class CreateSmsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreateFormsElementsOptionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('forms_elements_options', function (Blueprint $table) {
+        Schema::create('sms', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('element_id')->unsigned();
+            $table->string('slug')->unique();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ class CreateFormsElementsOptionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('forms_elements_options');
+        Schema::dropIfExists('sms');
     }
 }
