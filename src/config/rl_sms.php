@@ -9,7 +9,7 @@ return [
     'models' => [
         'sms'                         => \Rocketlabs\Sms\App\Models\Sms::class,
     ],
-
+    
 	'routes' => [
 		// Management routes
 		'admin' => [
