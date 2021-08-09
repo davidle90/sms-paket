@@ -14,7 +14,11 @@ return [
 		// Management routes
 		'admin' => [
             'sms' => [
-                'index'     => '/admin/sms',
+                'index'         => '/admin/sms',
+                'view'          => '/admin/sms/view/{id}',
+                'filter'        => '/admin/sms/filter',
+                'clearfilter'   => '/admin/sms/clearfilter',
+                'chart'         => '/admin/sms/chart'
             ]
         ]
 	],
@@ -45,5 +49,10 @@ return [
             'global'    => [],
         ],
     ],
+
+    'refill' => [
+        'amount'    => 500,
+        'threshold' => 100,
+    ]
 
 ];

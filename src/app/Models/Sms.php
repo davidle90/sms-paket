@@ -15,9 +15,21 @@ class Sms extends Model
         return config('rl_sms.tables.sms');
     }
 
-    //protected $fillable = [
-    //
-    //];
+    protected $fillable = [
+        'nexmo_id',
+        'sender_title',
+        'sender_phone',
+        'receiver_title',
+        'receiver_phone',
+        'country',
+        'sent_at'
+    ];
+
+    protected $dates = [
+        'sent_at',
+        'created_at',
+        'updated_at'
+    ];
 
 }
 
