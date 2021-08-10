@@ -1,6 +1,32 @@
 @extends('rl_webadmin::layouts.new_master')
 
 @section('styles')
+	<style>
+		.modal-backdrop {
+			z-index: 1100 !important;
+		}
+
+		.redactor-dropdown {
+			z-index: 1102 !important;
+		}
+
+		#redactor-overlay {
+			z-index: 1103 !important;
+		}
+
+		#redactor-modal {
+			z-index: 1104 !important;
+		}
+
+		.receiver-list > div:nth-child(2) {
+			background-color: #f2f4f8;
+		}
+
+		.receiver-list > div:hover {
+			background-color: #f5f5f5;
+		}
+
+	</style>
 @endsection
 
 @section('breadcrumbs')
@@ -10,8 +36,12 @@
 	</ol>
 @endsection
 
+@section('modals')
+	@include('rl_sms::admin.pages.sms.modals.send')
+@endsection
+
 @section('sidebar')
-	<a class="btn btn-block btn-outline-primary"><i class="essential-xs essential-add mr-1"></i>Skicka SMS</a>
+	<a class="btn btn-block btn-outline-primary" data-toggle="modal" data-target="#sendModal"><i class="essential-xs essential-add mr-1"></i>Skicka SMS</a>
 @endsection
 
 @section('topbar')
@@ -21,10 +51,10 @@
 		</div>
 		<div class="col-4 d-flex">
 			<div class="text-center mr-4" style="white-space: nowrap">
-				<h6 class="mb-0">Använda SMS</h6>458/1500
+				<h6 class="mb-0">Använda SMS</h6> {{ $used_sms_quantity ?? ''}}
 			</div>
 			<div class="text-center" style="white-space: nowrap">
-				<h6 class="mb-0">Senast påfylld</h6> 2021-08-05
+				<h6 class="mb-0">Senast påfylld</h6> {{ $latest_refill->created_at->copy()->format('Y-m-d') ?? '' }}
 			</div>
 		</div>
 		@if(isset($sms) && !$sms->isEmpty())
@@ -37,30 +67,6 @@
 
 @section('content')
 	<div class="row">
-
-{{--		<!-- Usage, Refill -->--}}
-{{--		<div class="col-12 col-lg-3">--}}
-{{--			<div class="card">--}}
-{{--				<div class="card-body">--}}
-{{--					<div class="row mb-2">--}}
-{{--						<div class="col-6 col-lg-12 col-xl-6" style="white-space: nowrap">--}}
-{{--							<h5 class="mb-0">Använda SMS:</h5>--}}
-{{--						</div>--}}
-{{--						<div class="col-6 col-lg-12 col-xl-6" style="white-space: nowrap">--}}
-{{--							<h5 class="mb-0"><span class="font-weight-normal">458/1500</span></h5>--}}
-{{--						</div>--}}
-{{--					</div>--}}
-{{--					<div class="row">--}}
-{{--						<div class="col-6 col-lg-12 col-xl-6" style="white-space: nowrap">--}}
-{{--							<h5 class="mb-0">Senast påfylld:</h5>--}}
-{{--						</div>--}}
-{{--						<div class="col-6 col-lg-12 col-xl-6" style="white-space: nowrap">--}}
-{{--							<h5 class="mb-0"><span class="font-weight-normal">2021-08-05</span></h5>--}}
-{{--						</div>--}}
-{{--					</div>--}}
-{{--				</div>--}}
-{{--			</div>--}}
-{{--		</div>--}}
 
 		<!-- Chart -->
 		<div class="col-12">
@@ -77,10 +83,11 @@
 
 	<!-- Table -->
 	<div class="row">
-		<div class="col-12 append-bookings-to">
+		<div class="col-12 append-items-to">
 			@include('rl_sms::admin.pages.sms.includes.table')
 		</div>
 	</div>
+
 @stop
 
 @section('scripts')
@@ -121,7 +128,9 @@
 				url: '{{ route('rl_sms.admin.sms.chart') }}',
 				cache: false,
 				dataType: 'json',
-				data: {},
+				data: {
+					daterange: $('#filter-form input[name="daterange"]').val()
+				},
 				beforeSend: function(){},
 				success: function (data) {
 					chart.data = data;
@@ -142,10 +151,26 @@
 				}
 			});
 
+			$('.select2-receivers').select2({
+			});
+
+			$R('.redactor-message', {
+				lang: 'sv',
+				plugins: ['counter'],
+				minHeight: '100px',
+				maxHeight: '300px',
+				formatting: ['p', 'blockquote'],
+				buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists'],
+				toolbarFixedTopOffset: 72, // pixel
+				pasteLinkTarget: '_blank',
+				linkNofollow: true,
+				breakline: true,
+			});
+
 			//Initializing chartjs
 			let ctx 		= $('#sms_chart');
 			let sms_chart 	= new Chart(ctx, {
-				type: 'line',
+				type: 'bar',
 				data: null,
 				options: {
 					scales: {
@@ -159,6 +184,11 @@
 			//Fetching data for chartjs
 			get_chart_data(sms_chart);
 
+			$('#filter-form input[name="daterange"]').on('change', function(){
+				get_chart_data(sms_chart);
+			});
+
+			$('[data-toggle="tooltip"]').tooltip();
 		});
 
 	</script>

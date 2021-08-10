@@ -3,7 +3,7 @@
 use Illuminate\Database\Eloquent\Model;
 use Rocketlabs\Languages\App\Traits\Translatable;
 
-class Sms extends Model
+class Refills extends Model
 {
     /**
      * The database table used by the model.
@@ -12,22 +12,15 @@ class Sms extends Model
      */
     public function getTable()
     {
-        return config('rl_sms.tables.sms');
+        return config('rl_sms.tables.refills');
     }
 
     protected $fillable = [
-        'nexmo_id',
-        'sender_title',
-        'sender_phone',
-        'receiver_title',
-        'receiver_phone',
-        'country',
         'quantity',
-        'sent_at'
+        'remains'
     ];
 
     protected $dates = [
-        'sent_at',
         'created_at',
         'updated_at'
     ];

@@ -4,10 +4,12 @@ return [
 
     'tables' => [
         'sms'                         => 'sms',
+        'refills'                     => 'sms_refills',
     ],
 
     'models' => [
         'sms'                         => \Rocketlabs\Sms\App\Models\Sms::class,
+        'refills'                     => \Rocketlabs\Sms\App\Models\Refills::class,
     ],
     
 	'routes' => [
@@ -19,7 +21,7 @@ return [
                 'filter'        => '/admin/sms/filter',
                 'clearfilter'   => '/admin/sms/clearfilter',
                 'chart'         => '/admin/sms/chart'
-            ]
+            ],
         ]
 	],
 

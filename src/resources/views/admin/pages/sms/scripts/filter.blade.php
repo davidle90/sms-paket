@@ -127,10 +127,10 @@
             data: $form.serialize(),
             beforeSend: function(){},
             success: function (data) {
-                $('.append-bookings-to').html(data.view);
+                $('.append-items-to').html(data.view);
 
-                let $links = $('.links-grab').html();
-                $('.append-links').html($links);
+                let links = $('.links-grab').html();
+                $('.append-links').html(links);
 
                 $('.go-to-url').on('click', function(e){
                     if(!$(e.target).hasClass('dropdown-toggle') && !$(e.target).hasClass('do-delete-row')){

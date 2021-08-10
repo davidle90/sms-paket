@@ -72,7 +72,7 @@
                                 name="daterange" 
                                 class="datepicker-period form-control" 
                                 placeholder="Dates" 
-                                value="{{ (isset($first_sms) && isset($last_sms)) ? $first_sms->sent_at.' - '.$last_sms->sent_at : '1900-01-01 - 2100-01-01' }}"
+                                value="{{ session()->get('sms_filter.daterange', (isset($starts_at) && isset($starts_at)) ? $starts_at.' - '.$ends_at : '1900-01-01 - 2100-01-01') }}"
                         >
                     </div>
 

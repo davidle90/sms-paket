@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Session;
 
 use DB;
 use Rocketlabs\Languages\App\Models\Languages;
+use Rocketlabs\Sms\App\Models\Refills;
 use Rocketlabs\Sms\App\Models\Sms;
 use Validator;
 use Carbon\Carbon;
@@ -17,43 +18,49 @@ class SmsController extends Controller
 
 	public function index(Request $request)
 	{
-        $sms = $this->filter($request, false);
+        $sms                = $this->filter($request, false);
 
-        $first_sms  = Sms::orderBy('sent_at', 'asc')->first();
-        $last_sms   = Sms::orderBy('sent_at', 'desc')->first();
+        $latest_refill      = Refills::orderBy('created_at', 'desc')->first();
+        $used_sms_quantity  = Sms::where('sent_at', '>=', $latest_refill->created_at)->sum('quantity').'/'.($latest_refill->quantity + $latest_refill->remains);
+
+        $now                = \Carbon\Carbon::now();
+        $starts_at          = $now->copy()->startOfMonth();
+        $ends_at            = $now->copy()->endOfMonth();
 
         $filter_array['timeline'] = [
-            'Alla' => [
-                date('Y-m-d', $first_sms->sent_at->timestamp),
-                date('Y-m-d', $last_sms->sent_at->timestamp),
+            'Idag'              => [
+                date('Y-m-d', $now->copy()->startOfDay()->timestamp),
+                date('Y-m-d', $now->copy()->endOfDay()->timestamp),
             ],
-            date('F') => [
-                date('Y-n-1'),
-                date('Y-n-t'),
+            'Nuvarande vecka'   => [
+                date('Y-m-d', $now->copy()->startOfWeek()->timestamp),
+                date('Y-m-d', $now->copy()->endOfWeek()->timestamp),
             ],
-            date('F', strtotime('last month')) => [
-                date('Y-n-j', strtotime("first day of previous month")),
-                date('Y-n-j', strtotime("last day of previous month")),
+            'Nuvarande månad'   => [
+                date('Y-m-d', $now->copy()->startOfMonth()->timestamp),
+                date('Y-m-d', $now->copy()->endOfMonth()->timestamp),
             ],
-            'År ' . date('Y') => [
-                date('Y-01-01'),
-                date('Y-12-31'),
+            'Nuvarande kvartal' => [
+                date('Y-m-d', $now->copy()->startOfQuarter()->timestamp),
+                date('Y-m-d', $now->copy()->endOfQuarter()->timestamp),
             ],
-            'År ' . date('Y',strtotime("-1 year")) => [
-                date('Y-01-01',strtotime("-1 year")),
-                date('Y-12-31',strtotime("-1 year")),
+            'Nuvarande år'      => [
+                date('Y-m-d', $now->copy()->startOfYear()->timestamp),
+                date('Y-m-d', $now->copy()->endOfYear()->timestamp),
             ],
-            'R12' => [
-                date('Y-m-1',strtotime("-1 year")),
-                date('Y-m-t'),
+            'Sedan påfyllning'  => [
+                date('Y-m-d', $latest_refill->created_at->copy()->timestamp),
+                date('Y-m-d', $now->copy()->timestamp),
             ]
         ];
 
        return view('rl_sms::admin.pages.sms.index', [
-           'sms'            => $sms,
-           'filter_array'   => $filter_array,
-           'first_sms'  => $first_sms,
-           'last_sms'   => $last_sms
+           'sms'                => $sms,
+           'filter_array'       => $filter_array,
+           'starts_at'          => $starts_at,
+           'ends_at'            => $ends_at,
+           'used_sms_quantity'  => $used_sms_quantity,
+           'latest_refill'      => $latest_refill
        ]);
 
 	}
@@ -178,57 +185,88 @@ class SmsController extends Controller
 
     public function chart(Request $request)
     {
-        $starts_at  = $request->get('starts_at', '1900-01-01 00:00:00');
-        $ends_at    = $request->get('ends_at', '2100-01-01 00:00:00');
+        $daterange  = $request->get('daterange', '1900-01-01 - 2100-01-01');
+        $date_array = explode(' - ', $daterange);
 
         $sms = Sms::orderBy('sent_at', 'asc')
-            ->where('sent_at', '>=', $starts_at)
-            ->where('sent_at', '<=', $ends_at)
+            ->where('sent_at', '>=', $date_array[0].' 00:00:01')
+            ->where('sent_at', '<=', $date_array[1].' 23:59:59')
             ->get();
 
         $data        = [
             'labels'    => [],
             'datasets'  => [
                 [
-                    'label'             => 'Skickade SMS (netto)',
+                    'label'             => 'Antal utskick',
                     'data'              => [],
-                    'backgroundColor'   => '#20a8d8',
-                    'borderColor'       => '#20a8d8',
+                    'backgroundColor'   => '#3292e0',
+                    'borderColor'       => '#3292e0',
                     'borderWidth'       => 1
                 ],
                 [
-                    'label'             => 'Skickade SMS (brutto)',
+                    'label'             => 'Använda SMS',
                     'data'              => [],
-                    'backgroundColor'   => '#ff5454',
-                    'borderColor'       => '#ff5454',
+                    'backgroundColor'   => '#c1def5',
+                    'borderColor'       => '#c1def5',
                     'borderWidth'       => 1
                 ]
             ]
         ];
 
         $sms_per_day = [];
-        
-        /**  Getting sent SMS per day **/
-        foreach ($sms as $item){
-            $date = $item->sent_at->toDateString();
-            
-            if(isset($sms_per_day[$date])) {
-                $sms_per_day[$date]['net']      += 1;
-                $sms_per_day[$date]['gross']    += (1 * $item->quantity);
-            } else {
-                $sms_per_day[$date]['net']      = 1;
-                $sms_per_day[$date]['gross']    = (1 * $item->quantity);
+
+        if($date_array[0] !== $date_array[1]) {
+            /**  Getting sent SMS per day **/
+            foreach ($sms as $item){
+                $date = $item->sent_at->copy()->toDateString();
+
+                if(isset($sms_per_day[$date])) {
+                    $sms_per_day[$date]['net']      += 1;
+                    $sms_per_day[$date]['gross']    += (1 * $item->quantity);
+                } else {
+                    $sms_per_day[$date]['net']      = 1;
+                    $sms_per_day[$date]['gross']    = (1 * $item->quantity);
+                }
+            }
+
+            foreach ($sms_per_day as $date => $item){
+                $data['labels'][]               = $date;
+                $data['datasets'][0]['data'][]  = $item['net'];
+                $data['datasets'][1]['data'][]  = $item['gross'];
+            }
+        } else {
+
+            /**  Getting sent SMS per Hour **/
+            foreach ($sms as $item){
+                $hour = $item->sent_at->copy()->hour;
+
+                if(isset($sms_per_hour[$hour])) {
+                    $sms_per_hour[$hour]['net']      += 1;
+                    $sms_per_hour[$hour]['gross']    += (1 * $item->quantity);
+                } else {
+                    $sms_per_hour[$hour]['net']      = 1;
+                    $sms_per_hour[$hour]['gross']    = (1 * $item->quantity);
+                }
+            }
+
+            for($i = 0; $i < 24; $i++){
+                if(!isset($sms_per_hour[$i]) || empty($sms_per_hour[$i])) {
+                    $sms_per_hour[$i]['net']    = 0;
+                    $sms_per_hour[$i]['gross']  = 0;
+                }
+
+                $data['labels'][]               = ($i < 10) ? '0'.$i.':00' : $i.':00';
+                $data['datasets'][0]['data'][]  = $sms_per_hour[$i]['net'];
+                $data['datasets'][1]['data'][]  = $sms_per_hour[$i]['gross'];
             }
         }
 
-        foreach ($sms_per_day as $date => $item){
-            $data['labels'][]               = $date;
-            $data['datasets'][0]['data'][]  = $item['net'];
-            $data['datasets'][1]['data'][]  = $item['gross'];
-        }
-
-
         return response()->json($data);
+    }
+
+    public function send()
+    {
+        return '';
     }
 
 }
