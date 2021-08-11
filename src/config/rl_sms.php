@@ -19,13 +19,19 @@ return [
 	'routes' => [
 		// Management routes
 		'admin' => [
-            'sms' => [
+            'sms'       => [
                 'index'         => '/admin/sms',
                 'view'          => '/admin/sms/view/{id}',
                 'filter'        => '/admin/sms/filter',
                 'clearfilter'   => '/admin/sms/clearfilter',
                 'chart'         => '/admin/sms/chart'
             ],
+            'senders'   => [
+                'index'     => '/admin/senders',
+                'edit'      => '/admin/senders/edit/{id}',
+                'create'    => '/admin/senders/create',
+                'store'     => '/admin/senders/store'
+            ]
         ]
 	],
 

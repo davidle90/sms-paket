@@ -18,7 +18,7 @@ class CreateSmsSendersTable extends Migration
             $table->string('name');
             $table->string('sms_label');
             $table->string('slug');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Rocketlabs\Sms\App\Http\Controllers\SmsController;
+use Rocketlabs\Sms\App\Http\Controllers\SendersController;
 
 
 
@@ -52,12 +53,23 @@ Route::group(['middleware' => 'web'], function () use ($route, $middleware) {
                 ->name('rl_sms.admin.sms.send');
 
             /*
-             * Receivers
+             * Senders
              */
-            Route::get($route('admin.sms.receivers.get'), [SmsController::class, 'receivers_get'])
-                ->middleware($middleware('admin.sms.receivers.get'))
-                ->name('rl_sms.admin.sms.receivers.get');
+            Route::get($route('admin.senders.index'), [SendersController::class, 'index'])
+                ->middleware($middleware('admin.senders.index'))
+                ->name('rl_sms.admin.senders.index');
 
+            Route::get($route('admin.senders.edit'), [SendersController::class, 'edit'])
+                ->middleware($middleware('admin.senders.edit'))
+                ->name('rl_sms.admin.senders.edit');
+
+            Route::get($route('admin.senders.create'), [SendersController::class, 'create'])
+                ->middleware($middleware('admin.senders.create'))
+                ->name('rl_sms.admin.senders.create');
+
+            Route::get($route('admin.senders.store'), [SendersController::class, 'store'])
+                ->middleware($middleware('admin.senders.store'))
+                ->name('rl_sms.admin.senders.store');
         });
 
     });

@@ -19,7 +19,7 @@ class CreateSmsSmsablesTable extends Migration
             $table->string('source');
             $table->string('number_column');
             $table->string('search_fields');
-            $table->string('criteria');
+            $table->string('criteria')->nullable();
             $table->timestamps();
         });
     }

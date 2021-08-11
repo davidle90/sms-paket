@@ -2,6 +2,7 @@
 
 return [
 
-    'package_name' => 'SMS',
+    'package_name'  => 'SMS',
+    'senders'       => 'Avsändare',
 
 ];
