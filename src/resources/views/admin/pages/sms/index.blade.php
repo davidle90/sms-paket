@@ -6,16 +6,8 @@
 			z-index: 1100 !important;
 		}
 
-		.redactor-dropdown {
+		.select2-dropdown {
 			z-index: 1102 !important;
-		}
-
-		#redactor-overlay {
-			z-index: 1103 !important;
-		}
-
-		#redactor-modal {
-			z-index: 1104 !important;
 		}
 
 		.receiver-list > div:nth-child(2) {
@@ -151,21 +143,49 @@
 				}
 			});
 
-			$('.select2-receivers').select2({
-			});
+			{{--$(".select2-receivers").select2({--}}
+			{{--	tags: true,--}}
+			{{--	placeholder: false,--}}
+			{{--	allowClear: true,--}}
+			{{--	ajax: {--}}
+			{{--		method: 'GET',--}}
+			{{--		url: '{{ route('rl_sms.admin.sms.receivers.get') }}',--}}
+			{{--		dataType: 'json',--}}
+			{{--		delay: 250,--}}
+			{{--		data: function (params) {--}}
+			{{--			return {--}}
+			{{--				q: params.term,--}}
+			{{--			};--}}
+			{{--		}--}}
+			{{--	}--}}
+			{{--});--}}
 
-			$R('.redactor-message', {
-				lang: 'sv',
-				plugins: ['counter'],
-				minHeight: '100px',
-				maxHeight: '300px',
-				formatting: ['p', 'blockquote'],
-				buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists'],
-				toolbarFixedTopOffset: 72, // pixel
-				pasteLinkTarget: '_blank',
-				linkNofollow: true,
-				breakline: true,
-			});
+			//$(".select2-receivers").on('select2:select', function(e){
+			//	let data = e.params.data;
+			//
+			//	let row = `<tr>
+			//					<td class="">${ data.text ?? '' }</td>
+			//					<td class="">${ data.phone_sms ?? '' }</td>
+			//					<td class=""><span class="btn btn-link text-danger float-right p-0 doRemoveReceiver">Ta bort</span></td>
+			//					<input type="hidden" name="receivers[]" value="${ data.id ?? '' }">
+			//			   </tr>`;
+			//
+			//	$('.append-receivers').append(row);
+			//	$(".select2-receivers").val(null).trigger('change');
+			//});
+
+			//$R('.redactor-message', {
+			//	lang: 'sv',
+			//	plugins: ['counter'],
+			//	minHeight: '100px',
+			//	maxHeight: '300px',
+			//	formatting: ['p', 'blockquote'],
+			//	buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists'],
+			//	toolbarFixedTopOffset: 72, // pixel
+			//	pasteLinkTarget: '_blank',
+			//	linkNofollow: true,
+			//	breakline: true,
+			//});
 
 			//Initializing chartjs
 			let ctx 		= $('#sms_chart');
@@ -189,6 +209,10 @@
 			});
 
 			$('[data-toggle="tooltip"]').tooltip();
+
+			$(document).on('click', '.doSendSMS', function(){
+				console.log($('#send_form').serializeArray());
+			});
 		});
 
 	</script>

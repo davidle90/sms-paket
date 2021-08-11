@@ -13,46 +13,40 @@
             <div class="modal-body" style="color: black !important;">
                 <form id="send_form" method="post" action="{{ route('rl_sms.admin.sms.send') }}">
 
-                    <!-- Search/Add receivers -->
-                    <label for="receivers" class="bold">Lägg till mottagare</label>
-                    <div class="form-group">
-                        <select id="receivers" class="select2-receivers form-control" multiple="multiple" style="width:100%">
+{{--                    <!-- Search/Add receivers -->--}}
+{{--                    <label for="receivers" class="bold">Lägg till mottagare</label>--}}
+{{--                    <div class="form-group">--}}
+{{--                        <select id="receivers" class="select2-receivers" style="width:100%" multiple>--}}
 
-                        </select>
-                    </div>
+{{--                        </select>--}}
+{{--                    </div>--}}
 
-                    <!-- Receivers list -->
-                    <div class="form-group">
-                        <label class="bold">Valda mottagare</label>
-                        <table class="table table-striped table-white table-outline table-hover mb-0 border-secondary">
-                            <tbody class="append-receivers">
-                            <tr>
-                                <td class="p-2">+46736469915 (Julia)</td>
-                                <input type="hidden" name="receivers[]" value="46736469915">
-                            </tr>
-                            <tr>
-                                <td class="p-2">+46736468875 (Anton)</td>
-                                <input type="hidden" name="receivers[]" value="46736468875">
-                            </tr>
-                            <tr>
-                                <td class="p-2">+46736469915 (Julia)</td>
-                                <input type="hidden" name="receivers[]" value="46736469915">
-                            </tr>
-                            <tr>
-                                <td class="p-2">+46736468875 (Anton)</td>
-                                <input type="hidden" name="receivers[]" value="46736468875">
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
+{{--                    <!-- Receivers list -->--}}
+{{--                    <div class="form-group">--}}
+{{--                        <label class="bold">Valda mottagare</label>--}}
+{{--                        <table class="table table-striped table-white table-outline table-hover mb-0 border-secondary">--}}
+{{--                            <thead>--}}
+{{--                                <tr>--}}
+{{--                                    <th>Namn</th>--}}
+{{--                                    <th>Telefonnummer</th>--}}
+{{--                                    <th></th>--}}
+{{--                                </tr>--}}
+{{--                            </thead>--}}
+
+{{--                            <tbody class="append-receivers">--}}
+
+{{--                            </tbody>--}}
+{{--                        </table>--}}
+{{--                    </div>--}}
 
                     <!-- Message box/Textarea -->
                     <div class="form-group">
                         <label class="bold" for="message">Meddelande</label>
                         <textarea
+                                style="max-height: 250px; min-height: 100px;"
                                 name="message"
                                 id="message"
-                                class="redactor-message form-control u-form__input"
+                                class="form-control u-form__input"
                         ></textarea>
                     </div>
 

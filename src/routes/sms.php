@@ -50,6 +50,14 @@ Route::group(['middleware' => 'web'], function () use ($route, $middleware) {
             Route::post($route('admin.sms.send'), [SmsController::class, 'send'])
                 ->middleware($middleware('admin.sms.send'))
                 ->name('rl_sms.admin.sms.send');
+
+            /*
+             * Receivers
+             */
+            Route::get($route('admin.sms.receivers.get'), [SmsController::class, 'receivers_get'])
+                ->middleware($middleware('admin.sms.receivers.get'))
+                ->name('rl_sms.admin.sms.receivers.get');
+
         });
 
     });

@@ -3,13 +3,17 @@
 return [
 
     'tables' => [
-        'sms'                         => 'sms',
-        'refills'                     => 'sms_refills',
+        'sms'       => 'sms',
+        'refills'   => 'sms_refills',
+        'smsables'  => 'sms_smsables',
+        'senders'   => 'sms_senders'
     ],
 
     'models' => [
-        'sms'                         => \Rocketlabs\Sms\App\Models\Sms::class,
-        'refills'                     => \Rocketlabs\Sms\App\Models\Refills::class,
+        'sms'       => \Rocketlabs\Sms\App\Models\Sms::class,
+        'refills'   => \Rocketlabs\Sms\App\Models\Refills::class,
+        'smsables'  => \Rocketlabs\Sms\App\Models\Smsables::class,
+        'senders'   => \Rocketlabs\Sms\App\Models\Senders::class
     ],
     
 	'routes' => [

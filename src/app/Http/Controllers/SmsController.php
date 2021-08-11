@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Session;
 
 use DB;
 use Rocketlabs\Languages\App\Models\Languages;
+use Rocketlabs\Sms\App\Models\Receivers;
 use Rocketlabs\Sms\App\Models\Refills;
 use Rocketlabs\Sms\App\Models\Sms;
 use Validator;
@@ -267,6 +268,29 @@ class SmsController extends Controller
     public function send()
     {
         return '';
+    }
+
+    /** Receivers **/
+    public function receivers_get(Request $request)
+    {
+        //$receivers  = Receivers::with('sourceable')->get();
+        //$results    = [];
+        //
+        //foreach ($receivers as $receiver){
+        //    $results[] = [
+        //      'id'          => $receiver->id,
+        //      'text'        => $receiver->label,
+        //      'phone_sms'   => $receiver->sourceable->phone_sms
+        //    ];
+        //}
+        //
+        //return response()->json([
+        //    'results' => $results,
+        //    'pagination' => [
+        //        'more' => false
+        //    ]
+        //]);
+        return [];
     }
 
 }
