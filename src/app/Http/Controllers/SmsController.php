@@ -10,6 +10,7 @@ use DB;
 use Rocketlabs\Languages\App\Models\Languages;
 use Rocketlabs\Sms\App\Models\Receivers;
 use Rocketlabs\Sms\App\Models\Refills;
+use Rocketlabs\Sms\App\Models\Senders;
 use Rocketlabs\Sms\App\Models\Sms;
 use Rocketlabs\Sms\App\Models\Smsables;
 use Validator;
@@ -21,6 +22,11 @@ class SmsController extends Controller
 	public function index(Request $request)
 	{
         $sms                = $this->filter($request, false);
+        $senders            = Senders::get();
+        $smsables           = Smsables::get();
+
+        $default_language   = Config::get('app.locale');
+        $fallback_language  = Config::get('app.fallback_locale');
 
         $latest_refill      = Refills::orderBy('created_at', 'desc')->first();
         $used_sms_quantity  = Sms::where('sent_at', '>=', $latest_refill->created_at)->sum('quantity').'/'.($latest_refill->quantity + $latest_refill->remains);
@@ -62,7 +68,11 @@ class SmsController extends Controller
            'starts_at'          => $starts_at,
            'ends_at'            => $ends_at,
            'used_sms_quantity'  => $used_sms_quantity,
-           'latest_refill'      => $latest_refill
+           'latest_refill'      => $latest_refill,
+           'senders'            => $senders,
+           'smsables'           => $smsables,
+           'default_language'   => $default_language,
+           'fallback_language'  => $fallback_language
        ]);
 
 	}

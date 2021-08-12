@@ -2,12 +2,20 @@
 
 @section('styles')
 	<style>
-		.modal-backdrop {
+		.modal-backdrop{
 			z-index: 1100 !important;
 		}
 
-		.select2-dropdown {
+		.modal-backdrop+.modal-backdrop {
 			z-index: 1102 !important;
+		}
+
+		.modal-backdrop+.modal-backdrop+.modal-backdrop {
+			z-index: 1104 !important;
+		}
+
+		.select2-selection__clear {
+			margin-top: 0px;
 		}
 
 		.receiver-list > div:nth-child(2) {
@@ -30,6 +38,8 @@
 
 @section('modals')
 	@include('rl_sms::admin.pages.sms.modals.send')
+	@include('rl_sms::admin.pages.sms.modals.receivers.modal')
+	@include('rl_sms::admin.pages.sms.modals.receivers.import.modal')
 @endsection
 
 @section('sidebar')
@@ -143,49 +153,11 @@
 				}
 			});
 
-			{{--$(".select2-receivers").select2({--}}
-			{{--	tags: true,--}}
-			{{--	placeholder: false,--}}
-			{{--	allowClear: true,--}}
-			{{--	ajax: {--}}
-			{{--		method: 'GET',--}}
-			{{--		url: '{{ route('rl_sms.admin.sms.receivers.get') }}',--}}
-			{{--		dataType: 'json',--}}
-			{{--		delay: 250,--}}
-			{{--		data: function (params) {--}}
-			{{--			return {--}}
-			{{--				q: params.term,--}}
-			{{--			};--}}
-			{{--		}--}}
-			{{--	}--}}
-			{{--});--}}
-
-			//$(".select2-receivers").on('select2:select', function(e){
-			//	let data = e.params.data;
-			//
-			//	let row = `<tr>
-			//					<td class="">${ data.text ?? '' }</td>
-			//					<td class="">${ data.phone_sms ?? '' }</td>
-			//					<td class=""><span class="btn btn-link text-danger float-right p-0 doRemoveReceiver">Ta bort</span></td>
-			//					<input type="hidden" name="receivers[]" value="${ data.id ?? '' }">
-			//			   </tr>`;
-			//
-			//	$('.append-receivers').append(row);
-			//	$(".select2-receivers").val(null).trigger('change');
-			//});
-
-			//$R('.redactor-message', {
-			//	lang: 'sv',
-			//	plugins: ['counter'],
-			//	minHeight: '100px',
-			//	maxHeight: '300px',
-			//	formatting: ['p', 'blockquote'],
-			//	buttons: ['redo', 'undo', 'bold', 'italic', 'underline', 'link', 'lists'],
-			//	toolbarFixedTopOffset: 72, // pixel
-			//	pasteLinkTarget: '_blank',
-			//	linkNofollow: true,
-			//	breakline: true,
-			//});
+			$('.select-sender').select2({
+				dropdownParent: $('#sendModal'),
+				placeholder: "Välj avsändare",
+				allowClear: true
+			});
 
 			//Initializing chartjs
 			let ctx 		= $('#sms_chart');
@@ -218,4 +190,5 @@
 	</script>
 
 	@include('rl_sms::admin.pages.sms.scripts.filter')
+	@include('rl_sms::admin.pages.sms.modals.receivers.scripts')
 @stop

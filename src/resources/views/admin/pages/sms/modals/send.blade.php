@@ -13,31 +13,24 @@
             <div class="modal-body" style="color: black !important;">
                 <form id="send_form" method="post" action="{{ route('rl_sms.admin.sms.send') }}">
 
-{{--                    <!-- Search/Add receivers -->--}}
-{{--                    <label for="receivers" class="bold">Lägg till mottagare</label>--}}
-{{--                    <div class="form-group">--}}
-{{--                        <select id="receivers" class="select2-receivers" style="width:100%" multiple>--}}
+                    <!-- Choose sender -->
+                    <div class="form-group">
+                        <label class="bold" for="message">Avsändare</label>
 
-{{--                        </select>--}}
-{{--                    </div>--}}
+                        @if(isset($senders))
+                            <select class="select-sender pmd-select2 form-control" name="sender_id" style="width: 100%;">
+                                <option value=""></option>
+                                @foreach($senders as $sender)
+                                    <option value="{{ $sender->id }}">
+                                        {{ $sender->name ?? '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
+                    </div>
 
-{{--                    <!-- Receivers list -->--}}
-{{--                    <div class="form-group">--}}
-{{--                        <label class="bold">Valda mottagare</label>--}}
-{{--                        <table class="table table-striped table-white table-outline table-hover mb-0 border-secondary">--}}
-{{--                            <thead>--}}
-{{--                                <tr>--}}
-{{--                                    <th>Namn</th>--}}
-{{--                                    <th>Telefonnummer</th>--}}
-{{--                                    <th></th>--}}
-{{--                                </tr>--}}
-{{--                            </thead>--}}
-
-{{--                            <tbody class="append-receivers">--}}
-
-{{--                            </tbody>--}}
-{{--                        </table>--}}
-{{--                    </div>--}}
+                    <!-- Handle/Add receivers modal -->
+                    <span class="btn btn-block btn-outline-primary form-group" data-toggle="modal" data-target="#receiversModal">Hantera mottagare</span>
 
                     <!-- Message box/Textarea -->
                     <div class="form-group">

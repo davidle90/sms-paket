@@ -30,7 +30,11 @@ return [
                 'index'     => '/admin/senders',
                 'edit'      => '/admin/senders/edit/{id}',
                 'create'    => '/admin/senders/create',
-                'store'     => '/admin/senders/store'
+                'store'     => '/admin/senders/store',
+                'drop'      => '/admin/senders/drop'
+            ],
+            'receivers' => [
+                'get' => '/admin/receivers/get'
             ]
         ]
 	],

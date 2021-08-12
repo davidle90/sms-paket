@@ -45,34 +45,6 @@
 @stop
 
 @section('scripts')
-
-    @if(Session::has('message'))
-        <script type="text/javascript">
-            $(document).ready(function(){
-
-                message = '{{ Session::get('message') }}';
-
-                toastr.success(message, 'Success!', toastr.options = {
-                    "closeButton": false,
-                    "debug": false,
-                    "newestOnTop": false,
-                    "progressBar": true,
-                    "positionClass": "toast-bottom-right",
-                    "preventDuplicates": false,
-                    "onclick": null,
-                    "showDuration": "300",
-                    "hideDuration": "1000",
-                    "timeOut": "5000",
-                    "extendedTimeOut": "1000",
-                    "showEasing": "swing",
-                    "hideEasing": "linear",
-                    "showMethod": "fadeIn",
-                    "hideMethod": "fadeOut"
-                });
-            });
-        </script>
-    @endif
-
     <script type="text/javascript">
 
         $(document).ready(function(){
@@ -87,5 +59,7 @@
         });
 
     </script>
+
+    @include('rl_sms::admin.pages.senders.scripts.flash')
 @stop
 
