@@ -276,9 +276,75 @@ class SmsController extends Controller
         return response()->json($data);
     }
 
-    public function send()
+    public function send(Request $request)
     {
-        return '';
+
+        $input = [
+            'sender_id' => $request->get('sender_id', null),
+            'message'   => $request->get('message', null),
+            'receivers' => $request->get('receivers', null),
+        ];
+
+        $validator = Validator::make($input, [
+            'sender_id' => 'required',
+            'message'   => 'required',
+            'receivers' => 'required',
+        ]);
+
+        if($validator->fails()){
+
+            $var = array();
+            $var['status']  = 0;
+            $var['errors']  = $validator->errors()->toArray();
+            $var['message']['title']    = 'Form validation error!';
+            $var['message']['text']     = 'Some form value is missing or not properly filled out, please check your input and try again';
+
+            return response()->json($var);
+
+        } else {
+
+            pre($input);
+
+            //DB::beginTransaction();
+
+            try {
+
+                //DB::commit();
+
+                Session::flash('message', 'Meddelande skickat!');
+                Session::flash('message-title', 'Lyckad åtgärd!');
+                Session::flash('message-type', 'success');
+
+                $response = [
+                    'status'  => 1,
+                    'message' => [
+                        'title' => 'Lyckad åtgärd!',
+                        'text'  => 'Meddelande skickat!'
+                    ],
+                    'redirect' => route('rl_sms.admin.sms.index')
+                ];
+
+                return response()->json($response);
+
+            } catch (\Exception $e) {
+
+                //DB::rollback();
+
+                //throw $e;
+
+                $var = array();
+                $var['status']              = 0;
+                $var['error']               = $e->getMessage();
+                $var['line']                = $e->getLine();
+                $var['message']['title']    = 'Error!';
+                $var['message']['text']     = 'Unexpected error occurred';
+                $var['input']               = $input;
+
+                return response()->json($var);
+
+            }
+        }
+
     }
 
 }

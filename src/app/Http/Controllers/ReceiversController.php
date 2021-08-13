@@ -26,101 +26,177 @@ class ReceiversController extends Controller
         parse_str($request->get('selected_form', ''), $selected_form);
 
         $source_id      = $form['source'] ?? null;
-        $search         = $form['search_input'] ?? null;
-        $selected_ids   = $selected_form['receivers'] ?? [];
+        $search         = $form['search_input_receivers'] ?? null;
+        $selected_ids   = $selected_form['selected_ids'] ?? [];
 
-        $source = Smsables::find($source_id);
-        $model = '\\'.$source->sourceable_type;
-        
+        $source         = Smsables::find($source_id);
+        $model          = '\\'.$source->sourceable_type;
+        $table          = app($model)->getTable();
+      
         $receiversQuery = $model::query();
 
         $search_fields = explode(',' ,$source->search_fields);
 
-        foreach($search_fields as $search_field) {
-            $table  = null;
+        $select = [];
+        $where  = [];
+
+        $select[] = $table.'.*';
+
+        foreach($search_fields as $key => $search_field) {
+            $rel_table  = null;
             $column = null;
 
             if(str_contains($search_field, '.')) {
                 $field_split  = explode('.', $search_field);
 
-                $table  = $field_split[0];
-                $column = $field_split[1];
+                $rel_table  = $field_split[0];
+                $column     = trim($field_split[1]);
             } else {
-                $column = $search_field;
+                $column = trim($search_field);
             }
 
             if(str_contains($column, ':')) {
-                $column = explode(':', $column);
+                $column = array_map('trim', explode(':', $column));
+            }
+
+            if(isset($rel_table)) {
+                $temp_table = "temp_table_".$key;
+                $receiversQuery->leftJoin($rel_table." AS ".$temp_table, $temp_table.'.id', '=', $table.".".str_singular($rel_table).'_id');
             }
 
             if(is_array($column)) {
-                pre('Table: '.($table ?? 'none').',<br>'.'Column: '.$column[0].' AND '.$column[1], false);
+                if(isset($rel_table)) {
+                    $select[]   = DB::raw("CONCAT(".$temp_table.".".$column[0].",' ',".$temp_table.".".$column[1].") AS receiver_name");
+                    $where[]    = DB::raw("CONCAT(".$temp_table.".".$column[0].",' ',".$temp_table.".".$column[1].")");
+                } else {
+                    $select[]   = DB::raw("CONCAT(".$column[0].",' ',".$column[1].") AS receiver_name");
+                    $where[]    = DB::raw("CONCAT(".$column[0].",' ',".$column[1].")");
+                }
+
             } else {
-                pre('Table: '.($table ?? 'none').',<br>'.'Column: '.$column, false);
+                if(isset($rel_table)) {
+                    $select[]   = $temp_table.".".$column." AS receiver_name";
+                    $where[]    = $temp_table.".".$column;
+                } else {
+                    $select[]   = $column." AS receiver_phone";
+                    $where[]    = $column;
+                }
             }
 
         }
 
-        pre('');
+        $receiversQuery->where(function($query) use($where, $search){
+            foreach ($where as $condition) {
+                $query->orWhere($condition, 'LIKE', '%'.$search.'%');
+            }
+        });
 
-        //if(isset($search) && !empty($search)){
-        //    $receiversQuery->leftJoin(config('rl_languages.tables.translations'), function($join) {
-        //        $join->where(config('rl_languages.tables.translations').'.translatable_type', '=', 'Rocketlabs\Products\App\Models\Products');
-        //        $join->on(config('rl_products.tables.products').'.id', '=', config('rl_languages.tables.translations').'.translatable_id');
-        //        $join->where(config('rl_languages.tables.translations').'.key', '=', 'title');
-        //        $join->on(config('rl_products.tables.products').'.primary_locale', '=', config('rl_languages.tables.translations').'.locale');
-        //    });
-        //
-        //    $receiversQuery->select('*','products.id as id', config('rl_languages.tables.translations').'.'.'translation as title')->whereNotIn('products.id', $exclude_products);
-        //
-        //    $receiversQuery->where(config('rl_languages.tables.translations').'.translation', 'LIKE', '%' . $search . '%');
-        //    $receiversQuery->orWhere('article_num', 'LIKE', $search);
-        //    $receiversQuery->orWhere('ean_code', 'LIKE', $search);
-        //    $receiversQuery->orWhere('products.id', 'LIKE', $search);
-        //
-        //    $receiversQuery->orWhereHas('combinations', function($query) use ($search){
-        //        $query->where('article_num', 'LIKE', $search);
-        //    });
-        //
-        //} else {
-        //    $receiversQuery->whereNotIn('id', $exclude_products);
-        //}
+        $receiversQuery->select($select);
+        $receiversQuery->orderBy('receiver_name', 'asc');
 
         $receivers = $receiversQuery->paginate(50);
 
         return view('rl_sms::admin.pages.sms.modals.receivers.list', [
             'receivers'     => $receivers,
             'selected_ids'  => $selected_ids,
-            'name_key'      => 'users.firstname:lastname',
-            'number_key'    => 'phone_sms'
         ])->render();
     }
 
-    public function load(Request $request)
+    public function move_all_receivers(Request $request)
     {
-        $campaign_id = $request->get('id', null);
-        $campaign = $this->campaigns_model::find($campaign_id);
+        $form = [];
+        $selected_form = [];
 
-        // get campaign products
-        $products = $campaign->products()->with('category')->paginate(50);
+        parse_str($request->get('form', ''), $form);
+        parse_str($request->get('selected_form', ''), $selected_form);
 
-        $selected_combinations_ids = $campaign->products_combinations()
-            ->whereHas('product', function($query) use($products){
-                $query->whereIn('id', $products->pluck('id')->toArray());
-            })
-            ->pluck('combination_id')
-            ->toArray();
-        
-        $products->withPath(route('rl_campaigns.admin.campaigns.products', ['campaign_id' => $campaign->id]));
+        $source_id      = $form['source'] ?? null;
+        $search         = $form['search_input_receivers'] ?? null;
+        $selected_ids   = $selected_form['selected_ids'] ?? [];
 
-        $table_classes = 'table table-striped table-white table-outline table-hover mb-0 border-secondary';
+        $source         = Smsables::find($source_id);
+        $model          = '\\'.$source->sourceable_type;
+        $table          = app($model)->getTable();
 
-        return view('rl_campaigns::pages.admin.campaigns.includes.tables.products', [
-            'campaign'      => $campaign,
-            'products'      => $products,
-            'selected_combinations_ids' => $selected_combinations_ids,
-            'table_classes' => $table_classes
+        $receiversQuery = $model::query();
+
+        $search_fields = explode(',' ,$source->search_fields);
+
+        $select = [];
+        $where  = [];
+
+        $select[] = $table.'.*';
+
+        foreach($search_fields as $key => $search_field) {
+            $rel_table  = null;
+            $column = null;
+
+            if(str_contains($search_field, '.')) {
+                $field_split  = explode('.', $search_field);
+
+                $rel_table  = $field_split[0];
+                $column     = trim($field_split[1]);
+            } else {
+                $column = trim($search_field);
+            }
+
+            if(str_contains($column, ':')) {
+                $column = array_map('trim', explode(':', $column));
+            }
+
+            if(isset($rel_table)) {
+                $temp_table = "temp_table_".$key;
+                $receiversQuery->leftJoin($rel_table." AS ".$temp_table, $temp_table.'.id', '=', $table.".".str_singular($rel_table).'_id');
+            }
+
+            if(is_array($column)) {
+                if(isset($rel_table)) {
+                    $select[]   = DB::raw("CONCAT(".$temp_table.".".$column[0].",' ',".$temp_table.".".$column[1].") AS receiver_name");
+                    $where[]    = DB::raw("CONCAT(".$temp_table.".".$column[0].",' ',".$temp_table.".".$column[1].")");
+                } else {
+                    $select[]   = DB::raw("CONCAT(".$column[0].",' ',".$column[1].") AS receiver_name");
+                    $where[]    = DB::raw("CONCAT(".$column[0].",' ',".$column[1].")");
+                }
+
+            } else {
+                if(isset($rel_table)) {
+                    $select[]   = $temp_table.".".$column." AS receiver_name";
+                    $where[]    = $temp_table.".".$column;
+                } else {
+                    $select[]   = $column." AS receiver_phone";
+                    $where[]    = $column;
+                }
+            }
+
+        }
+
+        $receiversQuery->where(function($query) use($where, $search){
+            foreach ($where as $condition) {
+                $query->orWhere($condition, 'LIKE', '%'.$search.'%');
+            }
+        });
+
+        $receiversQuery->select($select);
+        $receiversQuery->orderBy('receiver_name', 'asc');
+
+        $receivers = $receiversQuery->get();
+
+        return view('rl_sms::admin.pages.sms.modals.receivers.templates.rows', [
+            'receivers'     => $receivers,
+            'selected_ids'  => $selected_ids,
         ])->render();
+    }
+
+    public function update_receivers(Request $request)
+    {
+        $receivers = $request->get('receivers', []);
+
+        return response()->json([
+            'view' => view('rl_sms::admin.pages.sms.modals.templates.inputs', [
+                'receivers' => $receivers,
+            ])->render(),
+            'count' => count($receivers)
+        ]);
     }
 
 }

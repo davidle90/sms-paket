@@ -40,6 +40,7 @@
 	@include('rl_sms::admin.pages.sms.modals.send')
 	@include('rl_sms::admin.pages.sms.modals.receivers.modal')
 	@include('rl_sms::admin.pages.sms.modals.receivers.import.modal')
+	@include('rl_sms::admin.pages.sms.modals.receivers.remove.modal')
 @endsection
 
 @section('sidebar')
@@ -191,4 +192,5 @@
 
 	@include('rl_sms::admin.pages.sms.scripts.filter')
 	@include('rl_sms::admin.pages.sms.modals.receivers.scripts')
+	@include('rl_sms::admin.pages.sms.modals.script')
 @stop

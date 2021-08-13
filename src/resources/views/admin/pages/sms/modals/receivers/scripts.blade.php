@@ -3,7 +3,7 @@
     function add_receiver($receiverEL)
     {
         let $new_receiverEL = $receiverEL.clone();
-        let id              = $receiverEL.find('input[name="receivers[]"]').val();
+        let id              = $receiverEL.find('input[name="selected_ids[]"]').val();
 
         $receiverEL.find('.add_receiver').html('Tillagd').removeClass('add_receiver text-link').addClass('added text-secondary');
         $receiverEL.addClass('text-secondary');
@@ -11,24 +11,22 @@
         $new_receiverEL.attr('id', `selected_receivers_row_${ id }`);
         $new_receiverEL.find('.add_receiver').html('Ta bort mottagare').removeClass('add_receiver').addClass('remove_receiver text-danger');
 
-        $('#selected_receivers_table tbody').append($new_receiverEL);
+        $('#selected_receivers_table tbody').prepend($new_receiverEL);
 
-        $('#selected_receivers_wrapper').find('.remove_receiver').on('click', function(){
-            $(this).off('click');
+        $('#selected_receivers_wrapper').find('.remove_receiver').off('click').on('click', function(){
             remove_receiver($(this).closest('tr'));
         });
     }
 
     function remove_receiver($receiverEL_to_remove)
     {
-        let id                      = $receiverEL_to_remove.find('input[name="receivers[]"]').val();
+        let id                      = $receiverEL_to_remove.find('input[name="selected_ids[]"]').val();
         let $receiverEL__to_show    = $('#available_receivers_wrapper').find(`#available_receivers_row_${ id }`);
 
         $receiverEL__to_show.find('.added').html('Lägg till mottagare').removeClass('added text-secondary').addClass('add_receiver text-link');
         $receiverEL__to_show.removeClass('text-secondary');
 
-        $receiverEL__to_show.find('.add_receiver').on('click', function(){
-            $(this).off('click');
+        $receiverEL__to_show.find('.add_receiver').off('click').on('click', function(){
             add_receiver($(this).closest('tr'));
         });
         
@@ -73,14 +71,14 @@
 
     $(document).ready(function(){
 
-        $('input[name=search_input]').on('keydown', function(e){
+        $('input[name=search_input_receivers]').on('keydown', function(e){
             if(e.keyCode === 13) {
                 e.preventDefault();
                 search_receivers();
             }
         });
 
-        $('input[name=search_input]').on('keyup', function(e){
+        $('input[name=search_input_receivers]').on('keyup', function(e){
             e.preventDefault();
             search = $(this).val();
             if(search.length == 0){
@@ -88,7 +86,7 @@
             }
         });
 
-        $('#search_btn').on('click', function(){
+        $('#receivers_search_form #search_btn_receivers').on('click', function(){
             search_receivers();
         });
 
@@ -99,89 +97,92 @@
         });
 
         $('.select2-source').on('change', function(){
-            $('input[name="search_input"]').prop('disabled', false);
+            $('input[name="search_input_receivers"]').prop('disabled', false);
 
             if($(this).val() == '') {
-                $('input[name="search_input"]').prop('disabled', true);
+                $('input[name="search_input_receivers"]').prop('disabled', true);
+                $('#available_receivers_wrapper tbody').html('');
             } else {
                 search_receivers();
             }
         });
 
-        {{--$('.add_selected_receivers').on('click', function(){--}}
+        $('.openImportModal').on('click', function(){
+            if($('.select2-source').val() !== '') {
+                $('#importAllReceiversModal').modal('show');
+            }
+        });
 
-        {{--    var $form = $('#selected_products_form');--}}
+        $('.import_all_receivers').on('click', function(){
+            let $form = $('#receivers_search_form');
+            let $selected_form = $('#selected_receivers_form');
 
-        {{--    $.ajax({--}}
-        {{--        type: $form.attr('method'),--}}
-        {{--        url: $form.attr('action'),--}}
-        {{--        cache: false,--}}
-        {{--        dataType: 'json',--}}
-        {{--        data: $form.serialize(),--}}
-        {{--        beforeSend: function(){},--}}
-        {{--        success: function (data) {--}}
+            $.ajax({
+                type: 'get',
+                url: '{{ route('rl_sms.admin.receivers.move_all') }}',
+                cache: false,
+                dataType: 'html',
+                data: {
+                    form: $form.serialize(),
+                    selected_form: $selected_form.serialize()
+                },
+                beforeSend: function(){},
+                success: function (data) {
 
-        {{--            /** Print response to screen **/--}}
-        {{--            //alert(JSON.stringify(data));--}}
+                    /** Print response to screen **/
+                    //alert(JSON.stringify(data));
 
-        {{--            if(data.status == 1) {--}}
+                    $('#selected_receivers_wrapper tbody').prepend(data);
+                    $('#selected_receivers_wrapper').find('.remove_receiver').off('click').on('click', function(){
+                        remove_receiver($(this).closest('tr'));
+                    });
 
-        {{--                campaign_id = '{{ $campaign->id ?? '' }}';--}}
+                    if($('.select2-source').val() !== '') {
+                        $('#receivers_search_form #search_btn_receivers').trigger('click');
+                    }
 
-        {{--                reload_campaign_products(campaign_id);--}}
+                },
+                error: function(xhr, textStatus, errorThrown){
 
-        {{--                $('#productsModal').modal('hide');--}}
-        {{--                $('#selected_products_table tbody').html('');--}}
+                    /** Something went terribly wrong! Print json response to screen **/
+                    alert(JSON.stringify(xhr));
 
-        {{--                toastr.success(data.message.text, data.message.title, toastr.options = {--}}
-        {{--                    "closeButton": false,--}}
-        {{--                    "debug": false,--}}
-        {{--                    "newestOnTop": false,--}}
-        {{--                    "progressBar": true,--}}
-        {{--                    "positionClass": "toast-bottom-right",--}}
-        {{--                    "preventDuplicates": false,--}}
-        {{--                    "onclick": null,--}}
-        {{--                    "showDuration": "300",--}}
-        {{--                    "hideDuration": "1000",--}}
-        {{--                    "timeOut": "5000",--}}
-        {{--                    "extendedTimeOut": "1000",--}}
-        {{--                    "showEasing": "swing",--}}
-        {{--                    "hideEasing": "linear",--}}
-        {{--                    "showMethod": "fadeIn",--}}
-        {{--                    "hideMethod": "fadeOut"--}}
-        {{--                });--}}
+                }
+            });
+        });
 
-        {{--            } else if(data.status == 0) {--}}
+        $('.doRemoveReceivers').on('click', function(){
+            $('#selected_receivers_wrapper tbody').html('');
 
-        {{--                toastr.error(data.message.text, data.message.title, toastr.options = {--}}
-        {{--                    "closeButton": false,--}}
-        {{--                    "debug": false,--}}
-        {{--                    "newestOnTop": false,--}}
-        {{--                    "progressBar": true,--}}
-        {{--                    "positionClass": "toast-bottom-right",--}}
-        {{--                    "preventDuplicates": false,--}}
-        {{--                    "onclick": null,--}}
-        {{--                    "showDuration": "300",--}}
-        {{--                    "hideDuration": "1000",--}}
-        {{--                    "timeOut": "5000",--}}
-        {{--                    "extendedTimeOut": "1000",--}}
-        {{--                    "showEasing": "swing",--}}
-        {{--                    "hideEasing": "linear",--}}
-        {{--                    "showMethod": "fadeIn",--}}
-        {{--                    "hideMethod": "fadeOut"--}}
-        {{--                });--}}
+            if($('.select2-source').val() !== '') {
+                $('#receivers_search_form #search_btn_receivers').trigger('click');
+            }
+        });
 
-        {{--            }--}}
+        $('.doUpdateReceivers').on('click', function(){
+            let $form = $('#selected_receivers_form');
 
-        {{--        },--}}
-        {{--        error: function(xhr, textStatus, errorThrown){--}}
+            $.ajax({
+                type: 'post',
+                url: '{{ route('rl_sms.admin.receivers.update') }}',
+                cache: false,
+                dataType: 'json',
+                data: $form.serialize(),
+                beforeSend: function(){},
+                success: function (data) {
+                    console.log(data);
+                    /** Print response to modal **/
+                    $('.insert-hidden-inputs').html(data.view);
+                    $('.insert-receiver-count').html(data.count);
+                },
+                error: function(xhr, textStatus, errorThrown){
 
-        {{--            /** Something went terribly wrong! Print json response to screen **/--}}
-        {{--            alert(JSON.stringify(xhr));--}}
+                    /** Something went terribly wrong! Print json response to screen **/
+                    alert(JSON.stringify(xhr));
 
-        {{--        }--}}
-        {{--    });--}}
-        {{--});--}}
+                }
+            });
+        });
 
     });
 

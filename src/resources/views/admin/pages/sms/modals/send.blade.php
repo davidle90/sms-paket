@@ -29,9 +29,6 @@
                         @endif
                     </div>
 
-                    <!-- Handle/Add receivers modal -->
-                    <span class="btn btn-block btn-outline-primary form-group" data-toggle="modal" data-target="#receiversModal">Hantera mottagare</span>
-
                     <!-- Message box/Textarea -->
                     <div class="form-group">
                         <label class="bold" for="message">Meddelande</label>
@@ -43,12 +40,29 @@
                         ></textarea>
                     </div>
 
+                    <span class="insert-hidden-inputs">
+                        <!-- Hidden receiver inputs goes here! -->
+                    </span>
+
                 </form>
+
+                <!-- Handle/Add receivers modal -->
+                <div class="form-group">
+                    <span class="btn btn-block btn-outline-primary handle-receivers" data-toggle="modal" data-target="#receiversModal">Hantera mottagare</span>
+                </div>
+
+                <!-- Receivers -->
+                <h6>Antal mottagare: <span class="insert-receiver-count font-weight-normal">0</span></h6>
+
+                <!-- Character/SMS count -->
+                <h6>Antal karaktärer: <span class="char-count font-weight-normal">0</span></h6>
+                <h6>Antal SMS: <span class="SMS-count font-weight-normal">0</span></h6>
+
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-link mr-auto" data-dismiss="modal">Stäng</button>
-                <button type="button" class="btn btn-outline-primary active doSendSMS float-right" data-dismiss="modal">Skicka</button>
+                <button type="button" class="btn btn-outline-primary active doSendSMS float-right">Skicka</button>
             </div>
 
         </div>

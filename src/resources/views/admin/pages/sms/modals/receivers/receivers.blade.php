@@ -20,8 +20,8 @@
 
                 <div class="col-6">
                     <div class="input-group mb-3" id="filter-search-bar-wrapper">
-                        <input name="search_input" style="border-radius:3px;" type="text" class="form-control" value="" placeholder="Sök mottagare" aria-describedby="search_query" disabled>
-                        <i id="search_btn" class="pointer fal fa-search text-muted" style="position:absolute; right:10px; top:10px; z-index:100000;"></i>
+                        <input name="search_input_receivers" style="border-radius:3px;" type="text" class="form-control" value="" placeholder="Sök mottagare eller telefonnummer" aria-describedby="search_query" disabled>
+                        <i id="search_btn_receivers" class="pointer fal fa-search text-muted" style="position:absolute; right:10px; top:10px; z-index:100000;"></i>
                     </div>
                 </div>
             </div>
@@ -29,6 +29,20 @@
         </form>
 
     </div>
+
+    <div class="col-6">
+        <div class="row">
+            <div class="offset-3 col-6">
+                <div class="input-group mb-3">
+                    <input name="add_input_receivers" style="border-radius:3px; border-bottom-right-radius: 0; border-top-right-radius: 0;" type="text" class="form-control" value="" placeholder="Lägg till telefonnummer manuellt">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success active" type="button" style="border-bottom-left-radius: 0; border-top-left-radius: 0;">Lägg till</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 <div class="row">
     <div class="col-6">
@@ -43,9 +57,7 @@
                 </thead>
             </table>
             <div id="available_receivers_wrapper" style="overflow-y: auto; height:100%;">
-                <div class="text-center" style="margin-top: 37%;">
-                    <i class="fal fa-spinner fa-w-16 fa-spin fa-lg"></i>
-                </div>
+
             </div>
         </div>
     </div>

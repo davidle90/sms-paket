@@ -12,9 +12,14 @@
                 @include('rl_sms::admin.pages.sms.modals.receivers.receivers')
             </div>
             <div class="modal-footer">
-                <button type="button" class="mr-auto pl-0 btn btn-link" data-dismiss="modal">Stäng</button>
-                <button type="button" class="btn btn-outline-primary active" data-toggle="modal" data-target="#importAllReceiversModal">Flytta alla mottagare</button>
-                <button type="button" class="btn btn-outline-success active add_selected_receivers">Spara</button>
+                <div class="col-6">
+                    <button type="button" class="float-left pl-0 btn btn-link" data-dismiss="modal">Stäng</button>
+                    <button type="button" class="btn btn-outline-primary active float-right openImportModal">Flytta alla mottagare</button>
+                </div>
+                <div class="col-6">
+                    <button type="button" class="btn btn-outline-danger active float-left" data-toggle="modal" data-target="#removeAllReceiversModal">Ta bort alla mottagare</button>
+                    <button type="button" class="btn btn-outline-success active doUpdateReceivers float-right" data-dismiss="modal">Uppdatera</button>
+                </div>
             </div>
         </div>
     </div>

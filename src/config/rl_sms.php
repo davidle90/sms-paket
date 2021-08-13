@@ -34,7 +34,9 @@ return [
                 'drop'      => '/admin/senders/drop'
             ],
             'receivers' => [
-                'get' => '/admin/receivers/get'
+                'get'       => '/admin/receivers/get',
+                'move_all'  => '/admin/receivers/move_all',
+                'update'    => '/admin/receivers/update',
             ]
         ]
 	],

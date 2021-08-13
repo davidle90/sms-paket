@@ -1,7 +1,7 @@
 <table id="available_receivers_table" class="table table-white table-striped table-hover mb-0 border-secondary table-borderless">
     <tbody>
     @if(isset($receivers) && !empty($receivers))
-        @foreach($receivers as $receiver)
+        @foreach($receivers as $key => $receiver)
 
             @php
                 $is_selected = in_array(str_replace('\\', '_', get_class($receiver)).'_'.$receiver->id, $selected_ids);
@@ -13,14 +13,17 @@
                         class="text-secondary"
                     @endif
             >
-                <input type="hidden" name="receivers[]" value="{{ str_replace('\\', '_', get_class($receiver)).'_'.$receiver->id }}" />
+                <input type="hidden" name="selected_ids[]" value="{{ str_replace('\\', '_', get_class($receiver)).'_'.$receiver->id }}" />
+                <input type="hidden" name="receivers[{{ $key }}][name]" value="{{ $receiver->receiver_name ?? '' }}">
+                <input type="hidden" name="receivers[{{ $key }}][phone]" value="{{ $receiver->receiver_phone ?? '' }}">
+
                 <td class="truncate" style="min-width: 35%;">
-                    NAMN/TITEL
+                    {{ $receiver->receiver_name ?? '' }}
                 </td>
-                <td style="width:150px;">{{ $receiver->{$number_key} ?? '' }}</td>
+                <td style="width:150px;">{{ $receiver->receiver_phone ?? '' }}</td>
                 <td class="text-right" style="width:150px;">
                     <span class="@if($is_selected) text-secondary added @else text-link add_receiver @endif" data-id="{{ $receiver->id }}">
-                        @if($is_selected)) Tillagd @else Lägg till mottagare @endif
+                        @if($is_selected) Tillagd @else Lägg till mottagare @endif
                     </span>
                 </td>
             </tr>
