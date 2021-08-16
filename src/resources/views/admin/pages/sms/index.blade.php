@@ -26,6 +26,24 @@
 			background-color: #f5f5f5;
 		}
 
+		.iti__flag {background-image: url('/img/flags.png')}
+
+		@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+			.iti__flag {background-image: url('/img/flags@2x.png');}
+		}
+
+		.iti {
+			width: 100%;
+		}
+
+		.is-invalid-bg {
+			background-color: #ffe6e6 !important;
+		}
+
+		.is-invalid-border {
+			border: 1px solid #ff5454 !important;
+		}
+
 	</style>
 @endsection
 

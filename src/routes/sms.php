@@ -79,11 +79,11 @@ Route::group(['middleware' => 'web'], function () use ($route, $middleware) {
             /*
              * Receivers
              */
-            Route::get($route('admin.receivers.get'), [ReceiversController::class, 'get'])
+            Route::post($route('admin.receivers.get'), [ReceiversController::class, 'get'])
                 ->middleware($middleware('admin.receivers.get'))
                 ->name('rl_sms.admin.receivers.get');
 
-            Route::get($route('admin.receivers.move_all'), [ReceiversController::class, 'move_all_receivers'])
+            Route::post($route('admin.receivers.move_all'), [ReceiversController::class, 'move_all_receivers'])
                 ->middleware($middleware('admin.receivers.move_all'))
                 ->name('rl_sms.admin.receivers.move_all');
 

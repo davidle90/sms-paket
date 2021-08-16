@@ -20,11 +20,13 @@
                    /** Remove old error block **/
                    $('.error-block').remove();
                    $('.is-invalid').removeClass("is-invalid");
+                   $('.is-invalid-border').removeClass("is-invalid-border");
+                   $('.is-invalid-bg').removeClass("is-invalid-bg");
 
                    if(data.status == 1) {
 
                        if(data.redirect){
-                           window.location.replace(data.redirect);
+                           window.location.reload();
                        } else {
                            toastr.success(data.message.text, data.message.title, toastr.options = {
                                "closeButton": false,
@@ -72,6 +74,13 @@
                                $("input[name="+id+"], select[name="+id+"], textarea[name="+id+"], .handle-"+id+"").addClass('is-invalid');
                                $("input[name="+id+"], select[name="+id+"], textarea[name="+id+"], .handle-"+id+"").closest('.form-group').after("<div class='error-block'>" + message + "</div>");
 
+                               //Handle button
+                               $(".handle-"+id).addClass('is-invalid-bg is-invalid-border');
+
+                               //Dropdown single
+                               $("select[name="+id+"]").closest('.form-group').find('.select2-selection--single').addClass('is-invalid-bg');
+                               $("select[name="+id+"]").closest('.select-wrapper').addClass('is-invalid-border');
+
                            });
 
                            $('html,body').animate({
@@ -93,11 +102,13 @@
        });
 
         $("#message").keyup(function(){
-            console.log('test');
             let char_count = $(this).val().length;
+            let receivers  = $('.insert-receiver-count').text();
+
+            let sms_count = Math.floor((char_count - 1) / 160) + 1;
 
             $(".char-count").html(char_count);
-            $(".SMS-count").html(Math.floor((char_count - 1) / 160) + 1);
+            $(".SMS-count").html((sms_count * receivers) + ' (' + sms_count + ' per meddelande)');
         });
 
     });

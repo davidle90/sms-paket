@@ -94,7 +94,8 @@ class ReceiversController extends Controller
         $receiversQuery->select($select);
         $receiversQuery->orderBy('receiver_name', 'asc');
 
-        $receivers = $receiversQuery->paginate(50);
+        $receivers = $receiversQuery->paginate(20);
+        $receivers->withPath(route('rl_sms.admin.receivers.get'));
 
         return view('rl_sms::admin.pages.sms.modals.receivers.list', [
             'receivers'     => $receivers,
@@ -189,13 +190,15 @@ class ReceiversController extends Controller
 
     public function update_receivers(Request $request)
     {
-        $receivers = $request->get('receivers', []);
+        $receivers          = $request->get('receivers', []);
+        $receivers_manual   = $request->get('receivers_manual', []);
+        $receivers_merged   = array_merge($receivers, $receivers_manual);
 
         return response()->json([
             'view' => view('rl_sms::admin.pages.sms.modals.templates.inputs', [
-                'receivers' => $receivers,
+                'receivers' => $receivers_merged,
             ])->render(),
-            'count' => count($receivers)
+            'count' => count($receivers_merged)
         ]);
     }
 

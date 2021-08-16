@@ -14,7 +14,7 @@
             <div class="modal-footer">
                 <div class="col-6">
                     <button type="button" class="float-left pl-0 btn btn-link" data-dismiss="modal">Stäng</button>
-                    <button type="button" class="btn btn-outline-primary active float-right openImportModal">Flytta alla mottagare</button>
+                    <button type="button" class="btn btn-outline-primary active float-right openImportModal">Lägg till alla mottagare</button>
                 </div>
                 <div class="col-6">
                     <button type="button" class="btn btn-outline-danger active float-left" data-toggle="modal" data-target="#removeAllReceiversModal">Ta bort alla mottagare</button>

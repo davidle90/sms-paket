@@ -18,22 +18,29 @@
                         <label class="bold" for="message">Avsändare</label>
 
                         @if(isset($senders))
-                            <select class="select-sender pmd-select2 form-control" name="sender_id" style="width: 100%;">
-                                <option value=""></option>
-                                @foreach($senders as $sender)
-                                    <option value="{{ $sender->id }}">
-                                        {{ $sender->name ?? '' }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div class="select-wrapper">
+                                <select class="select-sender pmd-select2 form-control" name="sender_id" style="width: 100%;">
+                                    <option value=""></option>
+                                    @foreach($senders as $sender)
+                                        <option value="{{ $sender->id }}">
+                                            {{ $sender->name ?? '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         @endif
+                    </div>
+
+                    <!-- Handle/Add receivers modal -->
+                    <div class="form-group">
+                        <span class="btn btn-block btn-outline-primary handle-receivers" data-toggle="modal" data-target="#receiversModal">Hantera mottagare</span>
                     </div>
 
                     <!-- Message box/Textarea -->
                     <div class="form-group">
                         <label class="bold" for="message">Meddelande</label>
                         <textarea
-                                style="max-height: 250px; min-height: 100px;"
+                                style="max-height: 500px; min-height: 250px;"
                                 name="message"
                                 id="message"
                                 class="form-control u-form__input"
@@ -46,17 +53,12 @@
 
                 </form>
 
-                <!-- Handle/Add receivers modal -->
-                <div class="form-group">
-                    <span class="btn btn-block btn-outline-primary handle-receivers" data-toggle="modal" data-target="#receiversModal">Hantera mottagare</span>
-                </div>
-
                 <!-- Receivers -->
                 <h6>Antal mottagare: <span class="insert-receiver-count font-weight-normal">0</span></h6>
 
                 <!-- Character/SMS count -->
                 <h6>Antal karaktärer: <span class="char-count font-weight-normal">0</span></h6>
-                <h6>Antal SMS: <span class="SMS-count font-weight-normal">0</span></h6>
+                <h6>Antal SMS: <span class="SMS-count font-weight-normal">0 (0 per meddelande)</span></h6>
 
             </div>
 

@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-6">
 
-        <form id="receivers_search_form" method="get" action="">
+        <form id="receivers_search_form" method="post" action="">
 
             <div class="row">
                 <div class="col-6">
@@ -19,7 +19,7 @@
                 </div>
 
                 <div class="col-6">
-                    <div class="input-group mb-3" id="filter-search-bar-wrapper">
+                    <div class="input-group" id="filter-search-bar-wrapper" style="margin-bottom: 38px;">
                         <input name="search_input_receivers" style="border-radius:3px;" type="text" class="form-control" value="" placeholder="Sök mottagare eller telefonnummer" aria-describedby="search_query" disabled>
                         <i id="search_btn_receivers" class="pointer fal fa-search text-muted" style="position:absolute; right:10px; top:10px; z-index:100000;"></i>
                     </div>
@@ -32,11 +32,16 @@
 
     <div class="col-6">
         <div class="row">
-            <div class="offset-3 col-6">
+            <div class="col-6">
+                <div class="input-group">
+                    <input id="phone" name="add_input_receivers_phone" style="border-radius:3px;" type="tel" class="form-control" value="">
+                </div>
+            </div>
+            <div class="col-6">
                 <div class="input-group mb-3">
-                    <input name="add_input_receivers" style="border-radius:3px; border-bottom-right-radius: 0; border-top-right-radius: 0;" type="text" class="form-control" value="" placeholder="Lägg till telefonnummer manuellt">
+                    <input name="add_input_receivers_name" style="border-radius:3px; border-bottom-right-radius: 0; border-top-right-radius: 0;" type="text" class="form-control" value="" placeholder="Lägg till mottagarnamn">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-success active" type="button" style="border-bottom-left-radius: 0; border-top-left-radius: 0;">Lägg till</button>
+                        <button class="btn btn-outline-success active doAddReceiver" type="button" style="border-bottom-left-radius: 0; border-top-left-radius: 0;">Lägg till</button>
                     </div>
                 </div>
             </div>
@@ -46,7 +51,7 @@
 </div>
 <div class="row">
     <div class="col-6">
-        <div class="card mb-0" style="height:calc(100vh - 241px);">
+        <div class="card mb-0" style="height:calc(100vh - 270px);">
             <table class="table table-white table-outline mb-0 border-secondary table-card">
                 <thead>
                     <tr>
@@ -63,7 +68,7 @@
     </div>
 
     <div class="col-6">
-        <div class="card mb-0" style="height:calc(100vh - 241px);">
+        <div class="card mb-0" style="height:calc(100vh - 270px);">
             <table class="table table-white table-outline mb-0 border-secondary table-card">
                 <thead>
                     <tr>
