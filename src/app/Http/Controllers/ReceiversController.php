@@ -64,6 +64,14 @@ class ReceiversController extends Controller
                 $receiversQuery->leftJoin($rel_table." AS ".$temp_table, $temp_table.'.id', '=', $table.".".str_singular($rel_table).'_id');
             }
 
+            if($source->source === 'phones') {
+                $temp_table_phones = "temp_table_phones_".$key;
+                $receiversQuery->leftJoin('phones AS '.$temp_table_phones, function($join) use($temp_table_phones, $table, $source){
+                    $join->on($temp_table_phones.'.phoneable_id', '=', $table.'.id');
+                    $join->where($temp_table_phones.'.phoneable_type', '=', $source->sourceable_type);
+                });
+            }
+
             if(is_array($column)) {
                 if(isset($rel_table)) {
                     $select[]   = DB::raw("CONCAT(".$temp_table.".".$column[0].",' ',".$temp_table.".".$column[1].") AS receiver_name");
@@ -78,8 +86,14 @@ class ReceiversController extends Controller
                     $select[]   = $temp_table.".".$column." AS receiver_name";
                     $where[]    = $temp_table.".".$column;
                 } else {
-                    $select[]   = $column." AS receiver_phone";
-                    $where[]    = $column;
+                    if($source->source === 'phones') {
+                        $select[]   = $temp_table_phones.'.'.$column." AS receiver_phone";
+                        $select[]   = $temp_table_phones.'.label AS receiver_phone_label';
+                        $where[]    = $temp_table_phones.'.'.$column;
+                    } else {
+                        $select[]   = $column." AS receiver_phone";
+                        $where[]    = $column;
+                    }
                 }
             }
 
@@ -150,6 +164,14 @@ class ReceiversController extends Controller
                 $receiversQuery->leftJoin($rel_table." AS ".$temp_table, $temp_table.'.id', '=', $table.".".str_singular($rel_table).'_id');
             }
 
+            if($source->source === 'phones') {
+                $temp_table_phones = "temp_table_phones_".$key;
+                $receiversQuery->leftJoin('phones AS '.$temp_table_phones, function($join) use($temp_table_phones, $table, $source){
+                    $join->on($temp_table_phones.'.phoneable_id', '=', $table.'.id');
+                    $join->where($temp_table_phones.'.phoneable_type', '=', $source->sourceable_type);
+                });
+            }
+
             if(is_array($column)) {
                 if(isset($rel_table)) {
                     $select[]   = DB::raw("CONCAT(".$temp_table.".".$column[0].",' ',".$temp_table.".".$column[1].") AS receiver_name");
@@ -164,8 +186,14 @@ class ReceiversController extends Controller
                     $select[]   = $temp_table.".".$column." AS receiver_name";
                     $where[]    = $temp_table.".".$column;
                 } else {
-                    $select[]   = $column." AS receiver_phone";
-                    $where[]    = $column;
+                    if($source->source === 'phones') {
+                        $select[]   = $temp_table_phones.'.'.$column." AS receiver_phone";
+                        $select[]   = $temp_table_phones.'.label AS receiver_phone_label';
+                        $where[]    = $temp_table_phones.'.'.$column;
+                    } else {
+                        $select[]   = $column." AS receiver_phone";
+                        $where[]    = $column;
+                    }
                 }
             }
 

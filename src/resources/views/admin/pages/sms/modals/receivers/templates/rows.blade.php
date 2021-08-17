@@ -1,12 +1,17 @@
 
 @if(isset($receivers) && !empty($receivers))
     @foreach($receivers as $key => $receiver)
-        @if(!in_array(str_replace('\\', '_', get_class($receiver)).'_'.$receiver->id, $selected_ids))
+
+        @php
+            $id = str_replace('\\', '_', get_class($receiver)).'_'.$receiver->id.'_'.($receiver->receiver_phone_label ?? '');
+        @endphp
+
+        @if(!in_array($id, $selected_ids))
 
             <tr
-                    id="selected_receivers_row_{{ str_replace('\\', '_', get_class($receiver)).'_'.$receiver->id }}"
+                    id="selected_receivers_row_{{ $id }}"
             >
-                <input type="hidden" name="selected_ids[]" value="{{ str_replace('\\', '_', get_class($receiver)).'_'.$receiver->id }}" />
+                <input type="hidden" name="selected_ids[]" value="{{ $id }}" />
                 <input type="hidden" name="receivers[{{ $key }}][name]" value="{{ $receiver->receiver_name ?? '' }}">
                 <input type="hidden" name="receivers[{{ $key }}][phone]" value="{{ $receiver->receiver_phone ?? '' }}">
 

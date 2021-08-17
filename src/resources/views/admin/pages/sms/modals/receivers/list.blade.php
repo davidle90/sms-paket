@@ -4,16 +4,17 @@
             @foreach($receivers as $key => $receiver)
 
                 @php
-                    $is_selected = in_array(str_replace('\\', '_', get_class($receiver)).'_'.$receiver->id, $selected_ids);
+                    $id = str_replace('\\', '_', get_class($receiver)).'_'.$receiver->id.'_'.($receiver->receiver_phone_label ?? '');
+                    $is_selected = in_array($id, $selected_ids);
                 @endphp
 
                 <tr
-                        id="available_receivers_row_{{ str_replace('\\', '_', get_class($receiver)).'_'.$receiver->id }}"
+                        id="available_receivers_row_{{ $id }}"
                         @if($is_selected)
-                        class="text-secondary"
+                            class="text-secondary"
                         @endif
                 >
-                    <input type="hidden" name="selected_ids[]" value="{{ str_replace('\\', '_', get_class($receiver)).'_'.$receiver->id }}" />
+                    <input type="hidden" name="selected_ids[]" value="{{ $id }}" />
                     <input type="hidden" name="receivers[{{ $key }}][name]" value="{{ $receiver->receiver_name ?? '' }}">
                     <input type="hidden" name="receivers[{{ $key }}][phone]" value="{{ $receiver->receiver_phone ?? '' }}">
 
