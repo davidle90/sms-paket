@@ -71,12 +71,6 @@
 			@include('rl_sms::admin.pages.sms.includes.filter')
 		</div>
 		<div class="col-4 d-flex">
-			<div class="text-center mr-4" style="white-space: nowrap">
-				<h6 class="mb-0">Använda SMS</h6> {{ $used_sms_quantity ?? ''}}
-			</div>
-			<div class="text-center" style="white-space: nowrap">
-				<h6 class="mb-0">Senast påfylld</h6> {{ $latest_refill->created_at->copy()->format('Y-m-d') ?? '' }}
-			</div>
 		</div>
 		@if(isset($sms) && !$sms->isEmpty())
 			<div class="col-8 col-md-2 append-links">
@@ -87,9 +81,13 @@
 @endsection
 
 @section('content')
+	<!-- Refill & used info -->
 	<div class="row">
+		@include('rl_sms::admin.pages.sms.includes.cards')
+	</div>
 
-		<!-- Chart -->
+	<!-- Chart -->
+	<div class="row">
 		<div class="col-12">
 			<div class="card">
 				<div class="card-body">
@@ -99,7 +97,6 @@
 				</div>
 			</div>
 		</div>
-
 	</div>
 
 	<!-- Table -->
@@ -141,7 +138,6 @@
 	@endif
 
 	<script type="text/javascript">
-
 		//Function for fetching data and inserting it into chartjs
 		function get_chart_data(chart){
 			$.ajax({
@@ -189,7 +185,14 @@
 							beginAtZero: true,
 						}
 					},
-				}
+					plugins: {
+						tooltip: {
+							filter: function (tooltipItem) {
+								return tooltipItem.datasetIndex !== 2;
+							}
+						}
+					}
+				},
 			});
 
 			//Fetching data for chartjs

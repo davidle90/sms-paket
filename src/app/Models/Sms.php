@@ -32,5 +32,13 @@ class Sms extends Model
         'updated_at'
     ];
 
+    public function nexmo() {
+        return $this->hasMany(config('rl_sms.models.nexmo_responses'), 'sms_id', 'id');
+    }
+
+    public function message() {
+        return $this->belongsTo(config('rl_sms.models.messages'), 'message_id', 'id');
+    }
+
 }
 

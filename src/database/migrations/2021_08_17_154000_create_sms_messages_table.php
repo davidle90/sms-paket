@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSmsRefillsTable extends Migration
+class CreateSmsMessagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,9 @@ class CreateSmsRefillsTable extends Migration
      */
     public function up()
     {
-        Schema::create('sms_refills', function (Blueprint $table) {
+        Schema::create('sms_messages', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('quantity');
-            $table->integer('remains');
-            $table->integer('count');
+            $table->text('text')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ class CreateSmsRefillsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sms_refills');
+        Schema::dropIfExists('sms_messages');
     }
 }

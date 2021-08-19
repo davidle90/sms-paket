@@ -40,7 +40,7 @@
                     <div class="form-group">
                         <label class="bold" for="message">Meddelande</label>
                         <textarea
-                                style="max-height: 500px; min-height: 250px;"
+                                style="max-height: 400px; min-height: 200px;"
                                 name="message"
                                 id="message"
                                 class="form-control u-form__input"
@@ -53,12 +53,16 @@
 
                 </form>
 
-                <!-- Receivers -->
-                <h6>Antal mottagare: <span class="insert-receiver-count font-weight-normal">0</span></h6>
-
-                <!-- Character/SMS count -->
-                <h6>Antal karaktärer: <span class="char-count font-weight-normal">0</span></h6>
-                <h6>Antal SMS: <span class="SMS-count font-weight-normal">0 (0 per meddelande)</span></h6>
+                <div class="row">
+                    <div class="col-6">
+                        <h6>Antal mottagare: <span class="insert-receiver-count font-weight-normal">0</span></h6>
+                        <h6>Antal karaktärer: <span class="char-count font-weight-normal">0</span></h6>
+                    </div>
+                    <div class="col-6">
+                        <h6>Antal SMS: <span class="SMS-count font-weight-normal">0 (0/meddelande)</span></h6>
+                        <h6>Total pris: <span class="total-price font-weight-normal">0.00 SEK</span></h6>
+                    </div>
+                </div>
 
             </div>
 

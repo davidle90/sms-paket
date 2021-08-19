@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 
+use rl_sms;
 use DB;
 use Rocketlabs\Languages\App\Models\Languages;
 use Rocketlabs\Sms\App\Models\Receivers;
@@ -27,9 +28,14 @@ class SmsController extends Controller
 
         $default_language   = Config::get('app.locale');
         $fallback_language  = Config::get('app.fallback_locale');
+        $sms_price          = Config::get('rl_sms.price');
+        $refill_threshold   = Config::get('rl_sms.refill.threshold');
+        $refill_amount      = Config::get('rl_sms.refill.amount');
 
         $latest_refill      = Refills::orderBy('created_at', 'desc')->first();
-        $used_sms_quantity  = Sms::where('sent_at', '>=', $latest_refill->created_at)->sum('quantity').'/'.($latest_refill->quantity + $latest_refill->remains);
+        $sms_sent           = Sms::where('sent_at', '>=', $latest_refill->created_at)->sum('quantity');
+        $messages_sent      = Sms::where('sent_at', '>=', $latest_refill->created_at)->count();
+
 
         $now                = \Carbon\Carbon::now();
         $starts_at          = $now->copy()->startOfMonth();
@@ -67,19 +73,34 @@ class SmsController extends Controller
            'filter_array'       => $filter_array,
            'starts_at'          => $starts_at,
            'ends_at'            => $ends_at,
-           'used_sms_quantity'  => $used_sms_quantity,
+           'sms_sent'           => $sms_sent,
+           'messages_sent'      => $messages_sent,
            'latest_refill'      => $latest_refill,
            'senders'            => $senders,
            'smsables'           => $smsables,
            'default_language'   => $default_language,
-           'fallback_language'  => $fallback_language
+           'fallback_language'  => $fallback_language,
+           'sms_price'          => $sms_price,
+           'refill_threshold'   => $refill_threshold,
+           'refill_amount'      => $refill_amount
        ]);
 
 	}
 
 	public function view($id)
     {
-        return 'view';
+        $sms = Sms::with('nexmo', 'message')->find($id);
+
+        $mcc_mnc_list = json_decode(file_get_contents(base_path().'/vendor/rocketlabs/sms/src/resources/assets/vendor/mcc-mnc-list/mcc-mnc-list.json'), true);
+        $mcc_mnc_list = collect($mcc_mnc_list)->map(function($item){
+           $item['mccmnc'] = $item['mcc'].$item['mnc'];
+           return $item;
+        })->keyBy('mccmnc');
+
+        return view('rl_sms::admin.pages.sms.view', [
+            'sms'           => $sms,
+            'mcc_mnc_list'  => $mcc_mnc_list
+        ]);
     }
 
     public function filter(Request $request, $ajax = true)
@@ -113,7 +134,6 @@ class SmsController extends Controller
         if(isset($filter['query']) && !empty($filter['query'])){
             $smsQuery->where('sender_title', 'LIKE', '%'.$filter['query'].'%')
                 ->orWhere('receiver_title', 'LIKE', '%'.$filter['query'].'%')
-                ->orWhere('sender_phone', 'LIKE', '%'.$filter['query'].'%')
                 ->orWhere('receiver_phone', 'LIKE', '%'.$filter['query'].'%');
 
             $request->session()->put('sms_filter.query', $filter['query']);
@@ -199,6 +219,9 @@ class SmsController extends Controller
     {
         $daterange  = $request->get('daterange', '1900-01-01 - 2100-01-01');
         $date_array = explode(' - ', $daterange);
+        $start_time = strtotime($date_array[0]);
+        $end_time   = strtotime($date_array[1]);
+        $days       = ($end_time - $start_time) / (60 * 60 * 24);
 
         $sms = Sms::orderBy('sent_at', 'asc')
             ->where('sent_at', '>=', $date_array[0].' 00:00:01')
@@ -221,13 +244,23 @@ class SmsController extends Controller
                     'backgroundColor'   => '#c1def5',
                     'borderColor'       => '#c1def5',
                     'borderWidth'       => 1
-                ]
+                ],
             ]
         ];
 
         $sms_per_day = [];
 
         if($date_array[0] !== $date_array[1]) {
+
+            $refills        = Refills::orderBy('created_at', 'desc')->get();
+            $refill_dates   = [];
+            $highest_value  = 0;
+
+            /** Formatting refill dates **/
+            foreach($refills as $refill){
+                $refill_dates[] = $refill->created_at->format('Y-m-d');
+            }
+
             /**  Getting sent SMS per day **/
             foreach ($sms as $item){
                 $date = $item->sent_at->copy()->toDateString();
@@ -239,13 +272,39 @@ class SmsController extends Controller
                     $sms_per_day[$date]['net']      = 1;
                     $sms_per_day[$date]['gross']    = (1 * $item->quantity);
                 }
+
+                if($sms_per_day[$date]['gross'] >= $highest_value) {
+                    $highest_value = $sms_per_day[$date]['gross'];
+                }
             }
 
-            foreach ($sms_per_day as $date => $item){
-                $data['labels'][]               = $date;
-                $data['datasets'][0]['data'][]  = $item['net'];
-                $data['datasets'][1]['data'][]  = $item['gross'];
+            $data['datasets'][2] = [
+                'label'             => 'Påfyllningar',
+                'data'              => [],
+                'backgroundColor'   => 'red',
+                'borderColor'       => 'red',
+                'barThickness'      => 1,
+            ];
+
+            for($i = 0; $i <= $days; $i++){
+                $date               = Carbon::parse($date_array[0])->copy()->addDay($i)->format('Y-m-d');
+                $data['labels'][]   = $date;
+
+                if(isset($sms_per_day[$date]) && !empty($sms_per_day[$date])) {
+                    $data['datasets'][0]['data'][]  = $sms_per_day[$date]['net'];
+                    $data['datasets'][1]['data'][]  = $sms_per_day[$date]['gross'];
+                } else {
+                    $data['datasets'][0]['data'][] = 0;
+                    $data['datasets'][1]['data'][] = 0;
+                }
+
+                if(in_array($date, $refill_dates)) {
+                    $data['datasets'][2]['data'][] = $highest_value;
+                } else {
+                    $data['datasets'][2]['data'][] = 0;
+                }
             }
+
         } else {
 
             /**  Getting sent SMS per Hour **/
@@ -303,13 +362,9 @@ class SmsController extends Controller
 
         } else {
 
-            pre($input);
-
-            //DB::beginTransaction();
-
             try {
 
-                //DB::commit();
+                rl_sms::send($input['sender_id'], $input['receivers'], $input['message']);
 
                 Session::flash('message', 'Meddelande skickat!');
                 Session::flash('message-title', 'Lyckad åtgärd!');
@@ -327,8 +382,6 @@ class SmsController extends Controller
                 return response()->json($response);
 
             } catch (\Exception $e) {
-
-                //DB::rollback();
 
                 //throw $e;
 

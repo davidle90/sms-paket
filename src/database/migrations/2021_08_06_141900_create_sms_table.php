@@ -15,9 +15,8 @@ class CreateSmsTable extends Migration
     {
         Schema::create('sms', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('nexmo_id')->unsigned()->index()->nullable();
+            $table->integer('message_id')->unsigned()->index()->nullable();
             $table->string('sender_title')->nullable();
-            $table->string('sender_phone')->nullable();
             $table->string('receiver_title')->nullable();
             $table->string('receiver_phone')->nullable();
             $table->string('country')->nullable();

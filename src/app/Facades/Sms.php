@@ -10,6 +10,6 @@ class Sms extends Facade {
      */
     protected static function getFacadeAccessor()
     {
-        return 'Rocketlabs\Forms\App\Classes\Helpers'; // the IoC binding.
+        return 'Rocketlabs\Sms\App\Classes\Helpers'; // the IoC binding.
     }
 }

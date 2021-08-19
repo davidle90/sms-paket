@@ -1,4 +1,4 @@
-<div id="filter-popup-wrapper" class="card card-border-radius" style="z-index: 1022;">
+<div id="filter-popup-wrapper" class="card card-border-radius" style="z-index:1019;">
     <div class="card-body">
 
         <form name="filter-form" id="filter-form" method="get" action="{{ url()->route('rl_sms.admin.sms.filter') }}" autocomplete="off">
@@ -122,7 +122,7 @@
         </div>
     </div>
 </div>
-<div class="input-group mb-3" id="filter-search-bar-wrapper">
-    <input name="search_input" style="border-radius:3px;" type="text" class="form-control" value="{{ session()->get('sms_filter.query', '') }}" placeholder="Sök efter avsändare, mottagare eller telefonnummer" aria-describedby="search_query">
-    <i class="fal fa-search text-muted" style="position:absolute; right:10px; top:10px; z-index:100000;"></i>
+<div class="input-group mb-3" id="filter-search-bar-wrapper" style="z-index:1019;">
+    <input name="search_input" style="border-radius:3px; z-index:1019;" type="text" class="form-control" value="{{ session()->get('sms_filter.query', '') }}" placeholder="Sök efter avsändare, mottagare eller telefonnummer" aria-describedby="search_query">
+    <i class="fal fa-search text-muted" style="position:absolute; right:10px; top:10px; z-index:1019;"></i>
 </div>

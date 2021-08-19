@@ -161,7 +161,7 @@
             'position: absolute;' +
             'top: 0;' +
             'left: 0;' +
-            'z-index: 1021;' +
+            'z-index: 1018;' +
         '"</div>');
 
         $('.filter-popup-backdrop').off('click').on('click', function(){

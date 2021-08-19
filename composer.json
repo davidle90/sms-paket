@@ -18,7 +18,9 @@
 		}
 	},
 	"minimum-stability": "dev",
-	"require": {},
+	"require": {
+		"nexmo/laravel": "^2.4"
+	},
 	"extra": {
 		"laravel": {
 			"providers": [

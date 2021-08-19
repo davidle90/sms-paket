@@ -70,6 +70,7 @@ class ReceiversController extends Controller
                     $join->on($temp_table_phones.'.phoneable_id', '=', $table.'.id');
                     $join->where($temp_table_phones.'.phoneable_type', '=', $source->sourceable_type);
                 });
+                $receiversQuery->where($temp_table_phones.'.label', '=', $source->criteria);
             }
 
             if(is_array($column)) {
@@ -170,6 +171,7 @@ class ReceiversController extends Controller
                     $join->on($temp_table_phones.'.phoneable_id', '=', $table.'.id');
                     $join->where($temp_table_phones.'.phoneable_type', '=', $source->sourceable_type);
                 });
+                $receiversQuery->where($temp_table_phones.'.label', '=', $source->criteria);
             }
 
             if(is_array($column)) {

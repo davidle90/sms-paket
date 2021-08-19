@@ -3,17 +3,21 @@
 return [
 
     'tables' => [
-        'sms'       => 'sms',
-        'refills'   => 'sms_refills',
-        'smsables'  => 'sms_smsables',
-        'senders'   => 'sms_senders'
+        'sms'               => 'sms',
+        'refills'           => 'sms_refills',
+        'smsables'          => 'sms_smsables',
+        'senders'           => 'sms_senders',
+        'messages'          => 'sms_messages',
+        'nexmo_responses'   => 'sms_nexmo'
     ],
 
     'models' => [
-        'sms'       => \Rocketlabs\Sms\App\Models\Sms::class,
-        'refills'   => \Rocketlabs\Sms\App\Models\Refills::class,
-        'smsables'  => \Rocketlabs\Sms\App\Models\Smsables::class,
-        'senders'   => \Rocketlabs\Sms\App\Models\Senders::class
+        'sms'               => \Rocketlabs\Sms\App\Models\Sms::class,
+        'refills'           => \Rocketlabs\Sms\App\Models\Refills::class,
+        'smsables'          => \Rocketlabs\Sms\App\Models\Smsables::class,
+        'senders'           => \Rocketlabs\Sms\App\Models\Senders::class,
+        'messages'          => \Rocketlabs\Sms\App\Models\Messages::class,
+        'nexmo_responses'   => \Rocketlabs\Sms\App\Models\NexmoResponses::class
     ],
     
 	'routes' => [
@@ -71,6 +75,8 @@ return [
     'refill' => [
         'amount'    => 500,
         'threshold' => 100,
-    ]
+    ],
+
+    'price' => 1.00,
 
 ];
