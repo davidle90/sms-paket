@@ -7,6 +7,7 @@
         <th>Nationalitet</th>
         <th>Skickad vid</th>
         <th>Antal SMS</th>
+        <th>Status</th>
     </tr>
     </thead>
 
@@ -15,8 +16,20 @@
         @if(isset($sms) && !$sms->isEmpty())
             @foreach($sms as $item)
                 <tr class="go-to-url pointer" data-url="{{ route('rl_sms.admin.sms.view', ['id' => $item->id]) }}">
-                    <td>{{ $item->sender_title ?? '' }}</td>
-                    <td>{{ $item->receiver_title ?? '' }}</td>
+                    <td>
+                        @if(isset($item->sender_title) && !empty($item->sender_title))
+                            {{ $item->sender_title }}
+                        @else
+                            <i class="text-secondary">Ej angivet</i>
+                        @endif
+                    </td>
+                    <td>
+                        @if(isset($item->receiver_title) && !empty($item->receiver_title))
+                            {{ $item->receiver_title }}
+                        @else
+                            <i class="text-secondary">Ej angivet</i>
+                        @endif
+                    </td>
                     <td>{{ $item->receiver_phone ?? '' }}</td>
                     <td>
                         <span
@@ -29,6 +42,43 @@
                     </td>
                     <td>{{ $item->sent_at->copy()->isoFormat('D MMMM OY, HH:MM') ?? '' }}</td>
                     <td>{{ $item->quantity ?? '' }}</td>
+
+                    @php
+                        $color_class    = '';
+                        $status_text    = 'Skickat';
+                        $failed_count   = 0;
+                        $status_exists  = false;
+
+                        foreach($item->nexmo as $n) {
+                            if(isset($n->receipt->status)) {
+                                $status_exists = true;
+
+                                switch ($n->receipt->status) {
+                                    case 'delivered':
+                                        break;
+                                    default:
+                                        $failed_count++;
+                                        break;
+                                }
+                            }
+                        }
+
+                        if($status_exists) {
+                            switch ($failed_count) {
+                            case 0:
+                                $color_class = 'text-success';
+                                $status_text = 'Levererat';
+                                break;
+                            default:
+                                $color_class = 'text-warning';
+                                $status_text = 'Anmärkning';
+                                break;
+                            }
+                        }
+                    @endphp
+
+                    <td class="{{ $color_class }}">{{ $status_text }}</td>
+
                 </tr>
             @endforeach
         @endif

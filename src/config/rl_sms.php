@@ -8,7 +8,8 @@ return [
         'smsables'          => 'sms_smsables',
         'senders'           => 'sms_senders',
         'messages'          => 'sms_messages',
-        'nexmo_responses'   => 'sms_nexmo'
+        'nexmo_responses'   => 'sms_nexmo',
+        'nexmo_receipts'    => 'sms_nexmo_receipts'
     ],
 
     'models' => [
@@ -17,11 +18,16 @@ return [
         'smsables'          => \Rocketlabs\Sms\App\Models\Smsables::class,
         'senders'           => \Rocketlabs\Sms\App\Models\Senders::class,
         'messages'          => \Rocketlabs\Sms\App\Models\Messages::class,
-        'nexmo_responses'   => \Rocketlabs\Sms\App\Models\NexmoResponses::class
+        'nexmo_responses'   => \Rocketlabs\Sms\App\Models\NexmoResponses::class,
+        'nexmo_receipts'    => \Rocketlabs\Sms\App\Models\NexmoReceipts::class
     ],
     
 	'routes' => [
 		// Management routes
+        'webhooks' => [
+            'receipts' => '/rl_sms/webhooks/receipts'
+        ],
+
 		'admin' => [
             'sms'       => [
                 'index'         => '/admin/sms',
@@ -78,5 +84,13 @@ return [
     ],
 
     'price' => 1.00,
+
+    'schedule' => [
+        'refill' => '02:00'
+    ],
+
+    'email' => [
+        'webmaster' => 'vaniljgrabben@gmail.com'
+    ]
 
 ];

@@ -21,6 +21,10 @@ Route::group(['middleware' => 'web'], function () use ($route, $middleware) {
 
     Route::group(['middleware' => $middleware('global')], function () use ($route, $middleware) {
 
+        Route::post($route('webhooks.receipts'), [SmsController::class, 'webhook_receipts'])
+            ->middleware($middleware('webhooks.receipts'))
+            ->name('rl_sms.webhooks.receipts');
+
         /*
         * Admin routes
         */

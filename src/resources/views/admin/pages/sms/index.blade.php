@@ -91,9 +91,9 @@
 		<div class="col-12">
 			<div class="card">
 				<div class="card-body">
-					<div>
-						<canvas height="75" id="sms_chart"></canvas>
-					</div>
+
+					<canvas height="75" id="sms_chart"></canvas>
+
 				</div>
 			</div>
 		</div>
@@ -152,6 +152,14 @@
 				success: function (data) {
 					chart.data = data;
 					chart.update();
+					console.log(data)
+					let total_sms = data.datasets[1].data.reduce((a, v) => a + v, 0);
+					let total_msg = data.datasets[0].data.reduce((a, v) => a + v, 0);
+
+					let start_date 	= moment(data.labels[0]).format('DD/MM');
+					let end_date	= moment(data.labels[data.labels.length - 1]).format('DD/MM');
+
+					$('.total-sms').html(`${ total_sms } (${ total_msg } meddelanden)`);
 				},
 				error: function(xhr, textStatus, errorThrown){
 					alert(JSON.stringify(xhr));
@@ -188,7 +196,7 @@
 					plugins: {
 						tooltip: {
 							filter: function (tooltipItem) {
-								return tooltipItem.datasetIndex !== 2;
+								return tooltipItem.datasetIndex !== 3;
 							}
 						}
 					}

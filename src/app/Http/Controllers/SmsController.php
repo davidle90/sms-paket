@@ -6,9 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use rl_sms;
 use DB;
 use Rocketlabs\Languages\App\Models\Languages;
+use Rocketlabs\Notifications\App\Facades\Notifications;
+use Rocketlabs\Sms\App\Models\NexmoReceipts;
 use Rocketlabs\Sms\App\Models\Receivers;
 use Rocketlabs\Sms\App\Models\Refills;
 use Rocketlabs\Sms\App\Models\Senders;
@@ -16,6 +20,8 @@ use Rocketlabs\Sms\App\Models\Sms;
 use Rocketlabs\Sms\App\Models\Smsables;
 use Validator;
 use Carbon\Carbon;
+use Rocketlabs\Notifications\App\Notifications\Notifier;
+use Notification;
 
 class SmsController extends Controller
 {
@@ -33,9 +39,7 @@ class SmsController extends Controller
         $refill_amount      = Config::get('rl_sms.refill.amount');
 
         $latest_refill      = Refills::orderBy('created_at', 'desc')->first();
-        $sms_sent           = Sms::where('sent_at', '>=', $latest_refill->created_at)->sum('quantity');
-        $messages_sent      = Sms::where('sent_at', '>=', $latest_refill->created_at)->count();
-
+        $refill_ids         = Refills::pluck('id')->toArray();
 
         $now                = \Carbon\Carbon::now();
         $starts_at          = $now->copy()->startOfMonth();
@@ -62,19 +66,29 @@ class SmsController extends Controller
                 date('Y-m-d', $now->copy()->startOfYear()->timestamp),
                 date('Y-m-d', $now->copy()->endOfYear()->timestamp),
             ],
-            'Sedan påfyllning'  => [
+            'Sedan påfyllning'  => (!empty($latest_refill)) ? [
                 date('Y-m-d', $latest_refill->created_at->copy()->timestamp),
                 date('Y-m-d', $now->copy()->timestamp),
-            ]
+            ] : [
+                    date('Y-m-d', $now->copy()->startOfYear()->timestamp),
+                    date('Y-m-d', $now->copy()->timestamp)
+                ],
         ];
+
+        /*
+         * Mark notifications as read
+         */
+        auth()->user()
+            ->unreadNotifications
+            ->whereIn('type', ['sms_refilled'])
+            ->whereIn('type_id', $refill_ids)
+            ->markAsRead();
 
        return view('rl_sms::admin.pages.sms.index', [
            'sms'                => $sms,
            'filter_array'       => $filter_array,
            'starts_at'          => $starts_at,
            'ends_at'            => $ends_at,
-           'sms_sent'           => $sms_sent,
-           'messages_sent'      => $messages_sent,
            'latest_refill'      => $latest_refill,
            'senders'            => $senders,
            'smsables'           => $smsables,
@@ -89,7 +103,7 @@ class SmsController extends Controller
 
 	public function view($id)
     {
-        $sms = Sms::with('nexmo', 'message')->find($id);
+        $sms = Sms::with('nexmo.receipt', 'message')->find($id);
 
         $mcc_mnc_list = json_decode(file_get_contents(base_path().'/vendor/rocketlabs/sms/src/resources/assets/vendor/mcc-mnc-list/mcc-mnc-list.json'), true);
         $mcc_mnc_list = collect($mcc_mnc_list)->map(function($item){
@@ -126,7 +140,8 @@ class SmsController extends Controller
          * Initialize the query for grabbing information
          */
         $smsQuery = Sms::query();
-        //$smsQuery->with([]);
+
+        $smsQuery->with(['nexmo.receipt']);
 
         /*
          * Filter by textsearch
@@ -228,6 +243,12 @@ class SmsController extends Controller
             ->where('sent_at', '<=', $date_array[1].' 23:59:59')
             ->get();
 
+        $receipts = NexmoReceipts::orderBy('message_timestamp', 'asc')
+            ->where('message_timestamp', '>=', $date_array[0].' 00:00:01')
+            ->where('message_timestamp', '<=', $date_array[1].' 23:59:59')
+            ->where('status', 'failed')
+            ->get();
+
         $data        = [
             'labels'    => [],
             'datasets'  => [
@@ -245,16 +266,23 @@ class SmsController extends Controller
                     'borderColor'       => '#c1def5',
                     'borderWidth'       => 1
                 ],
+                [
+                    'label'             => 'Misslyckade SMS',
+                    'data'              => [],
+                    'backgroundColor'   => '#f5c1c4',
+                    'borderColor'       => '#f5c1c4',
+                    'borderWidth'       => 1
+                ],
             ]
         ];
-
-        $sms_per_day = [];
 
         if($date_array[0] !== $date_array[1]) {
 
             $refills        = Refills::orderBy('created_at', 'desc')->get();
             $refill_dates   = [];
             $highest_value  = 0;
+            $sms_per_day    = [];
+            $failed_per_day = [];
 
             /** Formatting refill dates **/
             foreach($refills as $refill){
@@ -278,7 +306,22 @@ class SmsController extends Controller
                 }
             }
 
-            $data['datasets'][2] = [
+            /** Getting failed SMS per day **/
+            foreach ($receipts as $receipt){
+                $date = Carbon::parse($receipt->message_timestamp)->copy()->toDateString();
+
+                if(isset($failed_per_day[$date])) {
+                    $failed_per_day[$date]  += 1;
+                } else {
+                    $failed_per_day[$date]  = 1;
+                }
+
+                if($failed_per_day[$date] >= $highest_value) {
+                    $highest_value = $failed_per_day[$date];
+                }
+            }
+
+            $data['datasets'][3] = [
                 'label'             => 'Påfyllningar',
                 'data'              => [],
                 'backgroundColor'   => 'red',
@@ -298,14 +341,23 @@ class SmsController extends Controller
                     $data['datasets'][1]['data'][] = 0;
                 }
 
-                if(in_array($date, $refill_dates)) {
-                    $data['datasets'][2]['data'][] = $highest_value;
+                if(isset($failed_per_day[$date]) && !empty($failed_per_day[$date])) {
+                    $data['datasets'][2]['data'][] = $failed_per_day[$date];
                 } else {
                     $data['datasets'][2]['data'][] = 0;
+                }
+
+                if(in_array($date, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = $highest_value;
+                } else {
+                    $data['datasets'][3]['data'][] = 0;
                 }
             }
 
         } else {
+
+            $sms_per_hour    = [];
+            $failed_per_hour = [];
 
             /**  Getting sent SMS per Hour **/
             foreach ($sms as $item){
@@ -320,15 +372,31 @@ class SmsController extends Controller
                 }
             }
 
+            /**  Getting failed SMS per Hour **/
+            foreach ($receipts as $receipt){
+                $hour = Carbon::parse($receipt->message_timestamp)->copy()->hour;
+
+                if(isset($failed_per_hour[$hour])) {
+                    $failed_per_hour[$hour] += 1;
+                } else {
+                    $failed_per_hour[$hour] = 1;
+                }
+            }
+
             for($i = 0; $i < 24; $i++){
                 if(!isset($sms_per_hour[$i]) || empty($sms_per_hour[$i])) {
                     $sms_per_hour[$i]['net']    = 0;
                     $sms_per_hour[$i]['gross']  = 0;
                 }
 
+                if(!isset($failed_per_hour[$i]) || empty($failed_per_hour[$i])) {
+                    $failed_per_hour[$i] = 0;
+                }
+
                 $data['labels'][]               = ($i < 10) ? '0'.$i.':00' : $i.':00';
                 $data['datasets'][0]['data'][]  = $sms_per_hour[$i]['net'];
                 $data['datasets'][1]['data'][]  = $sms_per_hour[$i]['gross'];
+                $data['datasets'][2]['data'][]  = $failed_per_hour[$i];
             }
         }
 
@@ -398,6 +466,100 @@ class SmsController extends Controller
             }
         }
 
+    }
+
+    public function webhook_receipts(Request $request)
+    {
+
+        // Initiate nexmo logger
+        $logger = with(new Logger('nexmo'))->pushHandler(
+            new StreamHandler(storage_path('logs/nexmo.log'), \Monolog\Logger::DEBUG)
+        );
+
+        //$receipt = \Vonage\SMS\Webhook\Factory::createFromRequest($request_nexmo);
+        //$logger->info('receipt', ['receipt' => $receipt]);
+        $is_valid = true;
+        //$is_valid = $this->validate_jwt($request, $logger);
+
+        DB::beginTransaction();
+
+        if($is_valid) {
+            try {
+
+                $input = [
+                    'message_id'        => $request->get('messageId', null),
+                    'message_timestamp' => $request->get('message-timestamp', null),
+                    'msisdn'            => $request->get('msisdn', null),
+                    'scts'              => $request->get('scts', null),
+                    'price'             => $request->get('price', null),
+                    'network'           => $request->get('network-code', null),
+                    'status'            => $request->get('status', null),
+                    'error_code'        => $request->get('err-code', null)
+                ];
+
+                $new_receipt = NexmoReceipts::firstOrNew(['message_id' => $input['message_id']]);
+                $new_receipt->message_timestamp = $input['message_timestamp'];
+                $new_receipt->msisdn            = $input['msisdn'];
+                $new_receipt->scts              = $input['scts'];
+                $new_receipt->price             = $input['price'];
+                $new_receipt->network           = $input['network'];
+                $new_receipt->status            = $input['status'];
+                $new_receipt->error_code        = $input['error_code'];
+                $new_receipt->save();
+
+                DB::commit();
+
+                $logger->info('Webhook received.', $input);
+
+                return response()->json(['message' => 'Receipt successfully received'], 200);
+
+            } catch (\Exception $e) {
+
+                DB::rollBack();
+
+                $logger->error('Database transaction failed.',  ['error_message' => $e->getMessage()]);
+
+                throw $e;
+
+            }
+        }
+
+    }
+
+    public function validate_jwt($request, $logger)
+    {
+
+        try {
+
+            $headers = getallheaders();
+            $authHeader = $headers['Authorization'];
+            $token      = substr($authHeader, 7);
+            $secret     = config('nexmo.signature_secret');
+
+            $key            = \Lcobucci\JWT\Signer\Key\InMemory::plainText($secret);
+            $configuration  = \Lcobucci\JWT\Configuration::forSymmetricSigner(
+                new \Lcobucci\JWT\Signer\Hmac\Sha256(),
+                $key
+            );
+
+            $logger->info('header', ['authHeader' => $authHeader, 'token' => $token]);
+
+            $token = $configuration->parser()->parse($token);
+
+            $configuration->validator()->validate(
+                $token,
+                new \Lcobucci\JWT\Validation\Constraint\SignedWith($configuration->signer(), $configuration->signingKey())
+            );
+
+            return true;
+
+        } catch (\Exception $e) {
+
+            $logger->error('Verification of webhook failed.',  ['error_message' => $e->getMessage()]);
+
+            throw $e;
+
+        }
     }
 
 }

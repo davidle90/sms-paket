@@ -35,5 +35,9 @@ class NexmoResponses extends Model
         return $this->belongsTo(config('rl_sms.models.sms'), 'sms_id', 'id');
     }
 
+    public function receipt() {
+        return $this->hasOne(config('rl_sms.models.nexmo_receipts'), 'message_id', 'message_id');
+    }
+
 }
 

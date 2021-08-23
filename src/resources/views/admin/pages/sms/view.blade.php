@@ -110,14 +110,16 @@
 									@php
 										if(isset($sms->receiver_title) && !empty($sms->receiver_title) && isset($sms->message->text)) {
 											$receiver_name      = explode(' ', $sms->receiver_title);
-											$message_formatted  = str_replace('%firstname%', trim($receiver_name[0]) ?? '', $sms->message->text);
-											$message_formatted  = str_replace('%lastname%', trim($receiver_name[1]) ?? '', $message_formatted);
+											$message_formatted  = str_replace('%firstname%', trim($receiver_name[0] ?? '') , $sms->message->text);
+											$message_formatted  = str_replace('%lastname%', trim($receiver_name[1] ?? '') , $message_formatted);
 										}
 									@endphp
 
 									<label class="bold">Meddelande</label>
 									@if(isset($message_formatted))
 										<p>{{ $message_formatted }}</p>
+									@elseif(isset($sms->message->text))
+										<p>{{ $sms->message->text }}</p>
 									@else
 										<p class="text-danger">Saknas</p>
 									@endif
@@ -154,7 +156,43 @@
 						<td>+{{ $n->to ?? '' }}</td>
 						<td>{{ $mcc_mnc_list[$n->network]['operator'] ?? '' }}</td>
 						<td>{{ number_format(config('rl_sms.price'), 2, ',', ' ') }} SEK</td>
-						<td>{{ $n->status ?? '' }}</td>
+
+						@php
+							$color_class = '';
+							$status_text = 'Skickat';
+
+							if(isset($n->receipt->status)) {
+							    switch ($n->receipt->status) {
+							        case 'accepted':
+							            $color_class = 'text-primary';
+							            $status_text = 'Accepterat';
+							            break;
+									case 'buffered':
+										$color_class = 'text-info';
+										$status_text = 'Buffrat';
+									break;
+							        case 'delivered':
+							            $color_class = 'text-success';
+							            $status_text = 'Levererat';
+							            break;
+									case 'failed':
+									    $color_class = 'text-danger';
+									    $status_text = 'Misslyckat';
+									    break;
+									case 'expired':
+									    $color_class = 'text-danger';
+									    $status_text = 'Utgånget';
+									    break;
+									case 'rejected':
+										$color_class = 'text-danger';
+										$status_text = 'Avvisat';
+									break;
+
+							    }
+							}
+						@endphp
+
+						<td class="{{ $color_class ?? '' }}">{{ $status_text }}</td>
 					</tr>
 				@endforeach
 			@endif
