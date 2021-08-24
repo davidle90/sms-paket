@@ -90,7 +90,7 @@ return [
     ],
 
     'email' => [
-        'webmaster' => 'vaniljgrabben@gmail.com'
+        'webmaster' => 'webmaster@rocketlabs.se'
     ]
 
 ];
