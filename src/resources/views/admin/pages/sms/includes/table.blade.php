@@ -5,7 +5,7 @@
         <th>Mottagare</th>
         <th>Telefonnummer</th>
         <th>Nationalitet</th>
-        <th>Skickad vid</th>
+        <th>Skickat vid</th>
         <th>Antal SMS</th>
         <th>Status</th>
     </tr>
