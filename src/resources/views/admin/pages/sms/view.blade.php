@@ -25,6 +25,10 @@
 	<a class="btn btn-block btn-outline-primary" href="{{ route('rl_sms.admin.sms.index') }}"><i class="fal fa-angle-left mr-2"></i> SMS</a>
 @endsection
 
+@php
+	$SmsHelpers = new \Rocketlabs\Sms\App\Classes\Helpers;
+@endphp
+
 @section('content')
 	<div class="card">
 		<div class="card-header bold">
@@ -42,7 +46,11 @@
 							</tr>
 							<tr>
 								<td class="bold">Mottagare</td>
-								<td>{{ $sms->receiver_title ?? '' }}</td>
+								@if(isset($sms->receiver_title) && !empty($sms->receiver_title))
+									<td>{{ $sms->receiver_title ?? '' }}</td>
+								@else
+									<td class="text-danger">Saknas</td>
+								@endif
 							</tr>
 							<tr>
 								<td class="bold">Telefonnummer</td>
@@ -69,7 +77,7 @@
 						<tbody>
 						<tr>
 							<td class="w-25 bold">Operatör</td>
-							@if(isset($sms->nexmo) && !$sms->nexmo->isEmpty())
+							@if(isset($sms->nexmo) && !$sms->nexmo->isEmpty() && !empty($sms->nexmo->first()->network))
 								<td>{{ $mcc_mnc_list[$sms->nexmo->first()->network]['operator'] ?? '' }}</td>
 							@else
 								<td class="text-danger">Saknas</td>
@@ -152,17 +160,43 @@
 			@if(isset($sms->nexmo) && !$sms->nexmo->isEmpty())
 				@foreach($sms->nexmo as $n)
 					<tr>
-						<td style="padding-left: 1.25rem;">{{ $n->message_id ?? '' }}</td>
-						<td>+{{ $n->to ?? '' }}</td>
-						<td>{{ $mcc_mnc_list[$n->network]['operator'] ?? '' }}</td>
+						<td style="padding-left: 1.25rem;">{{ $n->message_id ?? 'Saknas' }}</td>
+						<td>+{{ $n->to ?? 'Saknas' }}</td>
+						<td>{{ $mcc_mnc_list[$n->network]['operator'] ?? 'Saknas' }}</td>
 						<td>{{ number_format(config('rl_sms.price'), 2, ',', ' ') }} SEK</td>
 
 						@php
 							$color_class = '';
 							$status_text = 'Skickat';
 
-							if(isset($n->receipt->status)) {
-							    switch ($n->receipt->status) {
+							if(isset($n->request_id) && isset($n->status)) {
+
+							    switch(rl_sms::getVerifyStatusString($n->status)) {
+							        case $SmsHelpers::VERIFY_SUCCESS:
+							            $color_class = 'text-success';
+							            $status_text = 'Verifierad';
+							            break;
+									case $SmsHelpers::VERIFY_IN_PROGRESS:
+										$color_class = 'text-primary';
+										$status_text = 'Pågående';
+										break;
+									case $SmsHelpers::VERIFY_FAILED:
+										$color_class = 'text-danger';
+										$status_text = 'Misslyckad';
+										break;
+									case $SmsHelpers::VERIFY_EXPIRED:
+										$color_class = 'text-danger';
+										$status_text = 'Utgången';
+										break;
+									case $SmsHelpers::VERIFY_CANCELLED:
+										$color_class = 'text-danger';
+										$status_text = 'Avbruten';
+									break;
+							    }
+
+							} elseif(isset($n->receipt->status)) {
+
+							    switch($n->receipt->status) {
 							        case 'accepted':
 							            $color_class = 'text-primary';
 							            $status_text = 'Accepterat';
@@ -187,9 +221,11 @@
 										$color_class = 'text-danger';
 										$status_text = 'Avvisat';
 									break;
-
 							    }
+
 							}
+
+
 						@endphp
 
 						<td class="{{ $color_class ?? '' }}">{{ $status_text }}</td>

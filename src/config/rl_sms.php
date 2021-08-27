@@ -91,6 +91,10 @@ return [
 
     'email' => [
         'webmaster' => 'webmaster@rocketlabs.se'
+    ],
+
+    'channels' => [
+        'sms' => true
     ]
 
 ];

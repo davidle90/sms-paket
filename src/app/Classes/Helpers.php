@@ -18,6 +18,65 @@ use Rocketlabs\Sms\App\Models\Sms;
 
 class Helpers
 {
+    const VERIFY_SUCCESS        = 'SUCCESS';
+    const VERIFY_IN_PROGRESS    = 'IN PROGRESS';
+    const VERIFY_FAILED         = 'FAILED';
+    const VERIFY_EXPIRED        = 'EXPIRED';
+    const VERIFY_CANCELLED      = 'CANCELLED';
+
+    public function getVerifyStatusCode($status_string)
+    {
+        $verify_code = null;
+
+        switch ($status_string) {
+            case self::VERIFY_SUCCESS:
+                $verify_code = 1;
+                break;
+            case self::VERIFY_IN_PROGRESS:
+                $verify_code = 2;
+                break;
+            case self::VERIFY_FAILED:
+                $verify_code = 3;
+                break;
+            case self::VERIFY_EXPIRED:
+                $verify_code = 4;
+                break;
+            case self::VERIFY_CANCELLED:
+                $verify_code = 5;
+                break;
+            default:
+                $verify_code = 1337;
+        }
+
+        return $verify_code;
+    }
+
+    public function getVerifyStatusString($status_code)
+    {
+        $verify_string = null;
+
+        switch ($status_code) {
+            case 1:
+                $verify_string = self::VERIFY_SUCCESS;
+                break;
+            case 2:
+                $verify_string = self::VERIFY_IN_PROGRESS;
+                break;
+            case 3:
+                $verify_string = self::VERIFY_FAILED;
+                break;
+            case 4:
+                $verify_string = self::VERIFY_EXPIRED;
+                break;
+            case 5:
+                $verify_string = self::VERIFY_CANCELLED;
+                break;
+            default:
+                $verify_string = '1337';
+        }
+
+        return $verify_string;
+    }
 
     /*
      * Forms models
@@ -85,6 +144,7 @@ class Helpers
             $new_nexmo_response = new NexmoResponses();
             $new_nexmo_response->sms_id         = $new_sms->id;
             $new_nexmo_response->message_id     = $data['message-id'];
+            $new_nexmo_response->request_id     = $data['request_id'] ?? null;
             $new_nexmo_response->status         = $data['status'];
             $new_nexmo_response->to             = $data['to'];
             $new_nexmo_response->balance        = $data['remaining-balance'];

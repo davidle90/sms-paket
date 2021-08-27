@@ -8,8 +8,10 @@ use Illuminate\Support\Facades\Session;
 
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+
 use rl_sms;
 use DB;
+
 use Rocketlabs\Languages\App\Models\Languages;
 use Rocketlabs\Notifications\App\Facades\Notifications;
 use Rocketlabs\Sms\App\Models\NexmoReceipts;
@@ -113,7 +115,7 @@ class SmsController extends Controller
 
         return view('rl_sms::admin.pages.sms.view', [
             'sms'           => $sms,
-            'mcc_mnc_list'  => $mcc_mnc_list
+            'mcc_mnc_list'  => $mcc_mnc_list,
         ]);
     }
 

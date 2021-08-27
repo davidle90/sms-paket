@@ -1,3 +1,8 @@
+
+@php
+    $SmsHelpers = new \Rocketlabs\Sms\App\Classes\Helpers;
+@endphp
+
 <table class="table table-striped table-white table-outline table-hover mb-0 border-secondary">
     <thead>
     <tr>
@@ -44,13 +49,29 @@
                     <td>{{ $item->quantity ?? '' }}</td>
 
                     @php
-                        $color_class    = '';
-                        $status_text    = 'Skickat';
-                        $failed_count   = 0;
-                        $status_exists  = false;
+                        $color_class            = '';
+                        $status_text            = 'Skickat';
+                        $failed_count           = 0;
+                        $failed_count_verify    = 0;
+                        $status_exists          = false;
+                        $status_exists_verify   = false;
 
                         foreach($item->nexmo as $n) {
-                            if(isset($n->receipt->status)) {
+
+                            if(isset($n->request_id) && isset($n->status)) {
+
+                                $status_exists_verify = true;
+
+                                switch (rl_sms::getVerifyStatusString($n->status)) {
+                                    case $SmsHelpers::VERIFY_SUCCESS:
+                                        break;
+                                    default:
+                                        $failed_count_verify++;
+                                        break;
+                                }
+
+                            } elseif(isset($n->receipt->status)) {
+
                                 $status_exists = true;
 
                                 switch ($n->receipt->status) {
@@ -60,19 +81,33 @@
                                         $failed_count++;
                                         break;
                                 }
+
                             }
                         }
 
-                        if($status_exists) {
+                        if($status_exists_verify) {
+
+                            switch ($failed_count_verify) {
+                                case 0:
+                                    $color_class = 'text-success';
+                                    $status_text = 'Verifierad';
+                                    break;
+                                default:
+                                    $color_class = 'text-danger';
+                                    $status_text = 'Ej verifierad';
+                                    break;
+                            }
+
+                        } elseif($status_exists) {
                             switch ($failed_count) {
-                            case 0:
-                                $color_class = 'text-success';
-                                $status_text = 'Levererat';
-                                break;
-                            default:
-                                $color_class = 'text-warning';
-                                $status_text = 'Anmärkning';
-                                break;
+                                case 0:
+                                    $color_class = 'text-success';
+                                    $status_text = 'Levererat';
+                                    break;
+                                default:
+                                    $color_class = 'text-warning';
+                                    $status_text = 'Anmärkning';
+                                    break;
                             }
                         }
                     @endphp
