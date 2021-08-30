@@ -85,7 +85,7 @@
 						</tr>
 						<tr>
 							<td class="bold">Skickat vid</td>
-							<td>{{ $sms->sent_at->copy()->isoFormat('DD MMMM OY, HH:MM') ?? '' }}</td>
+							<td>{{ $sms->sent_at->copy()->isoFormat('DD MMMM OY, HH:mm') ?? '' }}</td>
 						</tr>
 						<tr>
 							<td class="bold">Antal SMS</td>
@@ -120,6 +120,12 @@
 											$receiver_name      = explode(' ', $sms->receiver_title);
 											$message_formatted  = str_replace('%firstname%', trim($receiver_name[0] ?? '') , $sms->message->text);
 											$message_formatted  = str_replace('%lastname%', trim($receiver_name[1] ?? '') , $message_formatted);
+										}
+
+										if(isset($sms->variables) && !empty($sms->variables)) {
+                                            foreach($sms->variables as $key => $value){
+												$message_formatted = str_replace('%'.$key.'%', $value, $message_formatted ?? $sms->message->text ?? '');
+											}
 										}
 									@endphp
 

@@ -128,7 +128,7 @@ class Helpers
         return $new_message;
     }
 
-    public function store_sms_and_response($response, $message_id, $sender_title, $receiver_name, $receiver_phone)
+    public function store_sms_and_response($response, $message_id, $sender_title, $receiver_name, $receiver_phone, $variables = null)
     {
         $new_sms = new Sms();
         $new_sms->message_id        = $message_id;
@@ -136,6 +136,7 @@ class Helpers
         $new_sms->receiver_title    = $receiver_name;
         $new_sms->receiver_phone    = $receiver_phone;
         $new_sms->country           = strtolower(PhoneNumber::make($receiver_phone)->getCountry());
+        $new_sms->variables         = $variables;
         $new_sms->quantity          = $response['message-count'];
         $new_sms->sent_at           = now();
         $new_sms->save();

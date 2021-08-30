@@ -45,14 +45,14 @@
                         ></span>
 {{--                        {{ country($item->country)->getName() ?? '' }}--}}
                     </td>
-                    <td>{{ $item->sent_at->copy()->isoFormat('D MMMM OY, HH:MM') ?? '' }}</td>
+                    <td>{{ $item->sent_at->copy()->isoFormat('D MMMM OY, HH:mm') ?? '' }}</td>
                     <td>{{ $item->quantity ?? '' }}</td>
 
                     @php
                         $color_class            = '';
                         $status_text            = 'Skickat';
                         $failed_count           = 0;
-                        $failed_count_verify    = 0;
+                        $verify_count           = 0;
                         $status_exists          = false;
                         $status_exists_verify   = false;
 
@@ -64,9 +64,9 @@
 
                                 switch (rl_sms::getVerifyStatusString($n->status)) {
                                     case $SmsHelpers::VERIFY_SUCCESS:
+                                        $verify_count++;
                                         break;
                                     default:
-                                        $failed_count_verify++;
                                         break;
                                 }
 
@@ -87,14 +87,14 @@
 
                         if($status_exists_verify) {
 
-                            switch ($failed_count_verify) {
+                            switch ($verify_count) {
                                 case 0:
-                                    $color_class = 'text-success';
-                                    $status_text = 'Verifierad';
-                                    break;
-                                default:
                                     $color_class = 'text-danger';
                                     $status_text = 'Ej verifierad';
+                                    break;
+                                default:
+                                    $color_class = 'text-success';
+                                    $status_text = 'Verifierad';
                                     break;
                             }
 

@@ -15,6 +15,10 @@ class Sms extends Model
         return config('rl_sms.tables.sms');
     }
 
+    protected $casts = [
+        'variables' => 'array'
+    ];
+
     protected $fillable = [
         'nexmo_id',
         'sender_title',

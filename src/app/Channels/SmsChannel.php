@@ -43,7 +43,7 @@ class SmsChannel
         }
 
         if(isset($response_nexmo)) {
-            rl_sms::store_sms_and_response($response_nexmo, $new_message->id, $from, '', $to);
+            rl_sms::store_sms_and_response($response_nexmo, $new_message->id, $from, $response['variables']['receiver'] ?? '', $to, $response['variables']);
         }
 
     }
