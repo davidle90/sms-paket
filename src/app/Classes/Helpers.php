@@ -128,7 +128,7 @@ class Helpers
         return $new_message;
     }
 
-    public function store_sms_and_response($response, $message_id, $sender_title, $receiver_name, $receiver_phone, $variables = null)
+    public function store_sms_and_response($response, $message_id, $sender_title, $receiver_name, $receiver_phone, $variables = null, $verify_search = 0)
     {
         $new_sms = new Sms();
         $new_sms->message_id        = $message_id;
@@ -151,6 +151,7 @@ class Helpers
             $new_nexmo_response->balance        = $data['remaining-balance'];
             $new_nexmo_response->price          = $data['message-price'];
             $new_nexmo_response->network        = $data['network'];
+            $new_nexmo_response->verify_search  = $verify_search;
             $new_nexmo_response->save();
         }
     }
