@@ -14,7 +14,7 @@ class AddVerifySearchedToSmsNexmoTable extends Migration
     public function up()
     {
         Schema::table('sms_nexmo', function (Blueprint $table) {
-            $table->boolean('verify_search')->default(0)->nullable()->after('error_message');
+            $table->boolean('verify_search')->default(0)->nullable()->after('network');
         });
     }
 
