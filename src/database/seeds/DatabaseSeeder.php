@@ -4,7 +4,7 @@ use Illuminate\Database\Seeder;
 
 use DB;
 use Rocketlabs\Sms\Seeds\AclAbilitiesTableSeeder;
-use Rocketlabs\Sms\Seeds\NotificationsSeeder;
+use Rocketlabs\Sms\Seeds\ChannelsTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
          * ACL Abilities
          */
         $this->call(AclAbilitiesTableSeeder::class);
-        $this->call(NotificationsSeeder::class);
+        $this->call(NotificationsTableSeeder::class);
+        $this->call(ChannelsTableSeeder::class);
 
 
     }
