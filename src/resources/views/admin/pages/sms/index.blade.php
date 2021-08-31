@@ -1,21 +1,111 @@
 @extends('rl_webadmin::layouts.new_master')
 
 @section('styles')
+	<style>
+		.modal-backdrop{
+			z-index: 1100 !important;
+		}
+
+		.modal-backdrop+.modal-backdrop {
+			z-index: 1102 !important;
+		}
+
+		.modal-backdrop+.modal-backdrop+.modal-backdrop {
+			z-index: 1104 !important;
+		}
+
+		.select2-selection__clear {
+			margin-top: 0px;
+		}
+
+		.receiver-list > div:nth-child(2) {
+			background-color: #f2f4f8;
+		}
+
+		.receiver-list > div:hover {
+			background-color: #f5f5f5;
+		}
+
+		.iti__flag {background-image: url('/img/flags.png')}
+
+		@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+			.iti__flag {background-image: url('/img/flags@2x.png');}
+		}
+
+		.iti {
+			width: 100%;
+		}
+
+		.is-invalid-bg {
+			background-color: #ffe6e6 !important;
+		}
+
+		.is-invalid-border {
+			border: 1px solid #ff5454 !important;
+		}
+
+	</style>
 @endsection
 
 @section('breadcrumbs')
 	<!-- Breadcrumb -->
 	<ol class="breadcrumb">
-		<li class="breadcrumb-item active">Sms</li>
+		<li class="breadcrumb-item active">SMS</li>
 	</ol>
 @endsection
 
+@section('modals')
+	@include('rl_sms::admin.pages.sms.modals.send')
+	@include('rl_sms::admin.pages.sms.modals.receivers.modal')
+	@include('rl_sms::admin.pages.sms.modals.receivers.import.modal')
+	@include('rl_sms::admin.pages.sms.modals.receivers.remove.modal')
+@endsection
+
 @section('sidebar')
-	{{--<a class="btn btn-block btn-outline-primary" href="{{ route('rl_sms.admin.sms.create') }}"><i class="essential-xs essential-add mr-1"></i>Skapa sms</a>--}}
+	<a class="btn btn-block btn-outline-primary" data-toggle="modal" data-target="#sendModal"><i class="essential-xs essential-add mr-1"></i>Skicka SMS</a>
+@endsection
+
+@section('topbar')
+	<div class="row">
+		<div class="col-12 col-md-6">
+			@include('rl_sms::admin.pages.sms.includes.filter')
+		</div>
+		<div class="col-4 d-flex">
+		</div>
+		@if(isset($sms) && !$sms->isEmpty())
+			<div class="col-8 col-md-2 append-links">
+				<span class="float-right">{{ $sms->links('rl_sms::admin.pages.sms.includes.pagination') }}</span>
+			</div>
+		@endif
+	</div>
 @endsection
 
 @section('content')
-	<h1>This is SMS</h1>
+	<!-- Refill & used info -->
+	<div class="row">
+		@include('rl_sms::admin.pages.sms.includes.cards')
+	</div>
+
+	<!-- Chart -->
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-body">
+
+					<canvas height="75" id="sms_chart"></canvas>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Table -->
+	<div class="row">
+		<div class="col-12 append-items-to">
+			@include('rl_sms::admin.pages.sms.includes.table')
+		</div>
+	</div>
+
 @stop
 
 @section('scripts')
@@ -48,6 +138,35 @@
 	@endif
 
 	<script type="text/javascript">
+		//Function for fetching data and inserting it into chartjs
+		function get_chart_data(chart){
+			$.ajax({
+				type: 'get',
+				url: '{{ route('rl_sms.admin.sms.chart') }}',
+				cache: false,
+				dataType: 'json',
+				data: {
+					daterange: $('#filter-form input[name="daterange"]').val()
+				},
+				beforeSend: function(){},
+				success: function (data) {
+					chart.data = data;
+					chart.update();
+					console.log(data)
+					let total_sms = data.datasets[1].data.reduce((a, v) => a + v, 0);
+					let total_msg = data.datasets[0].data.reduce((a, v) => a + v, 0);
+
+					let start_date 	= moment(data.labels[0]).format('DD/MM');
+					let end_date	= moment(data.labels[data.labels.length - 1]).format('DD/MM');
+
+					$('.total-sms').html(`${ total_sms } (${ total_msg } meddelanden)`);
+				},
+				error: function(xhr, textStatus, errorThrown){
+					alert(JSON.stringify(xhr));
+				}
+			});
+		}
+
 		$(document).ready(function(){
 
 			$('.go-to-url').on('click', function(e){
@@ -57,6 +176,50 @@
 				}
 			});
 
+			$('.select-sender').select2({
+				dropdownParent: $('#sendModal'),
+				placeholder: "Välj avsändare",
+				allowClear: true
+			});
+
+			//Initializing chartjs
+			let ctx 		= $('#sms_chart');
+			let sms_chart 	= new Chart(ctx, {
+				type: 'bar',
+				data: null,
+				options: {
+					scales: {
+						y: {
+							beginAtZero: true,
+						}
+					},
+					plugins: {
+						tooltip: {
+							filter: function (tooltipItem) {
+								return tooltipItem.datasetIndex !== 3;
+							}
+						}
+					}
+				},
+			});
+
+			//Fetching data for chartjs
+			get_chart_data(sms_chart);
+
+			$('#filter-form input[name="daterange"]').on('change', function(){
+				get_chart_data(sms_chart);
+			});
+
+			$('[data-toggle="tooltip"]').tooltip();
+
+			$(document).on('click', '.doSendSMS', function(){
+				console.log($('#send_form').serializeArray());
+			});
 		});
+
 	</script>
+
+	@include('rl_sms::admin.pages.sms.scripts.filter')
+	@include('rl_sms::admin.pages.sms.modals.receivers.scripts')
+	@include('rl_sms::admin.pages.sms.modals.script')
 @stop

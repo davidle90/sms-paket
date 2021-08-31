@@ -1,6 +1,7 @@
 <?php namespace Rocketlabs\Sms;
 
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\View\View;
 
@@ -30,6 +31,24 @@ class SmsServiceProvider extends ServiceProvider
 
         // Register middlewares
         $this->registerMiddlewares($router);
+
+        // Register command
+        if($this->app->runningInConsole()){
+            $this->commands([
+                \Rocketlabs\Sms\App\Console\Commands\RefillSms::class,
+            ]);
+        }
+
+        // Register scheduler after the app has been booted
+        $this->app->booted(function () {
+            // Schedule class
+            $schedule = $this->app->make(Schedule::class);
+
+            // Run schedule for refill
+            $schedule->command('sms:refill')
+                ->dailyAt(config('rl_sms.schedule.refill'));
+        });
+
     }
 
     /**
