@@ -135,7 +135,11 @@ class Helpers
         $new_sms->sender_title      = $sender_title;
         $new_sms->receiver_title    = $receiver_name;
         $new_sms->receiver_phone    = $receiver_phone;
-        $new_sms->country           = strtolower(PhoneNumber::make($receiver_phone)->getCountry());
+        try {
+            $new_sms->country           = strtolower(PhoneNumber::make($receiver_phone)->getCountry());
+        } catch(\Exception){
+            $new_sms->country = null;
+        }
         $new_sms->variables         = $variables;
         $new_sms->quantity          = $response['message-count'];
         $new_sms->sent_at           = now();
