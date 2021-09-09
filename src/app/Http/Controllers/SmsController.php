@@ -249,6 +249,7 @@ class SmsController extends Controller
             ->where('message_timestamp', '>=', $date_array[0].' 00:00:01')
             ->where('message_timestamp', '<=', $date_array[1].' 23:59:59')
             ->where('status', 'failed')
+            ->has('response.sms')
             ->get();
 
         $data        = [
