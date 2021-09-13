@@ -159,7 +159,7 @@
 					let start_date 	= moment(data.labels[0]).format('DD/MM');
 					let end_date	= moment(data.labels[data.labels.length - 1]).format('DD/MM');
 
-					$('.total-sms').html(`${ total_sms } (${ total_msg } meddelanden)`);
+					$('.total-sms').html(`${ total_msg } (${ total_sms } sms totalt)`);
 				},
 				error: function(xhr, textStatus, errorThrown){
 					alert(JSON.stringify(xhr));

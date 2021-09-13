@@ -79,11 +79,12 @@ return [
     ],
 
     'refill' => [
-        'amount'    => 500,
-        'threshold' => 100,
+        'amount'    => 500, // The total sum (kr) that will be refilled
+        'threshold' => 100, // When we fall below this amount (kr) we do a refill
     ],
 
-    'price' => 1.00,
+    'price'     => 0.90,    // The price for sending a single sms
+    'vat_rate'  => 25,      // Vat rate in percent (%) for sms
 
     'schedule' => [
         'refill' => '02:00'

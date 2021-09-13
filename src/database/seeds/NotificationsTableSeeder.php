@@ -27,7 +27,7 @@ class NotificationsTableSeeder extends Seeder
         $channel = [
             'container_id'  => $container_id,
             'channel_id'    => 1,
-            'data'          => '{"id":"database","type":"info","icon":"fal fa-comments-alt","label":"SMS-pott (+%refill.quantity%st)","message":"SMS-potten har fyllts p\u00e5 med %refill.quantity%st SMS."}',
+            'data'          => '{"id":"database","type":"info","icon":"fal fa-comments-alt","label":"SMS-påfyllning: +%refill.quantity%kr","message":"Din SMS-pot har fyllts p\u00e5 med %refill.quantity%kr."}',
             'created_at'    => now(),
             'updated_at'    => now(),
         ];
