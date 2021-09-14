@@ -107,14 +107,6 @@ class Helpers
             $message_formatted  = str_replace('%lastname%', trim($receiver_name[1] ?? ''), $message_formatted);
 
             SendSms::dispatch($sender, $receiver, $message_formatted, $new_message->id);
-
-            //$response = Nexmo::message()->send([
-            //    'to'   => str_replace('+', '', PhoneNumber::make($receiver['phone'])->formatE164()),
-            //    'from' => $sender->sms_label,
-            //    'text' => $message_formatted,
-            //]);
-            //
-            //pre($response['messages']);
         }
     }
 
