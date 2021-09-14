@@ -61,8 +61,8 @@ class SmsController extends Controller
         }
 
         $now                = \Carbon\Carbon::now();
-        $starts_at          = $now->copy()->startOfMonth();
-        $ends_at            = $now->copy()->endOfMonth();
+        $starts_at          = $now->copy()->startOfMonth()->format('Y-m-d');
+        $ends_at            = $now->copy()->endOfMonth()->format('Y-m-d');
 
         $filter_array['timeline'] = [
             'Idag'              => [
@@ -86,8 +86,8 @@ class SmsController extends Controller
                 date('Y-m-d', $now->copy()->endOfYear()->timestamp),
             ],
             'Sedan påfyllning'  => (!empty($last_refill)) ? [
-                date('Y-m-d', $last_refill->created_at->copy()->timestamp),
-                date('Y-m-d', $now->copy()->timestamp),
+                date('Y-m-d H:i:s', $last_refill->created_at->copy()->timestamp),
+                date('Y-m-d H:i:s', $now->copy()->timestamp),
             ] : [
                     date('Y-m-d', $now->copy()->startOfYear()->timestamp),
                     date('Y-m-d', $now->copy()->timestamp)
@@ -150,7 +150,8 @@ class SmsController extends Controller
             'order_by'              => $request->get('order_by', $request->session()->get('sms_filter.order_by', null)),
             'paginate'              => $request->get('results_per_page', $request->session()->get('sms_filter.paginate', null)),
             'direction'             => $request->get('direction', 'desc'),
-            'daterange'             => $request->get('daterange', $request->session()->get('sms_filter.daterange', null))
+            'daterange'             => $request->get('daterange', $request->session()->get('sms_filter.daterange', null)),
+            'daterange_full'        => $request->get('daterange_full', $request->session()->get('sms_filter.daterange_full', null))
         ];
 
         if($ajax == false){
@@ -181,17 +182,30 @@ class SmsController extends Controller
         /*
          * Filter by daterange
          */
-        if(isset($filter['daterange']) && !empty($filter['daterange'])){
-            $date_array = explode(' - ', $filter['daterange']);
+        if(isset($filter['daterange_full']) && !empty($filter['daterange_full'])){
+            $date_array = explode(' - ', $filter['daterange_full']);
 
-            $smsQuery->where('sent_at', '>=', $date_array[0].' 00:00:01');
-            $smsQuery->where('sent_at', '<=', $date_array[1].' 23:59:59');
+            $smsQuery->where('sent_at', '>=', $date_array[0]);
+            $smsQuery->where('sent_at', '<=', $date_array[1]);
 
             $request->session()->put('sms_filter.daterange', $filter['daterange']);
+            $request->session()->put('sms_filter.daterange_full', $filter['daterange_full']);
 
-        }else{
+        } elseif(isset($filter['daterange']) && !empty($filter['daterange'])){
+            $date_array = explode(' - ', $filter['daterange']);
+
+            $smsQuery->where('sent_at', '>=', $date_array[0]);
+            $smsQuery->where('sent_at', '<=', $date_array[1]);
+
+            $request->session()->put('sms_filter.daterange', $filter['daterange']);
+            $request->session()->forget('sms_filter.daterange_full');
+
+        } else{
             $request->session()->forget('sms_filter.daterange');
+            $request->session()->forget('sms_filter.daterange_full');
         }
+
+        //pre($date_array);
 
         if(isset($filter['direction']) && !empty($filter['direction'])){
             $direction = $filter['direction'];
@@ -253,20 +267,20 @@ class SmsController extends Controller
 
     public function chart(Request $request)
     {
-        $daterange  = $request->get('daterange', '1900-01-01 - 2100-01-01');
+        $daterange  = !empty($request->get('daterange_full')) ? $request->get('daterange_full') : $request->get('daterange', '2000-01-01 - 2100-01-01');
         $date_array = explode(' - ', $daterange);
         $start_time = strtotime($date_array[0]);
         $end_time   = strtotime($date_array[1]);
-        $days       = ($end_time - $start_time) / (60 * 60 * 24);
+        $days       = floor(($end_time - $start_time) / (60 * 60 * 24));
 
         $sms = Sms::orderBy('sent_at', 'asc')
-            ->where('sent_at', '>=', $date_array[0].' 00:00:01')
-            ->where('sent_at', '<=', $date_array[1].' 23:59:59')
+            ->where('sent_at', '>=', $date_array[0])
+            ->where('sent_at', '<=', $date_array[1])
             ->get();
 
         $receipts = NexmoReceipts::orderBy('message_timestamp', 'asc')
-            ->where('message_timestamp', '>=', $date_array[0].' 00:00:01')
-            ->where('message_timestamp', '<=', $date_array[1].' 23:59:59')
+            ->where('message_timestamp', '>=', $date_array[0])
+            ->where('message_timestamp', '<=', $date_array[1])
             ->where('status', 'failed')
             ->has('response.sms')
             ->get();
@@ -298,7 +312,7 @@ class SmsController extends Controller
             ]
         ];
 
-        if($date_array[0] !== $date_array[1]) {
+        if($days != 0) {
 
             $refills        = Refills::orderBy('created_at', 'desc')->get();
             $refill_dates   = [];

@@ -74,6 +74,11 @@
                                 placeholder="Dates" 
                                 value="{{ session()->get('sms_filter.daterange', (isset($starts_at) && isset($starts_at)) ? $starts_at.' - '.$ends_at : '1900-01-01 - 2100-01-01') }}"
                         >
+                        <input
+                                name="daterange_full"
+                                type="hidden"
+                                value="{{ session()->get('sms_filter.daterange_full', '') }}"
+                        >
                     </div>
 
                 </div>

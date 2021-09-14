@@ -47,13 +47,16 @@
             if($('.filter-popup-backdrop').is(':visible')) filter();
         });
 
+        console.log({!! json_encode($filter_array['timeline']) !!});
+
         $('.datepicker-period').daterangepicker({
+            autoUpdateInput: false,
             singleDatePicker: false,
             alwaysShowCalendars: true,
             showDropdowns: true,
             ranges: {!! json_encode($filter_array['timeline']) !!},
             locale: {
-                format: 'YYYY-MM-DD',
+                format: 'YYYY-MM-DD HH:mm:ss',
                 firstDay: 1,
                 applyLabel: "Spara",
                 cancelLabel: "Stäng",
@@ -84,6 +87,23 @@
                     "December"
                 ]
             }
+        });
+
+        $('.datepicker-period').on('apply.daterangepicker', function(ev, picker) {
+            let start = picker.startDate.format('YYYY-MM-DD');
+            let end   = picker.endDate.format('YYYY-MM-DD');
+
+            if(picker.chosenLabel == 'Sedan påfyllning') {
+                let start_full  = picker.startDate._i;
+                let end_full    = picker.endDate._i;
+
+                $('input[name=daterange_full]').val(`${ start_full } - ${ end_full }`);
+            } else {
+                $('input[name=daterange_full]').val('');
+            }
+
+            $('.datepicker-period').val(`${ start } - ${ end }`);
+            $('.datepicker-period').trigger('change');
         });
 
 

@@ -26,7 +26,7 @@
                             $alert = 'text-warning';
                         }
                     @endphp
-                    <span class="">{{ $remaining_sms_pot }}</span>
+                    <span class="">{{ $remaining_sms_pot }} st</span>
                 @else
                     0
                 @endif
