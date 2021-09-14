@@ -73,15 +73,17 @@ class RefillSms extends Command
                 $sms_remaining = -$sms_sent;
             }
 
-            if($sms_remaining <= $sms_threshold) {
-                $refill_count = 0;
+            $sms_remaining_sum = $sms_remaining * $sms_unit_price_last; // divide remaining sms with last payed price per sms
 
-                $sms_remaining_sum = $sms_remaining / $sms_unit_price_last; // divide remaining sms with last payed price per sms
+            if($sms_remaining_sum <= $sms_threshold) {
+                $refill_count = 0;
 
                 while ($sms_remaining_sum < $sms_refill_amount) {
                     $refill_count++;
                     $sms_remaining_sum += $sms_refill_amount;
                 }
+
+
 
                 $sms_refill_sum     = $refill_count * $sms_refill_amount;
                 $refill_quantity    = floor($sms_refill_sum / $sms_unit_price);
@@ -92,22 +94,9 @@ class RefillSms extends Command
                 $new_refill->total          = $refill_quantity+$sms_remaining;
                 $new_refill->count          = $refill_count; // The total numbers of refills that have been made
                 $new_refill->sms_unit_price = $sms_unit_price;
-
-                /*
-                 * Calculate price
-                 */
-                $vat_rate                   = config('rl_sms.vat_rate');
-                $vat_dividor                = ($vat_rate / 100)+1;
-                $price_excl_vat             = $sms_refill_sum; // Total refill amount excl vat
-                $price_incl_vat             = number_format($price_excl_vat * $vat_dividor, 2, '.', '');
-                $price_vat_total            = number_format($price_incl_vat-$price_excl_vat, 2, '.', '');
-
-                $new_refill->vat_rate       = $vat_rate;
-                $new_refill->price_incl_vat = $price_incl_vat;
-                $new_refill->price_excl_vat = $price_excl_vat;
-                $new_refill->price_vat      = $price_vat_total;
-
                 $new_refill->save();
+
+                $new_refill = rl_sms::update_pricing($new_refill, $refill_count, $sms_refill_amount, true);
 
                 if(!empty($group)) {
                     foreach($group->team->members as $recipient){

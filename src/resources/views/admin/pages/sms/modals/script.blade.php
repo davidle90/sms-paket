@@ -102,14 +102,15 @@
        });
 
         $("#message").keyup(function(){
-            let char_count = $(this).val().length;
-            let receivers  = $('.insert-receiver-count').text();
+            let char_count  = $(this).val().length;
+            let receivers   = $('.insert-receiver-count').text() || 0;;
+            let sms_count   = Math.floor((char_count - 1) / 160) + 1;
 
-            let sms_count = Math.floor((char_count - 1) / 160) + 1;
+            let total_price = number_format((sms_count * receivers * {{ $sms_price_last ?? 0 }}),2, ',') ?? '0,00';
 
             $(".char-count").html(char_count);
             $(".SMS-count").html((sms_count * receivers) + ' (' + sms_count + '/meddelande)');
-            $('.total-price').html(number_format((sms_count * receivers * {{ $sms_price ?? 0 }}), 2) + ' SEK');
+            $('.total-price').html(total_price + ' SEK');
         });
 
     });

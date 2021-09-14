@@ -95,9 +95,6 @@ class Helpers
     public function get_last_refill()
     {
         $last_refill = Refills::orderBy('created_at', 'desc')->first();
-        if(!isset($last_refill) || empty($last_refill)){
-            return null;
-        }
         return $last_refill;
     }
 
@@ -130,24 +127,42 @@ class Helpers
         return $new_message;
     }
 
-    public function store_sms_and_response($response, $message_id, $sender_title, $receiver_name, $receiver_phone, $variables = null, $verify_search = 0)
+    public function update_pricing($model, $quantity, $price_excl_vat = null, $use_config = false)
     {
-        $last_refill    = rl_sms::get_last_refill();
-        $sms_unit_price = config('rl_sms.price');
+        $last_refill    = $this->get_last_refill();
+        $price_excl_vat = $price_excl_vat ?? config('rl_sms.price');
         $vat_rate       = config('rl_sms.vat_rate');
 
-        if(isset($last_refill)){
+        if(!empty($last_refill) && !$use_config){
 
             // Set payed unit price from last purchase
-            if(!is_null($last_refill->sms_unit_price)){
-                $sms_unit_price = $last_refill->sms_unit_price;
+            if(!is_null($last_refill->sms_unit_price) ){
+                $price_excl_vat = $last_refill->sms_unit_price;
             }
 
             // Set vat rate from last purchase
             if(!is_null($last_refill->vat_rate)){
-                $sms_vat_rate   = $last_refill->sms_unit_price;
+                $vat_rate   = $last_refill->vat_rate;
             }
         }
+
+        $vat_dividor                = ($vat_rate / 100)+1;
+        $price_excl_vat             = $price_excl_vat*$quantity;
+        $price_incl_vat             = number_format($price_excl_vat * $vat_dividor, 2, '.', '');
+        $price_vat_total            = number_format($price_incl_vat-$price_excl_vat, 2, '.', '');
+
+        $model->vat_rate                 = $vat_rate;
+        $model->price_incl_vat           = $price_incl_vat;
+        $model->price_excl_vat           = $price_excl_vat;
+        $model->price_vat                = $price_vat_total;
+        $model->save();
+
+        return $model;
+    }
+
+    public function store_sms_and_response($response, $message_id, $sender_title, $receiver_name, $receiver_phone, $variables = null, $verify_search = 0)
+    {
+
 
         $new_sms = new Sms();
         $new_sms->message_id        = $message_id;
@@ -162,19 +177,9 @@ class Helpers
         $new_sms->variables         = $variables;
         $new_sms->quantity          = $response['message-count'];
         $new_sms->sent_at           = now();
-
-        $price_sms_excl_vat         = $sms_unit_price; // Price of 1 sms excl vat
-        $vat_dividor                = ($vat_rate / 100)+1;
-        $price_excl_vat             = $price_sms_excl_vat*$new_sms->quantity;
-        $price_incl_vat             = number_format($price_excl_vat * $vat_dividor, 2, '.', '');
-        $price_vat_total            = number_format($price_incl_vat-$price_excl_vat, 2, '.', '');
-
-        $new_sms->vat_rate                 = $vat_rate;
-        $new_sms->price_incl_vat           = $price_incl_vat;
-        $new_sms->price_excl_vat           = $price_excl_vat;
-        $new_sms->price_vat                = $price_vat_total;
-
         $new_sms->save();
+
+        $new_sms = $this->update_pricing($new_sms, $new_sms->quantity);
 
         foreach ($response['messages'] as $data) {
             $new_nexmo_response = new NexmoResponses();

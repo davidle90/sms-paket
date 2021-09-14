@@ -85,8 +85,8 @@ class SmsController extends Controller
                 date('Y-m-d', $now->copy()->startOfYear()->timestamp),
                 date('Y-m-d', $now->copy()->endOfYear()->timestamp),
             ],
-            'Sedan påfyllning'  => (!empty($latest_refill)) ? [
-                date('Y-m-d', $latest_refill->created_at->copy()->timestamp),
+            'Sedan påfyllning'  => (!empty($last_refill)) ? [
+                date('Y-m-d', $last_refill->created_at->copy()->timestamp),
                 date('Y-m-d', $now->copy()->timestamp),
             ] : [
                     date('Y-m-d', $now->copy()->startOfYear()->timestamp),
@@ -284,8 +284,8 @@ class SmsController extends Controller
                 [
                     'label'             => 'Använda SMS',
                     'data'              => [],
-                    'backgroundColor'   => '#525e60',
-                    'borderColor'       => '#525e60',
+                    'backgroundColor'   => '#fabb3d',
+                    'borderColor'       => '#fabb3d',
                     'borderWidth'       => 1
                 ],
                 [
@@ -348,7 +348,6 @@ class SmsController extends Controller
                 'data'              => [],
                 'backgroundColor'   => '#5cb45b',
                 'borderColor'       => '#5cb45b',
-                'barThickness'      => 1,
             ];
 
             for($i = 0; $i <= $days; $i++){

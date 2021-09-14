@@ -287,10 +287,11 @@
 
                     let char_count = $('textarea[name="message"]').val().length;
                     let sms_count = Math.floor((char_count - 1) / 160) + 1;
+                    let total_price = number_format((sms_count * data.count * {{ $sms_price_last ?? 0 }}),2, ',') ?? '0,00';
 
                     $(".char-count").html(char_count);
                     $(".SMS-count").html((sms_count * data.count) + ' (' + sms_count + '/meddelande)');
-                    $('.total-price').html(number_format((sms_count * data.count * {{ $sms_price ?? 0 }}), 2) + ' SEK');
+                    $('.total-price').html(total_price + ' SEK');
                 },
                 error: function(xhr, textStatus, errorThrown){
 

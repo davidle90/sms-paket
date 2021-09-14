@@ -49,7 +49,7 @@
                     <td>{{ $item->sent_at->copy()->isoFormat('D MMMM OY, HH:mm') ?? '' }}</td>
                     <td>{{ $item->quantity ?? '' }}</td>
                     <td>
-                        {{ $item->price_excl_vat ?? 'N/A' }} kr
+                        {{ isset($item->price_excl_vat) ? number_format($item->price_excl_vat, 2, ',', ' ') : 'N/A' }} SEK
                     </td>
 
                     @php
