@@ -11,7 +11,8 @@
         <th>Telefonnummer</th>
         <th>Nationalitet</th>
         <th>Skickat vid</th>
-        <th>Antal SMS</th>
+        <th>Skickade SMS</th>
+        <th>Pris (exkl moms)</th>
         <th>Status</th>
     </tr>
     </thead>
@@ -47,6 +48,9 @@
                     </td>
                     <td>{{ $item->sent_at->copy()->isoFormat('D MMMM OY, HH:mm') ?? '' }}</td>
                     <td>{{ $item->quantity ?? '' }}</td>
+                    <td>
+                        {{ $item->price_excl_vat ?? 'N/A' }} kr
+                    </td>
 
                     @php
                         $color_class            = '';

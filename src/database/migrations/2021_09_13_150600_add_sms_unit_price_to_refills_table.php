@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddVerifySearchedToSmsNexmoTable extends Migration
+class AddSmsUnitPriceToRefillsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddVerifySearchedToSmsNexmoTable extends Migration
      */
     public function up()
     {
-        Schema::table('sms_nexmo', function (Blueprint $table) {
-            $table->boolean('verify_search')->default(0)->nullable()->after('network');
+        Schema::table('sms_refills', function (Blueprint $table) {
+            $table->decimal('sms_unit_price', 6,4)->nullable()->after('count');
         });
     }
 
@@ -25,8 +25,8 @@ class AddVerifySearchedToSmsNexmoTable extends Migration
      */
     public function down()
     {
-        Schema::table('sms_nexmo', function (Blueprint $table) {
-            $table->dropColumn('verify_search');
+        Schema::table('sms_refills', function (Blueprint $table) {
+            $table->dropColumn('sms_unit_price');
         });
     }
 }

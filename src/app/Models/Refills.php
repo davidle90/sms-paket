@@ -17,7 +17,14 @@ class Refills extends Model
 
     protected $fillable = [
         'quantity',
-        'remains'
+        'remains',
+        'total',
+        'count',
+        'sms_unit_count',
+        'vat_rate',
+        'price_incl_vat',
+        'price_excl_vat',
+        'price_vat'
     ];
 
     protected $dates = [

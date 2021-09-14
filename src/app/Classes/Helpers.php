@@ -13,6 +13,7 @@ use Propaganistas\LaravelPhone\PhoneNumber;
 use Rocketlabs\Sms\App\Jobs\SendSms;
 use Rocketlabs\Sms\App\Models\Messages;
 use Rocketlabs\Sms\App\Models\NexmoResponses;
+use Rocketlabs\Sms\App\Models\Refills;
 use Rocketlabs\Sms\App\Models\Senders;
 use Rocketlabs\Sms\App\Models\Sms;
 
@@ -91,6 +92,15 @@ class Helpers
         return config('rl_sms.models.messages');
     }
 
+    public function get_last_refill()
+    {
+        $last_refill = Refills::orderBy('created_at', 'desc')->first();
+        if(!isset($last_refill) || empty($last_refill)){
+            return null;
+        }
+        return $last_refill;
+    }
+
     public function send($sender_id, $receivers, $message)
     {
         $sender         = Senders::find($sender_id);
@@ -122,15 +132,48 @@ class Helpers
 
     public function store_sms_and_response($response, $message_id, $sender_title, $receiver_name, $receiver_phone, $variables = null, $verify_search = 0)
     {
+        $last_refill    = rl_sms::get_last_refill();
+        $sms_unit_price = config('rl_sms.price');
+        $vat_rate       = config('rl_sms.vat_rate');
+
+        if(isset($last_refill)){
+
+            // Set payed unit price from last purchase
+            if(!is_null($last_refill->sms_unit_price)){
+                $sms_unit_price = $last_refill->sms_unit_price;
+            }
+
+            // Set vat rate from last purchase
+            if(!is_null($last_refill->vat_rate)){
+                $sms_vat_rate   = $last_refill->sms_unit_price;
+            }
+        }
+
         $new_sms = new Sms();
         $new_sms->message_id        = $message_id;
         $new_sms->sender_title      = $sender_title;
         $new_sms->receiver_title    = $receiver_name;
         $new_sms->receiver_phone    = $receiver_phone;
-        $new_sms->country           = strtolower(PhoneNumber::make($receiver_phone)->getCountry());
+        try {
+            $new_sms->country           = strtolower(PhoneNumber::make($receiver_phone)->getCountry());
+        } catch(\Exception){
+            $new_sms->country = null;
+        }
         $new_sms->variables         = $variables;
         $new_sms->quantity          = $response['message-count'];
         $new_sms->sent_at           = now();
+
+        $price_sms_excl_vat         = $sms_unit_price; // Price of 1 sms excl vat
+        $vat_dividor                = ($vat_rate / 100)+1;
+        $price_excl_vat             = $price_sms_excl_vat*$new_sms->quantity;
+        $price_incl_vat             = number_format($price_excl_vat * $vat_dividor, 2, '.', '');
+        $price_vat_total            = number_format($price_incl_vat-$price_excl_vat, 2, '.', '');
+
+        $new_sms->vat_rate                 = $vat_rate;
+        $new_sms->price_incl_vat           = $price_incl_vat;
+        $new_sms->price_excl_vat           = $price_excl_vat;
+        $new_sms->price_vat                = $price_vat_total;
+
         $new_sms->save();
 
         foreach ($response['messages'] as $data) {

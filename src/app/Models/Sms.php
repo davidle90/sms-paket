@@ -27,7 +27,12 @@ class Sms extends Model
         'receiver_phone',
         'country',
         'quantity',
-        'sent_at'
+        'sent_at',
+        'sms_unit_price',
+        'vat_rate',
+        'price_incl_vat',
+        'price_excl_vat',
+        'price_vat',
     ];
 
     protected $dates = [

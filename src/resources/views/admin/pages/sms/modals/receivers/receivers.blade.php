@@ -79,7 +79,7 @@
                 </thead>
             </table>
             <div id="selected_receivers_wrapper" style="overflow-y: auto;">
-                <form id="selected_receivers_form" method="post" action="{{ route('rl_campaigns.admin.campaigns.api.products.store') }}">
+                <form id="selected_receivers_form" method="post" action="{{-- route('rl_campaigns.admin.campaigns.api.products.store') --}}">
                     <table id="selected_receivers_table" class="table table-white table-striped table-hover mb-0 border-secondary table-borderless">
                         <tbody></tbody>
                     </table>

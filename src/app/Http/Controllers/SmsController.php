@@ -30,18 +30,35 @@ class SmsController extends Controller
 
 	public function index(Request $request)
 	{
-        $sms                = $this->filter($request, false);
-        $senders            = Senders::get();
-        $smsables           = Smsables::get();
+        $sms                    = $this->filter($request, false);
+        $senders                = Senders::get();
+        $smsables               = Smsables::get();
 
-        $default_language   = Config::get('app.locale');
-        $fallback_language  = Config::get('app.fallback_locale');
-        $sms_price          = Config::get('rl_sms.price');
-        $refill_threshold   = Config::get('rl_sms.refill.threshold');
-        $refill_amount      = Config::get('rl_sms.refill.amount');
+        $default_language       = Config::get('app.locale');
+        $fallback_language      = Config::get('app.fallback_locale');
+        $sms_unit_price         = Config::get('rl_sms.price');
+        $sms_unit_price_last    = $sms_unit_price;
+        $refill_threshold       = Config::get('rl_sms.refill.threshold');
+        $refill_amount          = Config::get('rl_sms.refill.amount');
 
-        $latest_refill      = Refills::orderBy('created_at', 'desc')->first();
-        $refill_ids         = Refills::pluck('id')->toArray();
+        $last_refill            = rl_sms::get_last_refill();
+        $refill_ids             = Refills::pluck('id')->toArray();
+
+        $remaining_sms_pot      = 0;
+
+        if(!empty($last_refill)){
+
+            // Set sms unit price to last refill
+            if(!is_null($last_refill->sms_unit_price)){
+                $sms_unit_price_last = $last_refill->sms_unit_price;
+            }
+
+            $sent_sms_since_last_refill = Sms::where('sent_at', '>=', $last_refill->created_at)->sum('quantity');
+            //$sent_sms_cost = $sent_sms_since_last_refill / $sms_unit_price_last;
+
+            $remaining_sms_pot  = (!is_null($last_refill->total)) ? $last_refill->total : ($last_refill->quantity + $last_refill->remains);
+            $remaining_sms_pot  = floor($remaining_sms_pot - $sent_sms_since_last_refill);
+        }
 
         $now                = \Carbon\Carbon::now();
         $starts_at          = $now->copy()->startOfMonth();
@@ -91,14 +108,16 @@ class SmsController extends Controller
            'filter_array'       => $filter_array,
            'starts_at'          => $starts_at,
            'ends_at'            => $ends_at,
-           'latest_refill'      => $latest_refill,
+           'latest_refill'      => $last_refill,
            'senders'            => $senders,
            'smsables'           => $smsables,
            'default_language'   => $default_language,
            'fallback_language'  => $fallback_language,
-           'sms_price'          => $sms_price,
+           'sms_price'          => $sms_unit_price,
+           'sms_price_last'     => $sms_unit_price_last,
            'refill_threshold'   => $refill_threshold,
-           'refill_amount'      => $refill_amount
+           'refill_amount'      => $refill_amount,
+           'remaining_sms_pot'  => $remaining_sms_pot
        ]);
 
 	}
@@ -249,6 +268,7 @@ class SmsController extends Controller
             ->where('message_timestamp', '>=', $date_array[0].' 00:00:01')
             ->where('message_timestamp', '<=', $date_array[1].' 23:59:59')
             ->where('status', 'failed')
+            ->has('response.sms')
             ->get();
 
         $data        = [
@@ -264,15 +284,15 @@ class SmsController extends Controller
                 [
                     'label'             => 'Använda SMS',
                     'data'              => [],
-                    'backgroundColor'   => '#c1def5',
-                    'borderColor'       => '#c1def5',
+                    'backgroundColor'   => '#525e60',
+                    'borderColor'       => '#525e60',
                     'borderWidth'       => 1
                 ],
                 [
                     'label'             => 'Misslyckade SMS',
                     'data'              => [],
-                    'backgroundColor'   => '#f5c1c4',
-                    'borderColor'       => '#f5c1c4',
+                    'backgroundColor'   => '#ff5454',
+                    'borderColor'       => '#ff5454',
                     'borderWidth'       => 1
                 ],
             ]
@@ -326,8 +346,8 @@ class SmsController extends Controller
             $data['datasets'][3] = [
                 'label'             => 'Påfyllningar',
                 'data'              => [],
-                'backgroundColor'   => 'red',
-                'borderColor'       => 'red',
+                'backgroundColor'   => '#5cb45b',
+                'borderColor'       => '#5cb45b',
                 'barThickness'      => 1,
             ];
 
