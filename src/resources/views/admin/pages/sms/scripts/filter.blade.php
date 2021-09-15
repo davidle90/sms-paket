@@ -23,6 +23,11 @@
             hide_filter();
         });
 
+        $('#filter-form').on('submit', function(e) {
+            e.preventDefault();
+            $('#search_btn').trigger('click');
+        })
+
         $('input[name=search_input]').on('keydown', function(e){
             if(e.keyCode === 13) {
                 e.preventDefault();

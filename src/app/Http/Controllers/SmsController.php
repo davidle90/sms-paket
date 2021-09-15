@@ -269,12 +269,10 @@ class SmsController extends Controller
     {
         $daterange  = !empty($request->get('daterange_full')) ? $request->get('daterange_full') : $request->get('daterange', '2000-01-01 - 2100-01-01');
         $date_array = explode(' - ', $daterange);
-        $start_time = strtotime($date_array[0]);
-        $end_time   = strtotime($date_array[1]);
-        $days       = floor(($end_time - $start_time) / (60 * 60 * 24));
-        $months     = floor($days/30);
-        $quarters   = ceil($days/90);
-        $years      = ceil($days/365);
+        $days       = Carbon::parse($date_array[0])->diffInDays(Carbon::parse($date_array[1]));
+        $months     = Carbon::parse($date_array[0])->diffInMonths(Carbon::parse($date_array[1]));
+        $quarters   = Carbon::parse($date_array[0])->diffInQuarters(Carbon::parse($date_array[1]));
+        $years      = Carbon::parse($date_array[0])->diffInYears(Carbon::parse($date_array[1]));
 
         $sms = Sms::orderBy('sent_at', 'asc')
             ->where('sent_at', '>=', $date_array[0])
@@ -325,6 +323,7 @@ class SmsController extends Controller
                     'data'              => [],
                     'backgroundColor'   => '#5cb45b',
                     'borderColor'       => '#5cb45b',
+                    'barThickness'      => 3
                 ]
             ]
         ];
@@ -581,7 +580,7 @@ class SmsController extends Controller
                 }
             }
 
-            for($i = 0; $i < $months ; $i++){
+            for($i = 0; $i <= $months ; $i++){
                 $date               = Carbon::parse($date_array[0])->copy()->addMonth($i)->format('M Y');
                 $data['labels'][]   = $date;
 
@@ -651,7 +650,7 @@ class SmsController extends Controller
                 }
             }
 
-            for($i = 0; $i < $quarters ; $i++){
+            for($i = 0; $i <= $quarters ; $i++){
                 $date               = 'Q'.Carbon::parse($date_array[0])->copy()->addQuarter($i)->quarter.' '.Carbon::parse($date_array[0])->copy()->addQuarter($i)->format('Y');
                 $data['labels'][]   = $date;
 
@@ -721,7 +720,7 @@ class SmsController extends Controller
                 }
             }
 
-            for($i = 0; $i < $years ; $i++){
+            for($i = 0; $i <= $years ; $i++){
                 $date               = Carbon::parse($date_array[0])->copy()->addYear($i)->format('Y');
                 $data['labels'][]   = $date;
 
