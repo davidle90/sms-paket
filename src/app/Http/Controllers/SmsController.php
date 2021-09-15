@@ -185,8 +185,8 @@ class SmsController extends Controller
         if(isset($filter['daterange_full']) && !empty($filter['daterange_full'])){
             $date_array = explode(' - ', $filter['daterange_full']);
 
-            $smsQuery->where('sent_at', '>=', $date_array[0]);
-            $smsQuery->where('sent_at', '<=', $date_array[1]);
+            $smsQuery->whereDate('sent_at', '>=', $date_array[0]);
+            $smsQuery->whereDate('sent_at', '<=', $date_array[1]);
 
             $request->session()->put('sms_filter.daterange', $filter['daterange']);
             $request->session()->put('sms_filter.daterange_full', $filter['daterange_full']);
@@ -194,8 +194,8 @@ class SmsController extends Controller
         } elseif(isset($filter['daterange']) && !empty($filter['daterange'])){
             $date_array = explode(' - ', $filter['daterange']);
 
-            $smsQuery->where('sent_at', '>=', $date_array[0]);
-            $smsQuery->where('sent_at', '<=', $date_array[1]);
+            $smsQuery->whereDate('sent_at', '>=', $date_array[0]);
+            $smsQuery->whereDate('sent_at', '<=', $date_array[1]);
 
             $request->session()->put('sms_filter.daterange', $filter['daterange']);
             $request->session()->forget('sms_filter.daterange_full');
@@ -275,20 +275,20 @@ class SmsController extends Controller
         $years      = Carbon::parse($date_array[0])->diffInYears(Carbon::parse($date_array[1]));
 
         $sms = Sms::orderBy('sent_at', 'asc')
-            ->where('sent_at', '>=', $date_array[0])
-            ->where('sent_at', '<=', $date_array[1])
+            ->whereDate('sent_at', '>=', $date_array[0])
+            ->whereDate('sent_at', '<=', $date_array[1])
             ->get();
 
         $receipts = NexmoReceipts::orderBy('message_timestamp', 'asc')
-            ->where('message_timestamp', '>=', $date_array[0])
-            ->where('message_timestamp', '<=', $date_array[1])
+            ->whereDate('message_timestamp', '>=', $date_array[0])
+            ->whereDate('message_timestamp', '<=', $date_array[1])
             ->where('status', 'failed')
             ->has('response.sms')
             ->get();
 
         $refills = Refills::orderBy('created_at', 'desc')
-            ->where('created_at', '>=', $date_array[0])
-            ->where('created_at', '<=', $date_array[1])
+            ->whereDate('created_at', '>=', $date_array[0])
+            ->whereDate('created_at', '<=', $date_array[1])
             ->get();
 
         $refill_dates   = [];
