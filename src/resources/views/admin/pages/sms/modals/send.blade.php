@@ -60,7 +60,7 @@
                     </div>
                     <div class="col-6">
                         <h6>Antal SMS: <span class="SMS-count font-weight-normal">0 (0/meddelande)</span></h6>
-                        <h6>Total pris: <span class="total-price font-weight-normal">0.00 SEK</span></h6>
+                        <h6>Total pris: <span class="total-price font-weight-normal">0,00 SEK</span></h6>
                     </div>
                 </div>
 

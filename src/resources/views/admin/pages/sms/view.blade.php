@@ -94,9 +94,7 @@
 						<tr>
 
 							@php
-								if(isset($sms->nexmo) && !$sms->nexmo->isEmpty()) {
-    								$total_price = number_format($sms->nexmo->count() * config('rl_sms.price'), 2, ',', ' ');
-								}
+								$total_price = isset($sms->price_excl_vat) ? number_format($sms->price_excl_vat, 2, ',', ' ') : null;
 							@endphp
 
 							<td class="bold">Total pris</td>
@@ -147,11 +145,11 @@
 		</div>
 	</div>
 	<div class="card">
-		<div class="card-header bold">
+		<div class="card-header bold" style="border-bottom: none;">
 			SMS-information
 		</div>
 
-		<table class="table table-striped table-white table-outline table-hover mb-0 border-secondary">
+		<table class="table table-striped table-white table-outline table-hover mb-0 border-secondary" style="border: none;">
 			<thead>
 				<tr>
 					<th style="padding-left: 1.25rem;">Meddelande ID</th>
@@ -169,7 +167,7 @@
 						<td style="padding-left: 1.25rem;">{{ $n->message_id ?? 'Saknas' }}</td>
 						<td>+{{ $n->to ?? 'Saknas' }}</td>
 						<td>{{ $mcc_mnc_list[$n->network]['operator'] ?? 'Saknas' }}</td>
-						<td>{{ number_format(config('rl_sms.price'), 2, ',', ' ') }} SEK</td>
+						<td>{{ (isset($sms->price_excl_vat) && isset($sms->quantity)) ? number_format(($sms->price_excl_vat / $sms->quantity), 2, ',', ' ') : 'N/A' }} SEK</td>
 
 						@php
 							$color_class = '';

@@ -146,20 +146,21 @@
 				cache: false,
 				dataType: 'json',
 				data: {
-					daterange: $('#filter-form input[name="daterange"]').val()
+					daterange: $('#filter-form input[name="daterange"]').val(),
+					daterange_full: $('#filter-form input[name="daterange_full"]').val(),
 				},
 				beforeSend: function(){},
 				success: function (data) {
 					chart.data = data;
 					chart.update();
-					console.log(data)
+
 					let total_sms = data.datasets[1].data.reduce((a, v) => a + v, 0);
 					let total_msg = data.datasets[0].data.reduce((a, v) => a + v, 0);
 
 					let start_date 	= moment(data.labels[0]).format('DD/MM');
 					let end_date	= moment(data.labels[data.labels.length - 1]).format('DD/MM');
 
-					$('.total-sms').html(`${ total_msg } (${ total_sms } sms totalt)`);
+					$('.total-sms').html(`${ total_msg } st (${ total_sms } SMS totalt)`);
 				},
 				error: function(xhr, textStatus, errorThrown){
 					alert(JSON.stringify(xhr));

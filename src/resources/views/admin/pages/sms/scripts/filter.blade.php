@@ -23,6 +23,11 @@
             hide_filter();
         });
 
+        $('#filter-form').on('submit', function(e) {
+            e.preventDefault();
+            $('#search_btn').trigger('click');
+        })
+
         $('input[name=search_input]').on('keydown', function(e){
             if(e.keyCode === 13) {
                 e.preventDefault();
@@ -48,6 +53,7 @@
         });
 
         $('.datepicker-period').daterangepicker({
+            autoUpdateInput: false,
             singleDatePicker: false,
             alwaysShowCalendars: true,
             showDropdowns: true,
@@ -84,6 +90,23 @@
                     "December"
                 ]
             }
+        });
+
+        $('.datepicker-period').on('apply.daterangepicker', function(ev, picker) {
+            let start = picker.startDate.format('YYYY-MM-DD');
+            let end   = picker.endDate.format('YYYY-MM-DD');
+
+            if(picker.chosenLabel == 'Sedan påfyllning') {
+                let start_full  = picker.startDate._i;
+                let end_full    = picker.endDate._i;
+
+                $('input[name=daterange_full]').val(`${ start_full } - ${ end_full }`);
+            } else {
+                $('input[name=daterange_full]').val('');
+            }
+
+            $('.datepicker-period').val(`${ start } - ${ end }`);
+            $('.datepicker-period').trigger('change');
         });
 
 
