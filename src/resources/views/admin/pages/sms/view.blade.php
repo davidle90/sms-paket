@@ -145,11 +145,11 @@
 		</div>
 	</div>
 	<div class="card">
-		<div class="card-header bold">
+		<div class="card-header bold" style="border-bottom: none;">
 			SMS-information
 		</div>
 
-		<table class="table table-striped table-white table-outline table-hover mb-0 border-secondary">
+		<table class="table table-striped table-white table-outline table-hover mb-0 border-secondary" style="border: none;">
 			<thead>
 				<tr>
 					<th style="padding-left: 1.25rem;">Meddelande ID</th>

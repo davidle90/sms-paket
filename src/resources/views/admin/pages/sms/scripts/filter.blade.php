@@ -47,8 +47,6 @@
             if($('.filter-popup-backdrop').is(':visible')) filter();
         });
 
-        console.log({!! json_encode($filter_array['timeline']) !!});
-
         $('.datepicker-period').daterangepicker({
             autoUpdateInput: false,
             singleDatePicker: false,
@@ -56,7 +54,7 @@
             showDropdowns: true,
             ranges: {!! json_encode($filter_array['timeline']) !!},
             locale: {
-                format: 'YYYY-MM-DD HH:mm:ss',
+                format: 'YYYY-MM-DD',
                 firstDay: 1,
                 applyLabel: "Spara",
                 cancelLabel: "Stäng",

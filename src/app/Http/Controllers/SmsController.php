@@ -272,6 +272,9 @@ class SmsController extends Controller
         $start_time = strtotime($date_array[0]);
         $end_time   = strtotime($date_array[1]);
         $days       = floor(($end_time - $start_time) / (60 * 60 * 24));
+        $months     = floor($days/30);
+        $quarters   = ceil($days/90);
+        $years      = ceil($days/365);
 
         $sms = Sms::orderBy('sent_at', 'asc')
             ->where('sent_at', '>=', $date_array[0])
@@ -284,6 +287,14 @@ class SmsController extends Controller
             ->where('status', 'failed')
             ->has('response.sms')
             ->get();
+
+        $refills = Refills::orderBy('created_at', 'desc')
+            ->where('created_at', '>=', $date_array[0])
+            ->where('created_at', '<=', $date_array[1])
+            ->get();
+
+        $refill_dates   = [];
+        $highest_value  = 0;
 
         $data        = [
             'labels'    => [],
@@ -309,20 +320,93 @@ class SmsController extends Controller
                     'borderColor'       => '#ff5454',
                     'borderWidth'       => 1
                 ],
+                [
+                    'label'             => 'Påfyllningar',
+                    'data'              => [],
+                    'backgroundColor'   => '#5cb45b',
+                    'borderColor'       => '#5cb45b',
+                ]
             ]
         ];
 
-        if($days != 0) {
+        if($days == 0) {
 
-            $refills        = Refills::orderBy('created_at', 'desc')->get();
-            $refill_dates   = [];
-            $highest_value  = 0;
+            /*
+            * Singe day, 24h formatting
+            */
+            $sms_per_hour    = [];
+            $failed_per_hour = [];
+
+            /** Formatting refill dates **/
+            foreach($refills as $refill){
+                $refill_dates[] = $refill->created_at->copy()->hour;
+            }
+
+            /**  Getting sent SMS per Hour **/
+            foreach ($sms as $item){
+                $hour = $item->sent_at->copy()->hour;
+
+                if(isset($sms_per_hour[$hour])) {
+                    $sms_per_hour[$hour]['net']      += 1;
+                    $sms_per_hour[$hour]['gross']    += (1 * $item->quantity);
+                } else {
+                    $sms_per_hour[$hour]['net']      = 1;
+                    $sms_per_hour[$hour]['gross']    = (1 * $item->quantity);
+                }
+
+                if($sms_per_hour[$hour]['gross'] >= $highest_value) {
+                    $highest_value = $sms_per_hour[$hour]['gross'];
+                }
+            }
+
+            /**  Getting failed SMS per Hour **/
+            foreach ($receipts as $receipt){
+                $hour = Carbon::parse($receipt->message_timestamp)->copy()->hour;
+
+                if(isset($failed_per_hour[$hour])) {
+                    $failed_per_hour[$hour] += 1;
+                } else {
+                    $failed_per_hour[$hour] = 1;
+                }
+
+                if($failed_per_hour[$hour] >= $highest_value) {
+                    $highest_value = $failed_per_hour[$hour];
+                }
+            }
+
+            for($i = 0; $i < 24; $i++){
+                if(!isset($sms_per_hour[$i]) || empty($sms_per_hour[$i])) {
+                    $sms_per_hour[$i]['net']    = 0;
+                    $sms_per_hour[$i]['gross']  = 0;
+                }
+
+                if(!isset($failed_per_hour[$i]) || empty($failed_per_hour[$i])) {
+                    $failed_per_hour[$i] = 0;
+                }
+
+                if(in_array($i, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = $highest_value;
+                } else {
+                    $data['datasets'][3]['data'][] = 0;
+                }
+
+                $data['labels'][]               = ($i < 10) ? '0'.$i.':00' : $i.':00';
+                $data['datasets'][0]['data'][]  = $sms_per_hour[$i]['net'];
+                $data['datasets'][1]['data'][]  = $sms_per_hour[$i]['gross'];
+                $data['datasets'][2]['data'][]  = $failed_per_hour[$i];
+            }
+
+        } elseif($days <= 31) {
+
+            /*
+             * Month, day formatting
+             */
             $sms_per_day    = [];
             $failed_per_day = [];
 
             /** Formatting refill dates **/
             foreach($refills as $refill){
-                $refill_dates[] = $refill->created_at->format('Y-m-d');
+                $refill_dates[] = $refill->created_at->copy()->format('Y-m-d');
             }
 
             /**  Getting sent SMS per day **/
@@ -357,13 +441,6 @@ class SmsController extends Controller
                 }
             }
 
-            $data['datasets'][3] = [
-                'label'             => 'Påfyllningar',
-                'data'              => [],
-                'backgroundColor'   => '#5cb45b',
-                'borderColor'       => '#5cb45b',
-            ];
-
             for($i = 0; $i <= $days; $i++){
                 $date               = Carbon::parse($date_array[0])->copy()->addDay($i)->format('Y-m-d');
                 $data['labels'][]   = $date;
@@ -389,50 +466,286 @@ class SmsController extends Controller
                 }
             }
 
+        } elseif($days <= 182) {
+
+            /*
+             * Quarter, week formatting, everything under 6 months
+             */
+            $sms_per_week    = [];
+            $failed_per_week = [];
+
+            /** Formatting refill dates **/
+            foreach($refills as $refill){
+                $refill_dates[] = $refill->created_at->copy()->startOfWeek()->format('Y-m-d');
+            }
+
+            /**  Getting sent SMS per week **/
+            foreach ($sms as $item){
+                $date = $item->sent_at->copy()->startOfWeek()->toDateString();
+
+                if(isset($sms_per_week[$date])) {
+                    $sms_per_week[$date]['net']      += 1;
+                    $sms_per_week[$date]['gross']    += (1 * $item->quantity);
+                } else {
+                    $sms_per_week[$date]['net']      = 1;
+                    $sms_per_week[$date]['gross']    = (1 * $item->quantity);
+                }
+
+                if($sms_per_week[$date]['gross'] >= $highest_value) {
+                    $highest_value = $sms_per_week[$date]['gross'];
+                }
+            }
+
+            /** Getting failed SMS per week **/
+            foreach ($receipts as $receipt){
+                $date = Carbon::parse($receipt->message_timestamp)->copy()->startOfWeek()->toDateString();
+
+                if(isset($failed_per_week[$date])) {
+                    $failed_per_week[$date]  += 1;
+                } else {
+                    $failed_per_week[$date]  = 1;
+                }
+
+                if($failed_per_week[$date] >= $highest_value) {
+                    $highest_value = $failed_per_week[$date];
+                }
+            }
+
+            for($i = 0; $i <= $days ; $i += 7){
+                $date               = Carbon::parse($date_array[0])->copy()->addDay($i)->startOfWeek()->format('Y-m-d');
+                $data['labels'][]   = $date;
+
+                if(isset($sms_per_week[$date]) && !empty($sms_per_week[$date])) {
+                    $data['datasets'][0]['data'][]  = $sms_per_week[$date]['net'];
+                    $data['datasets'][1]['data'][]  = $sms_per_week[$date]['gross'];
+                } else {
+                    $data['datasets'][0]['data'][] = 0;
+                    $data['datasets'][1]['data'][] = 0;
+                }
+
+                if(isset($failed_per_week[$date]) && !empty($failed_per_week[$date])) {
+                    $data['datasets'][2]['data'][] = $failed_per_week[$date];
+                } else {
+                    $data['datasets'][2]['data'][] = 0;
+                }
+
+                if(in_array($date, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = $highest_value;
+                } else {
+                    $data['datasets'][3]['data'][] = 0;
+                }
+            }
+
+        } elseif($days <= 366) {
+
+            /*
+             * 1 Year, month formatting, everything under 1 year and above 6 months
+             */
+            $sms_per_month    = [];
+            $failed_per_month = [];
+
+            /** Formatting refill dates **/
+            foreach($refills as $refill){
+                $refill_dates[] = $refill->created_at->copy()->format('M Y');
+            }
+
+            /**  Getting sent SMS per month **/
+            foreach ($sms as $item){
+                $date = $item->sent_at->copy()->format('M Y');
+
+                if(isset($sms_per_month[$date])) {
+                    $sms_per_month[$date]['net']      += 1;
+                    $sms_per_month[$date]['gross']    += (1 * $item->quantity);
+                } else {
+                    $sms_per_month[$date]['net']      = 1;
+                    $sms_per_month[$date]['gross']    = (1 * $item->quantity);
+                }
+
+                if($sms_per_month[$date]['gross'] >= $highest_value) {
+                    $highest_value = $sms_per_month[$date]['gross'];
+                }
+            }
+
+            /** Getting failed SMS per month **/
+            foreach ($receipts as $receipt){
+                $date = Carbon::parse($receipt->message_timestamp)->copy()->format('M Y');
+
+                if(isset($failed_per_month[$date])) {
+                    $failed_per_month[$date]  += 1;
+                } else {
+                    $failed_per_month[$date]  = 1;
+                }
+
+                if($failed_per_month[$date] >= $highest_value) {
+                    $highest_value = $failed_per_month[$date];
+                }
+            }
+
+            for($i = 0; $i < $months ; $i++){
+                $date               = Carbon::parse($date_array[0])->copy()->addMonth($i)->format('M Y');
+                $data['labels'][]   = $date;
+
+                if(isset($sms_per_month[$date]) && !empty($sms_per_month[$date])) {
+                    $data['datasets'][0]['data'][]  = $sms_per_month[$date]['net'];
+                    $data['datasets'][1]['data'][]  = $sms_per_month[$date]['gross'];
+                } else {
+                    $data['datasets'][0]['data'][] = 0;
+                    $data['datasets'][1]['data'][] = 0;
+                }
+
+                if(isset($failed_per_month[$date]) && !empty($failed_per_month[$date])) {
+                    $data['datasets'][2]['data'][] = $failed_per_month[$date];
+                } else {
+                    $data['datasets'][2]['data'][] = 0;
+                }
+
+                if(in_array($date, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = $highest_value;
+                } else {
+                    $data['datasets'][3]['data'][] = 0;
+                }
+            }
+
+        } elseif($days <= 1100) {
+
+            /*
+             * 1-3 Years, quarter formatting, everything above 1 year and less than 3 years
+             */
+            $sms_per_quarter    = [];
+            $failed_per_quarter = [];
+
+            /** Formatting refill dates **/
+            foreach($refills as $refill){
+                $refill_dates[] = 'Q'.$refill->created_at->copy()->quarter.' '.$refill->created_at->copy()->format('Y');
+            }
+
+            /**  Getting sent SMS per quarter **/
+            foreach ($sms as $item){
+                $date = 'Q'.$item->sent_at->copy()->quarter.' '.$item->sent_at->copy()->format('Y');
+
+                if(isset($sms_per_quarter[$date])) {
+                    $sms_per_quarter[$date]['net']      += 1;
+                    $sms_per_quarter[$date]['gross']    += (1 * $item->quantity);
+                } else {
+                    $sms_per_quarter[$date]['net']      = 1;
+                    $sms_per_quarter[$date]['gross']    = (1 * $item->quantity);
+                }
+
+                if($sms_per_quarter[$date]['gross'] >= $highest_value) {
+                    $highest_value = $sms_per_quarter[$date]['gross'];
+                }
+            }
+
+            /** Getting failed SMS per quarter **/
+            foreach ($receipts as $receipt){
+                $date = 'Q'.Carbon::parse($receipt->message_timestamp)->copy()->quarter.' '.Carbon::parse($receipt->message_timestamp)->copy()->format('Y');
+
+                if(isset($failed_per_quarter[$date])) {
+                    $failed_per_quarter[$date]  += 1;
+                } else {
+                    $failed_per_quarter[$date]  = 1;
+                }
+
+                if($failed_per_quarter[$date] >= $highest_value) {
+                    $highest_value = $failed_per_quarter[$date];
+                }
+            }
+
+            for($i = 0; $i < $quarters ; $i++){
+                $date               = 'Q'.Carbon::parse($date_array[0])->copy()->addQuarter($i)->quarter.' '.Carbon::parse($date_array[0])->copy()->addQuarter($i)->format('Y');
+                $data['labels'][]   = $date;
+
+                if(isset($sms_per_quarter[$date]) && !empty($sms_per_quarter[$date])) {
+                    $data['datasets'][0]['data'][]  = $sms_per_quarter[$date]['net'];
+                    $data['datasets'][1]['data'][]  = $sms_per_quarter[$date]['gross'];
+                } else {
+                    $data['datasets'][0]['data'][] = 0;
+                    $data['datasets'][1]['data'][] = 0;
+                }
+
+                if(isset($failed_per_quarter[$date]) && !empty($failed_per_quarter[$date])) {
+                    $data['datasets'][2]['data'][] = $failed_per_quarter[$date];
+                } else {
+                    $data['datasets'][2]['data'][] = 0;
+                }
+
+                if(in_array($date, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = $highest_value;
+                } else {
+                    $data['datasets'][3]['data'][] = 0;
+                }
+            }
+
         } else {
 
-            $sms_per_hour    = [];
-            $failed_per_hour = [];
+            /*
+             * 3+ Years, year formatting, everything above 3 years
+             */
+            $sms_per_year    = [];
+            $failed_per_year = [];
 
-            /**  Getting sent SMS per Hour **/
+            /** Formatting refill dates **/
+            foreach($refills as $refill){
+                $refill_dates[] = $refill->created_at->copy()->format('Y');
+            }
+
+            /**  Getting sent SMS per year **/
             foreach ($sms as $item){
-                $hour = $item->sent_at->copy()->hour;
+                $date = $item->sent_at->copy()->format('Y');
 
-                if(isset($sms_per_hour[$hour])) {
-                    $sms_per_hour[$hour]['net']      += 1;
-                    $sms_per_hour[$hour]['gross']    += (1 * $item->quantity);
+                if(isset($sms_per_year[$date])) {
+                    $sms_per_year[$date]['net']      += 1;
+                    $sms_per_year[$date]['gross']    += (1 * $item->quantity);
                 } else {
-                    $sms_per_hour[$hour]['net']      = 1;
-                    $sms_per_hour[$hour]['gross']    = (1 * $item->quantity);
+                    $sms_per_year[$date]['net']      = 1;
+                    $sms_per_year[$date]['gross']    = (1 * $item->quantity);
+                }
+
+                if($sms_per_year[$date]['gross'] >= $highest_value) {
+                    $highest_value = $sms_per_year[$date]['gross'];
                 }
             }
 
-            /**  Getting failed SMS per Hour **/
+            /** Getting failed SMS per year **/
             foreach ($receipts as $receipt){
-                $hour = Carbon::parse($receipt->message_timestamp)->copy()->hour;
+                $date = Carbon::parse($receipt->message_timestamp)->copy()->format('Y');
 
-                if(isset($failed_per_hour[$hour])) {
-                    $failed_per_hour[$hour] += 1;
+                if(isset($failed_per_year[$date])) {
+                    $failed_per_year[$date]  += 1;
                 } else {
-                    $failed_per_hour[$hour] = 1;
+                    $failed_per_year[$date]  = 1;
+                }
+
+                if($failed_per_year[$date] >= $highest_value) {
+                    $highest_value = $failed_per_year[$date];
                 }
             }
 
-            for($i = 0; $i < 24; $i++){
-                if(!isset($sms_per_hour[$i]) || empty($sms_per_hour[$i])) {
-                    $sms_per_hour[$i]['net']    = 0;
-                    $sms_per_hour[$i]['gross']  = 0;
+            for($i = 0; $i < $years ; $i++){
+                $date               = Carbon::parse($date_array[0])->copy()->addYear($i)->format('Y');
+                $data['labels'][]   = $date;
+
+                if(isset($sms_per_year[$date]) && !empty($sms_per_year[$date])) {
+                    $data['datasets'][0]['data'][]  = $sms_per_year[$date]['net'];
+                    $data['datasets'][1]['data'][]  = $sms_per_year[$date]['gross'];
+                } else {
+                    $data['datasets'][0]['data'][] = 0;
+                    $data['datasets'][1]['data'][] = 0;
                 }
 
-                if(!isset($failed_per_hour[$i]) || empty($failed_per_hour[$i])) {
-                    $failed_per_hour[$i] = 0;
+                if(isset($failed_per_year[$date]) && !empty($failed_per_year[$date])) {
+                    $data['datasets'][2]['data'][] = $failed_per_year[$date];
+                } else {
+                    $data['datasets'][2]['data'][] = 0;
                 }
 
-                $data['labels'][]               = ($i < 10) ? '0'.$i.':00' : $i.':00';
-                $data['datasets'][0]['data'][]  = $sms_per_hour[$i]['net'];
-                $data['datasets'][1]['data'][]  = $sms_per_hour[$i]['gross'];
-                $data['datasets'][2]['data'][]  = $failed_per_hour[$i];
+                if(in_array($date, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = $highest_value;
+                } else {
+                    $data['datasets'][3]['data'][] = 0;
+                }
             }
+
         }
 
         return response()->json($data);
