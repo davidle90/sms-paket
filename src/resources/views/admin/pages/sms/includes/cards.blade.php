@@ -59,7 +59,7 @@
         </div>
         <div class="card-body text-center">
             <h6 class="font-weight-normal mb-0">
-                {{ number_format($latest_refill->price_excl_vat, 2, ',', ' ') }} SEK ({{ $latest_refill->count }} st)
+                {{ number_format($latest_refill->price_excl_vat, 2, ',', ' ') }} SEK ({{ $latest_refill->count }} st) (ex.moms)
             </h6>
         </div>
     </div>
@@ -72,7 +72,7 @@
         </div>
         <div class="card-body text-center">
             <h6 class="font-weight-normal mb-0">
-                {!! $refill_amount ?? '0'  !!} SEK / {{ $refill_threshold ?? '' }} SEK
+                {!! $refill_amount ?? '0'  !!} SEK (ex.moms) / {{ $refill_threshold ?? '' }} SEK
             </h6>
         </div>
     </div>
