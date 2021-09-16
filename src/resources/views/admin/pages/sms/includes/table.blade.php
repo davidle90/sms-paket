@@ -38,13 +38,15 @@
                     </td>
                     <td>{{ $item->receiver_phone ?? '' }}</td>
                     <td>
+                        @if(isset($item->country))
                         <span
                                 class="flag-icon flag-icon-{{ $item->country ?? '' }} mr-1"
                                 data-toggle="tooltip"
                                 data-placement="top"
                                 title="{{ country($item->country)->getName() ?? '' }}"
                         ></span>
-{{--                        {{ country($item->country)->getName() ?? '' }}--}}
+                        @endif
+                        {{-- {{ country($item->country)->getName() ?? '' }}--}}
                     </td>
                     <td>{{ $item->sent_at->copy()->isoFormat('D MMMM OY, HH:mm') ?? '' }}</td>
                     <td>{{ $item->quantity ?? '' }}</td>

@@ -59,6 +59,7 @@
 							<tr>
 								<td class="bold">Land</td>
 								<td>
+									@if(isset($sms->country))
 									<span
 											class="flag-icon flag-icon-{{ $sms->country ?? '' }} mr-1"
 											data-toggle="tooltip"
@@ -66,6 +67,7 @@
 											title="{{ country($sms->country)->getName() ?? '' }}"
 									></span>
 									{{ country($sms->country)->getName() ?? '' }}
+									@endif
 								</td>
 							</tr>
 						</tbody>
