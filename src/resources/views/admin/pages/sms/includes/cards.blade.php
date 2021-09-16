@@ -72,7 +72,7 @@
         </div>
         <div class="card-body text-center">
             <h6 class="font-weight-normal mb-0">
-                {!! $refill_amount ?? '0'  !!} SEK <small>(ex.moms)</small> / {{ $refill_threshold ?? '' }} SEK
+                {!! $refill_amount ?? '0'  !!} SEK / {{ $refill_threshold ?? '' }} SEK <small>(ex.moms)</small>
             </h6>
         </div>
     </div>
