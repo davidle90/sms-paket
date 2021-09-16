@@ -12,7 +12,7 @@
 <div class="col-2">
     <div class="card" style="border-radius:5px;">
         <div class="card-header text-center" style="border-top-right-radius: 5px; border-top-left-radius: 5px;">
-            <label class="bold mb-0">SMS kvar att skicka</label>
+            <label class="bold mb-0">Sms kvar att skicka</label>
         </div>
         <div class="card-body text-center">
             <h6 class="font-weight-normal mb-0">
