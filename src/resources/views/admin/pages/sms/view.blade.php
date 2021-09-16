@@ -133,7 +133,7 @@
                     }
                 }
 			@endphp
-			
+
 			@if(isset($message_formatted))
 				<p>{{ $message_formatted }}</p>
 			@elseif(isset($sms->message->text))
