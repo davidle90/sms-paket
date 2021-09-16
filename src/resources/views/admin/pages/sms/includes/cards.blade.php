@@ -85,7 +85,7 @@
         </div>
         <div class="card-body text-center">
             <h6 class="font-weight-normal mb-0">
-                {{ $sms_price ?? '' }} SEK
+                {{ $sms_price ?? '' }} SEK (ex.moms)
             </h6>
         </div>
     </div>
