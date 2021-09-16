@@ -307,8 +307,8 @@ class SmsController extends Controller
                 [
                     'label'             => 'Använda SMS',
                     'data'              => [],
-                    'backgroundColor'   => '#e9f3fc',
-                    'borderColor'       => '#e9f3fc',
+                    'backgroundColor'   => '#bcdbf6',
+                    'borderColor'       => '#bcdbf6',
                     'borderWidth'       => 1
                 ],
                 [
