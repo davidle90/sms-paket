@@ -135,11 +135,11 @@
 			@endphp
 
 			@if(isset($message_formatted))
-				<p>{{ $message_formatted }}</p>
+				{{ $message_formatted }}
 			@elseif(isset($sms->message->text))
-				<p>{{ $sms->message->text }}</p>
+				{{ $sms->message->text }}
 			@else
-				<p class="text-danger">Saknas</p>
+				<span class="text-danger">Saknas</span>
 			@endif
 		</div>
 
