@@ -37,7 +37,7 @@
 
 		<div class="card-body">
 			<div class="row">
-				<div class="col-12 col-xl-3">
+				<div class="col-12 col-sm-6">
 					<table class="table message-info m-0">
 						<tbody>
 							<tr>
@@ -74,7 +74,7 @@
 					</table>
 				</div>
 
-				<div class="col-12 col-xl-3">
+				<div class="col-12 col-sm-6">
 					<table class="table message-info m-0">
 						<tbody>
 						<tr>
@@ -90,7 +90,7 @@
 							<td>{{ $sms->sent_at->copy()->isoFormat('DD MMMM OY, HH:mm') ?? '' }}</td>
 						</tr>
 						<tr>
-							<td class="bold">Antal SMS</td>
+							<td class="bold">Antal sms</td>
 							<td>{{ $sms->quantity ?? '' }}</td>
 						</tr>
 						<tr>
@@ -110,42 +110,42 @@
 					</table>
 				</div>
 
-				<div class="col-12 col-xl-6">
-					<table class="table message-info m-0">
-						<tbody>
-							<tr>
-								<td>
-									@php
-										if(isset($sms->receiver_title) && !empty($sms->receiver_title) && isset($sms->message->text)) {
-											$receiver_name      = explode(' ', $sms->receiver_title);
-											$message_formatted  = str_replace('%firstname%', trim($receiver_name[0] ?? '') , $sms->message->text);
-											$message_formatted  = str_replace('%lastname%', trim($receiver_name[1] ?? '') , $message_formatted);
-										}
-
-										if(isset($sms->variables) && !empty($sms->variables)) {
-                                            foreach($sms->variables as $key => $value){
-												$message_formatted = str_replace('%'.$key.'%', $value, $message_formatted ?? $sms->message->text ?? '');
-											}
-										}
-									@endphp
-
-									<label class="bold">Meddelande</label>
-									@if(isset($message_formatted))
-										<p>{{ $message_formatted }}</p>
-									@elseif(isset($sms->message->text))
-										<p>{{ $sms->message->text }}</p>
-									@else
-										<p class="text-danger">Saknas</p>
-									@endif
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-
 			</div>
 		</div>
 	</div>
+
+	<div class="card">
+		<div class="card-header bold">
+			Meddelande
+		</div>
+
+		<div class="card-body message-info">
+			@php
+				if(isset($sms->receiver_title) && !empty($sms->receiver_title) && isset($sms->message->text)) {
+                    $receiver_name      = explode(' ', $sms->receiver_title);
+                    $message_formatted  = str_replace('%firstname%', trim($receiver_name[0] ?? '') , $sms->message->text);
+                    $message_formatted  = str_replace('%lastname%', trim($receiver_name[1] ?? '') , $message_formatted);
+                }
+
+                if(isset($sms->variables) && !empty($sms->variables)) {
+                    foreach($sms->variables as $key => $value){
+                        $message_formatted = str_replace('%'.$key.'%', $value, $message_formatted ?? $sms->message->text ?? '');
+                    }
+                }
+			@endphp
+
+			<label class="bold">Meddelande</label>
+			@if(isset($message_formatted))
+				<p>{{ $message_formatted }}</p>
+			@elseif(isset($sms->message->text))
+				<p>{{ $sms->message->text }}</p>
+			@else
+				<p class="text-danger">Saknas</p>
+			@endif
+		</div>
+
+	</div>
+
 	<div class="card">
 		<div class="card-header bold" style="border-bottom: none;">
 			SMS-information

@@ -11,7 +11,7 @@
         <th>Telefonnummer</th>
         <th>Nationalitet</th>
         <th>Skickat vid</th>
-        <th>Skickade SMS</th>
+        <th>Skickade sms</th>
         <th>Pris (exkl moms)</th>
         <th>Status</th>
     </tr>
