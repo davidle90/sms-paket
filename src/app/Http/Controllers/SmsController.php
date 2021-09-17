@@ -565,12 +565,12 @@ class SmsController extends Controller
 
             /** Formatting refill dates **/
             foreach($refills as $refill){
-                $refill_dates[] = $refill->created_at->copy()->format('M Y');
+                $refill_dates[] = $refill->created_at->copy()->format('M');
             }
 
             /**  Getting sent SMS per month **/
             foreach ($sms as $item){
-                $date = $item->sent_at->copy()->format('M Y');
+                $date = $item->sent_at->copy()->format('M');
 
                 if(isset($sms_per_month[$date])) {
                     $sms_per_month[$date]['net']      += 1;
@@ -587,7 +587,7 @@ class SmsController extends Controller
 
             /** Getting failed SMS per month **/
             foreach ($receipts as $receipt){
-                $date = Carbon::parse($receipt->message_timestamp)->copy()->format('M Y');
+                $date = Carbon::parse($receipt->message_timestamp)->copy()->format('M');
 
                 if(isset($failed_per_month[$date])) {
                     $failed_per_month[$date]  += 1;
@@ -601,7 +601,7 @@ class SmsController extends Controller
             }
 
             for($i = 0; $i <= $months ; $i++){
-                $date               = Carbon::parse($date_array[0])->copy()->addMonth($i)->format('M Y');
+                $date               = Carbon::parse($date_array[0])->copy()->addMonth($i)->format('M');
                 $data['labels'][]   = $date;
 
                 if(isset($sms_per_month[$date]) && !empty($sms_per_month[$date])) {
