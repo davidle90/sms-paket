@@ -410,7 +410,7 @@ class SmsController extends Controller
 
             /**  Getting sent SMS per day **/
             foreach ($sms as $item){
-                $date = $item->sent_at->copy()->toDateString();
+                $date = $item->sent_at->copy()->format('d');
 
                 if(isset($sms_per_day[$date])) {
                     $sms_per_day[$date]['net']      += 1;
@@ -427,7 +427,7 @@ class SmsController extends Controller
 
             /** Getting failed SMS per day **/
             foreach ($receipts as $receipt){
-                $date = Carbon::parse($receipt->message_timestamp)->copy()->toDateString();
+                $date = Carbon::parse($receipt->message_timestamp)->copy()->format('d');
 
                 if(isset($failed_per_day[$date])) {
                     $failed_per_day[$date]  += 1;
