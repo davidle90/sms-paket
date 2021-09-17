@@ -407,8 +407,9 @@ class SmsController extends Controller
             foreach($refills as $refill){
                 if($days <= 7){
                     $refill_dates[] = $refill->created_at->copy()->format('l');
+                } else {
+                    $refill_dates[] = $refill->created_at->copy()->format('d');
                 }
-                $refill_dates[] = $refill->created_at->copy()->format('d');
             }
 
             /**  Getting sent SMS per day **/
@@ -416,8 +417,9 @@ class SmsController extends Controller
 
                 if($days <= 7){
                     $date = $item->sent_at->copy()->format('l');
+                } else {
+                    $date = $item->sent_at->copy()->format('d');
                 }
-                $date = $item->sent_at->copy()->format('d');
 
                 if(isset($sms_per_day[$date])) {
                     $sms_per_day[$date]['net']      += 1;
@@ -437,8 +439,9 @@ class SmsController extends Controller
 
                 if($days <= 7){
                     $date = Carbon::parse($receipt->message_timestamp)->copy()->format('l');
+                } else {
+                    $date = Carbon::parse($receipt->message_timestamp)->copy()->format('d');
                 }
-                $date = Carbon::parse($receipt->message_timestamp)->copy()->format('d');
 
                 if(isset($failed_per_day[$date])) {
                     $failed_per_day[$date]  += 1;
@@ -455,8 +458,9 @@ class SmsController extends Controller
 
                 if($days <= 7){
                     $date = Carbon::parse($date_array[0])->copy()->addDay($i)->format('l');
+                } else {
+                    $date = Carbon::parse($date_array[0])->copy()->addDay($i)->format('d');
                 }
-                $date = Carbon::parse($date_array[0])->copy()->addDay($i)->format('d');
 
                 $data['labels'][]   = $date;
 
