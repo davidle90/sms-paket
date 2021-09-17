@@ -331,7 +331,7 @@ class SmsController extends Controller
         if($days == 0) {
 
             /*
-            * Singe day, 24h formatting
+            * Same day, 24h formatting
             */
             $sms_per_hour    = [];
             $failed_per_hour = [];
@@ -405,7 +405,7 @@ class SmsController extends Controller
 
             /** Formatting refill dates **/
             foreach($refills as $refill){
-                $refill_dates[] = $refill->created_at->copy()->format('Y-m-d');
+                $refill_dates[] = $refill->created_at->copy()->format('d');
             }
 
             /**  Getting sent SMS per day **/
@@ -441,7 +441,7 @@ class SmsController extends Controller
             }
 
             for($i = 0; $i <= $days; $i++){
-                $date               = Carbon::parse($date_array[0])->copy()->addDay($i)->format('Y-m-d');
+                $date               = Carbon::parse($date_array[0])->copy()->addDay($i)->format('d');
                 $data['labels'][]   = $date;
 
                 if(isset($sms_per_day[$date]) && !empty($sms_per_day[$date])) {
