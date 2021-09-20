@@ -1,3 +1,5 @@
+<span class="mr-3"><b>{{ $paginator->currentPage() }}</b> of <b>{{ $paginator->lastPage() }}</b></span>
+
 @if ($paginator->hasPages())
     <div class="btn-group">
 
@@ -36,4 +38,3 @@
     </div>
 
 @endif
-<span class="mt-2 ml-3"><b>{{ $paginator->currentPage() }}</b> of <b>{{ $paginator->lastPage() }}</b></span>
