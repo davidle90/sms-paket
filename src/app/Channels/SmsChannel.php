@@ -18,8 +18,12 @@ class SmsChannel
 
         $response = $notification->toSms($notifiable);
 
-        $from = $response['from'];
-        $message = $response['message'];
+        $from           = $response['from'];
+        $message        = $response['message'];
+
+        unset($response['variables']['attachments']);
+        unset($response['variables']['email_listener']);
+        unset($response['variables']['pb_site_id']);
 
         $sha256         = sha1($message);
         $new_message    = rl_sms::messages_model()::where('sha256', $sha256)->first();
@@ -29,6 +33,9 @@ class SmsChannel
         }
 
         foreach($response['variables'] as $key => $value){
+            if(is_null($value) || !is_string($value)){
+                continue;
+            }
             $message    = str_replace('%'.$key.'%', $value, $message);
         }
 

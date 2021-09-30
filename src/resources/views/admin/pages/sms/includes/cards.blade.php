@@ -59,7 +59,11 @@
         </div>
         <div class="card-body text-center">
             <h6 class="font-weight-normal mb-0">
-                {{ number_format($latest_refill->price_excl_vat, 0, ',', ' ') }} SEK ({{ $latest_refill->count }} st)
+                @if(!empty($latest_refill))
+                    {{ number_format($latest_refill->price_excl_vat, 0, ',', ' ') }} SEK ({{ $latest_refill->count }} st)
+                @else
+                    Inget saldo tillgängligt
+                @endif
             </h6>
         </div>
     </div>
