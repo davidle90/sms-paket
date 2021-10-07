@@ -79,7 +79,7 @@ return [
     ],
 
     'refill' => [
-        'auto'      => true,
+        'auto'      => false,
         'amount'    => 500, // The total sum (kr) that will be refilled
         'threshold' => 100, // When we fall below this amount (kr) we do a refill
     ],
