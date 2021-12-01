@@ -33,7 +33,7 @@ class SmsChannel
         }
 
         foreach($response['variables'] as $key => $value){
-            if(is_null($value) || !is_string($value)){
+            if(is_null($value) || (!is_string($value) && !is_numeric($value))){
                 continue;
             }
             $message    = str_replace('%'.$key.'%', $value, $message);
