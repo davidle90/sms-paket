@@ -19,7 +19,7 @@
 	},
 	"minimum-stability": "dev",
 	"require": {
-		"nexmo/laravel": "^2.4"
+		"laravel/vonage-notification-channel": "^3.0"
 	},
 	"extra": {
 		"laravel": {
