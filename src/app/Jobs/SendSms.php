@@ -37,11 +37,19 @@ class SendSms implements ShouldQueue
         try {
 
             if(!empty($this->receiver['phone'])){
+                
+                if($this->receiver['phone'][0] == '+'){
+                    $phone_number = PhoneNumber::make($this->receiver['phone'])->formatE164();
+                } else {
+                    $phone_number = PhoneNumber::make($this->receiver['phone'], 'SE')->formatE164();
+                }
+
                 $response = Nexmo::message()->send([
-                    'to'   => str_replace('+', '', PhoneNumber::make($this->receiver['phone'])->formatE164()),
+                    'to'   => str_replace('+', '', $phone_number),
                     'from' => $this->sender->sms_label,
                     'text' => $this->message,
                 ]);
+
             }
 
             if(isset($response)) {
