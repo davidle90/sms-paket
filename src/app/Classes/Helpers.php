@@ -162,7 +162,7 @@ class Helpers
 
     public function store_sms_and_response($response, $message_id, $sender_title, $receiver_name, $receiver_phone, $variables = null, $verify_search = 0)
     {
-
+        $response = $response->getResponseData();
 
         $new_sms = new Sms();
         $new_sms->message_id        = $message_id;
