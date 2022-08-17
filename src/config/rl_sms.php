@@ -61,13 +61,32 @@ return [
         'modals'		=> 'modals',
         'sidebar'		=> 'sidebar',
     ],
-
     'middleware' => [
         'global'	=> [],
         'admin' => [
             'global'    => ['auth', 'acl', 'user','can:admin_access'],
             'tables'    => [
                 'sms'     => ['can:sms_view'],
+            ],
+            'sms' => [
+                'index'         => ['can:sms_view'],
+                'view'          => ['can:sms_view'],
+                'filter'        => ['can:sms_view'],
+                'clearfilter'   => ['can:sms_view'],
+                'chart'         => ['can:sms_view'],
+                'send'          => ['can:sms_view'],
+            ],
+            'senders' => [
+                'index'         => ['can:sms_view'],
+                'edit'          => ['can:sms_edit'],
+                'create'        => ['can:sms_create'],
+                'store'         => ['can:sms_edit'],
+                'drop'          => ['can:sms_delete'],
+            ],
+            'receivers' => [
+                'get'           => ['can:sms_view'],
+                'move_all'      => ['can:sms_view'],
+                'update'        => ['can:sms_view'],
             ]
         ],
         'app' => [

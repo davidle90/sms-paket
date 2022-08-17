@@ -21,22 +21,22 @@ class AclAbilitiesTableSeeder extends Seeder
          */
         $ability_notifications_view = Bouncer::ability()->firstOrCreate([
             'name' => 'sms_view',
-            'title' => 'View forms',
+            'title' => 'View sms',
         ]);
 
         $ability_notifications_create = Bouncer::ability()->firstOrCreate([
             'name' => 'sms_create',
-            'title' => 'Create forms',
+            'title' => 'Create sms',
         ]);
 
         $ability_notifications_edit = Bouncer::ability()->firstOrCreate([
             'name' => 'sms_edit',
-            'title' => 'Edit forms',
+            'title' => 'Edit sms',
         ]);
 
         $ability_notifications_delete = Bouncer::ability()->firstOrCreate([
             'name' => 'sms_delete',
-            'title' => 'Delete forms',
+            'title' => 'Delete sms',
         ]);
 
     }

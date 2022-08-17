@@ -1,3 +1,4 @@
+@can('sms_view')
 <li class="nav-item nav-dropdown">
     <a class="nav-link nav-dropdown-toggle" href="#"><i class="fal fa-comments-alt"></i> @lang('rl_sms::rl_sms.package_name')</a>
     <ul class="nav-dropdown-items">
@@ -9,9 +10,4 @@
         </li>
     </ul>
 </li>
-
-
-
-
-
-
+@endcan
