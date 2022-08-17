@@ -1,14 +1,5 @@
 <?php namespace Rocketlabs\Sms\App\Classes;
 
-use Illuminate\Support\Collection;
-use Illuminate\Support\Collection as BaseCollection;
-
-/*
- * Helpers
- */
-
-use Illuminate\Support\Facades\Config;
-use Nexmo\Laravel\Facade\Nexmo;
 use Propaganistas\LaravelPhone\PhoneNumber;
 use Rocketlabs\Sms\App\Jobs\SendSms;
 use Rocketlabs\Sms\App\Models\Messages;

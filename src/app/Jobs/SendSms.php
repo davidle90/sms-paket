@@ -6,10 +6,12 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use DB;
-use Nexmo\Laravel\Facade\Nexmo;
+
 use Rocketlabs\Sms\App\Models\Sms;
 use Rocketlabs\Sms\App\Models\NexmoResponses;
+
+use DB;
+use Vonage;
 use rl_sms;
 
 class SendSms implements ShouldQueue
@@ -44,7 +46,7 @@ class SendSms implements ShouldQueue
                     $phone_number = PhoneNumber::make($this->receiver['phone'], 'SE')->formatE164();
                 }
 
-                $response = Nexmo::message()->send([
+                $response = Vonage::message()->send([
                     'to'   => str_replace('+', '', $phone_number),
                     'from' => $this->sender->sms_label,
                     'text' => $this->message,
