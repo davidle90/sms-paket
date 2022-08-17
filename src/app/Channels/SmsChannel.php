@@ -1,7 +1,7 @@
 <?php namespace Rocketlabs\Sms\App\Channels;
 
 use Illuminate\Notifications\Notification;
-use Nexmo\Laravel\Facade\Nexmo;
+use Vonage;
 use rl_sms;
 
 class SmsChannel
@@ -42,15 +42,15 @@ class SmsChannel
         $to = $notifiable->sms ?? $notifiable->routes['sms'] ?? '';
 
         if(!empty($to)){
-            $response_nexmo = Nexmo::message()->send([
+            $response_vonage = Vonage::message()->send([
                 'to'   => $to,
                 'from' => $from,
                 'text' => $message,
             ]);
         }
 
-        if(isset($response_nexmo)) {
-            rl_sms::store_sms_and_response($response_nexmo, $new_message->id, $from, $response['variables']['receiver'] ?? '', $to, $response['variables']);
+        if(isset($response_vonage)) {
+            rl_sms::store_sms_and_response($response_vonage, $new_message->id, $from, $response['variables']['receiver'] ?? '', $to, $response['variables']);
         }
 
     }
