@@ -18,9 +18,9 @@
 @endsection
 
 @section('sidebar')
-@can('sms_create')
-    <a class="btn btn-block btn-outline-success go-to-url" data-url="{{ route('rl_sms.admin.senders.create') }}"><i class="essential-xs essential-add mr-1"></i>Skapa avsändare</a>
     @can('sms_create')
+        <a class="btn btn-block btn-outline-success go-to-url" data-url="{{ route('rl_sms.admin.senders.create') }}"><i class="essential-xs essential-add mr-1"></i>Skapa avsändare</a>
+    @endcan
 @endsection
 
 @section('content')
