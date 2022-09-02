@@ -3,6 +3,7 @@
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 
@@ -203,6 +204,9 @@ class SmsController extends Controller
         } else{
             $request->session()->forget('sms_filter.daterange');
             $request->session()->forget('sms_filter.daterange_full');
+
+            $smsQuery->whereDate('sent_at', '>=', now()->startOfMonth()->format('Y-m-d'));
+            $smsQuery->whereDate('sent_at', '<=', now()->endOfMonth()->format('Y-m-d'));
         }
 
         //pre($date_array);
@@ -236,7 +240,7 @@ class SmsController extends Controller
             $paginate = 50;
         }
 
-        $sms = $smsQuery->paginate($paginate);
+        $sms = $smsQuery->paginate(10 ?? $paginate);
         $sms->withPath(route('rl_sms.admin.sms.index'));
 
         /*
@@ -319,11 +323,14 @@ class SmsController extends Controller
                     'borderWidth'       => 1
                 ],
                 [
-                    'label'             => 'Påfyllningar',
+                    'label'             => 'Påfyllning',
                     'data'              => [],
                     'backgroundColor'   => '#5cb45b',
                     'borderColor'       => '#5cb45b',
-                    'barThickness'      => 3
+                    'borderWidth'       => 1,
+                    'parsing'           => [
+                        'yAxisKey'  => 'nested.highest_value'
+                    ]
                 ]
             ]
         ];
@@ -338,7 +345,7 @@ class SmsController extends Controller
 
             /** Formatting refill dates **/
             foreach($refills as $refill){
-                $refill_dates[] = $refill->created_at->copy()->hour;
+                $refill_dates[$refill->created_at->copy()->hour] = number_format($refill->price_excl_vat, 2, ',', ' ');
             }
 
             /**  Getting sent SMS per Hour **/
@@ -383,10 +390,22 @@ class SmsController extends Controller
                     $failed_per_hour[$i] = 0;
                 }
 
-                if(in_array($i, $refill_dates)) {
-                    $data['datasets'][3]['data'][] = $highest_value;
+                if(key_exists($i, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $i,
+                        'nested' => [
+                            'highest_value' => $highest_value,
+                            'sum'           => $refill_dates[$i]
+                        ]
+                    ];
                 } else {
-                    $data['datasets'][3]['data'][] = 0;
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $i,
+                        'nested' => [
+                            'highest_value' => 0,
+                            'sum'           => 0
+                        ]
+                    ];
                 }
 
                 $data['labels'][]               = ($i < 10) ? '0'.$i.':00' : $i.':00';
@@ -398,7 +417,7 @@ class SmsController extends Controller
         } elseif($days <= 31) {
 
             /*
-             * Month, day formatting
+             * Month && week, day formatting
              */
             $sms_per_day    = [];
             $failed_per_day = [];
@@ -406,9 +425,9 @@ class SmsController extends Controller
             /** Formatting refill dates **/
             foreach($refills as $refill){
                 if($days <= 7){
-                    $refill_dates[] = $refill->created_at->copy()->format('l');
+                    $refill_dates[$refill->created_at->copy()->format('l')] = number_format($refill->price_excl_vat, 2, ',', ' ');
                 } else {
-                    $refill_dates[] = $refill->created_at->copy()->format('d');
+                    $refill_dates[$refill->created_at->copy()->format('d')] = number_format($refill->price_excl_vat, 2, ',', ' ');
                 }
             }
 
@@ -478,10 +497,22 @@ class SmsController extends Controller
                     $data['datasets'][2]['data'][] = 0;
                 }
 
-                if(in_array($date, $refill_dates)) {
-                    $data['datasets'][3]['data'][] = $highest_value;
+                if(key_exists($date, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $date,
+                        'nested' => [
+                            'highest_value' => $highest_value,
+                            'sum'           => $refill_dates[$date]
+                        ]
+                    ];
                 } else {
-                    $data['datasets'][3]['data'][] = 0;
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $date,
+                        'nested' => [
+                            'highest_value' => 0,
+                            'sum'           => 0
+                        ]
+                    ];
                 }
             }
 
@@ -495,7 +526,7 @@ class SmsController extends Controller
 
             /** Formatting refill dates **/
             foreach($refills as $refill){
-                $refill_dates[] = $refill->created_at->copy()->startOfWeek()->format('Y-m-d');
+                $refill_dates[$refill->created_at->copy()->startOfWeek()->format('Y-m-d')] = number_format($refill->price_excl_vat, 2, ',', ' ');
             }
 
             /**  Getting sent SMS per week **/
@@ -548,10 +579,22 @@ class SmsController extends Controller
                     $data['datasets'][2]['data'][] = 0;
                 }
 
-                if(in_array($date, $refill_dates)) {
-                    $data['datasets'][3]['data'][] = $highest_value;
+                if(key_exists($date, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $date,
+                        'nested' => [
+                            'highest_value' => $highest_value,
+                            'sum'           => $refill_dates[$date]
+                        ]
+                    ];
                 } else {
-                    $data['datasets'][3]['data'][] = 0;
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $date,
+                        'nested' => [
+                            'highest_value' => 0,
+                            'sum'           => 0
+                        ]
+                    ];
                 }
             }
 
@@ -565,7 +608,7 @@ class SmsController extends Controller
 
             /** Formatting refill dates **/
             foreach($refills as $refill){
-                $refill_dates[] = $refill->created_at->copy()->format('M');
+                $refill_dates[$refill->created_at->copy()->format('M')] = number_format($refill->price_excl_vat, 2, ',', ' ');
             }
 
             /**  Getting sent SMS per month **/
@@ -618,10 +661,22 @@ class SmsController extends Controller
                     $data['datasets'][2]['data'][] = 0;
                 }
 
-                if(in_array($date, $refill_dates)) {
-                    $data['datasets'][3]['data'][] = $highest_value;
+                if(key_exists($date, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $date,
+                        'nested' => [
+                            'highest_value' => $highest_value,
+                            'sum'           => $refill_dates[$date]
+                        ]
+                    ];
                 } else {
-                    $data['datasets'][3]['data'][] = 0;
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $date,
+                        'nested' => [
+                            'highest_value' => 0,
+                            'sum'           => 0
+                        ]
+                    ];
                 }
             }
 
@@ -635,7 +690,7 @@ class SmsController extends Controller
 
             /** Formatting refill dates **/
             foreach($refills as $refill){
-                $refill_dates[] = 'Q'.$refill->created_at->copy()->quarter.' '.$refill->created_at->copy()->format('Y');
+                $refill_dates['Q'.$refill->created_at->copy()->quarter.' '.$refill->created_at->copy()->format('Y')] = number_format($refill->price_excl_vat, 2, ',', ' ');
             }
 
             /**  Getting sent SMS per quarter **/
@@ -688,10 +743,22 @@ class SmsController extends Controller
                     $data['datasets'][2]['data'][] = 0;
                 }
 
-                if(in_array($date, $refill_dates)) {
-                    $data['datasets'][3]['data'][] = $highest_value;
+                if(key_exists($date, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $date,
+                        'nested' => [
+                            'highest_value' => $highest_value,
+                            'sum'           => $refill_dates[$date]
+                        ]
+                    ];
                 } else {
-                    $data['datasets'][3]['data'][] = 0;
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $date,
+                        'nested' => [
+                            'highest_value' => 0,
+                            'sum'           => 0
+                        ]
+                    ];
                 }
             }
 
@@ -705,7 +772,7 @@ class SmsController extends Controller
 
             /** Formatting refill dates **/
             foreach($refills as $refill){
-                $refill_dates[] = $refill->created_at->copy()->format('Y');
+                $refill_dates[$refill->created_at->copy()->format('Y')] = number_format($refill->price_excl_vat, 2, ',', ' ');
             }
 
             /**  Getting sent SMS per year **/
@@ -758,10 +825,22 @@ class SmsController extends Controller
                     $data['datasets'][2]['data'][] = 0;
                 }
 
-                if(in_array($date, $refill_dates)) {
-                    $data['datasets'][3]['data'][] = $highest_value;
+                if(key_exists($date, $refill_dates)) {
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $date,
+                        'nested' => [
+                            'highest_value' => $highest_value,
+                            'sum'           => $refill_dates[$date]
+                        ]
+                    ];
                 } else {
-                    $data['datasets'][3]['data'][] = 0;
+                    $data['datasets'][3]['data'][] = [
+                        'x' => $date,
+                        'nested' => [
+                            'highest_value' => 0,
+                            'sum'           => 0
+                        ]
+                    ];
                 }
             }
 

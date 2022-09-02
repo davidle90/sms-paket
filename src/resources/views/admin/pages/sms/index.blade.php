@@ -70,13 +70,18 @@
 		<div class="col-12 col-md-6">
 			@include('rl_sms::admin.pages.sms.includes.filter')
 		</div>
-		<div class="col-4 d-flex">
+		<div class="col-2 d-flex">
 		</div>
-		@if(isset($sms) && !$sms->isEmpty())
-			<div class="col-8 col-md-2 append-links">
-				<span class="float-right">{{ $sms->links('rl_sms::admin.pages.sms.includes.pagination') }}</span>
-			</div>
-		@endif
+{{--		@if(isset($sms) && !$sms->isEmpty())--}}
+{{--			<div class="col-8 col-md-2 append-links">--}}
+{{--				<span class="float-right">{{ $sms->links('rl_sms::admin.pages.sms.includes.pagination') }}</span>--}}
+{{--			</div>--}}
+{{--		@endif--}}
+		<div class="col-8 col-md-4">
+			<span class="float-right">
+				@include('rl_sms::admin.pages.sms.includes.month_switcher')
+			</span>
+		</div>
 	</div>
 @endsection
 
@@ -168,6 +173,68 @@
 			});
 		}
 
+		// Function to update daterange input
+		function update_daterange($element, event_type) {
+			let daterange 	= $element.val();
+			let date_arr 	= daterange.split(' - ');
+
+			if(date_arr[0] && date_arr[1]) {
+				let starts_at	= date_arr[0];
+				let ends_at		= date_arr[1];
+				let new_daterange;
+
+				switch(event_type) {
+					case 'prev':
+						starts_at 	= moment(starts_at).subtract(1, 'M');
+						ends_at 	= moment(starts_at).endOf('month');
+						break;
+					case 'current':
+						starts_at	= moment().startOf('month');
+						ends_at 	= moment().endOf('month');
+						break;
+					case 'next':
+						starts_at 	= moment(starts_at).add(1, 'M');
+						ends_at 	= moment(starts_at).endOf('month');
+						break;
+				}
+
+				new_daterange = starts_at.format('YYYY-MM-DD')+' - '+ends_at.format('YYYY-MM-DD');
+
+				$element.val(new_daterange);
+				$element.trigger('change');
+				$('#search_btn').trigger('click');
+				update_month_label(new_daterange);
+			}
+		}
+
+		function update_month_label(daterange) {
+			let monthNames = [
+				"Januari",
+				"Februari",
+				"Mars",
+				"April",
+				"Maj",
+				"Juni",
+				"Juli",
+				"Augusti",
+				"September",
+				"Oktober",
+				"November",
+				"December"
+			];
+
+			let date_arr  = daterange.split(' - ');
+			let starts_at = date_arr[0];
+
+			if(date_arr[0]) {
+				let month_num 	= moment(starts_at).format('M');
+				let month		= monthNames[month_num-1];
+				let year		= moment(starts_at).format('YYYY');
+
+				$('.append-current-month').html(monthNames[month_num-1]+' '+year);
+			}
+		}
+
 		$(document).ready(function(){
 
 			$('.go-to-url').on('click', function(e){
@@ -197,7 +264,20 @@
 					plugins: {
 						tooltip: {
 							filter: function (tooltipItem) {
-								return tooltipItem.datasetIndex !== 3;
+								if(tooltipItem.datasetIndex == 3 && tooltipItem.dataset.data[tooltipItem.dataIndex].nested.sum == 0) {
+									return false
+								}
+
+								return true;
+							},
+							callbacks: {
+								label: function(tooltipItem) {
+									if(tooltipItem.datasetIndex == 3) {
+										return tooltipItem.dataset.label + ' : ' + tooltipItem.dataset.data[tooltipItem.dataIndex].nested.sum + 'kr';
+									}
+
+									return tooltipItem.dataset.label + ' : ' + tooltipItem.dataset.data[tooltipItem.dataIndex] + 'st';
+								}
 							}
 						}
 					}
@@ -215,6 +295,23 @@
 
 			$(document).on('click', '.doSendSMS', function(){
 				console.log($('#send_form').serializeArray());
+			});
+
+			/*
+			* Handle month pagination
+			*/
+			update_month_label($('#filter-form input[name="daterange"]').val());
+
+			$('.onPrevMonth').on('click', function() {
+				update_daterange($('#filter-form input[name="daterange"]'), 'prev');
+			});
+
+			$('.onCurrentMonth').on('click', function() {
+				update_daterange($('#filter-form input[name="daterange"]'), 'current');
+			});
+
+			$('.onNextMonth').on('click', function() {
+				update_daterange($('#filter-form input[name="daterange"]'), 'next');
 			});
 		});
 
