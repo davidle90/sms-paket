@@ -141,7 +141,6 @@ class SmsController extends Controller
 
     public function filter(Request $request, $ajax = true)
     {
-
         /**
          * Fill with filterconditions for users
          */
@@ -200,7 +199,6 @@ class SmsController extends Controller
 
             $request->session()->put('sms_filter.daterange', $filter['daterange']);
             $request->session()->forget('sms_filter.daterange_full');
-
         } else{
             $request->session()->forget('sms_filter.daterange');
             $request->session()->forget('sms_filter.daterange_full');
@@ -240,7 +238,7 @@ class SmsController extends Controller
             $paginate = 50;
         }
 
-        $sms = $smsQuery->paginate(10 ?? $paginate);
+        $sms = $smsQuery->paginate($paginate);
         $sms->withPath(route('rl_sms.admin.sms.index'));
 
         /*

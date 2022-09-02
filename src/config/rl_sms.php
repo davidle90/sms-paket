@@ -47,6 +47,11 @@ return [
                 'get'       => '/admin/receivers/get',
                 'move_all'  => '/admin/receivers/move_all',
                 'update'    => '/admin/receivers/update',
+            ],
+            'refills'   => [
+                'index'         => '/admin/sms/refills',
+                'filter'        => '/admin/sms/refills/filter',
+                'clearfilter'   => '/admin/sms/refills/clearfilter',
             ]
         ]
 	],
