@@ -71,7 +71,7 @@ class Helpers
     }
 
     /*
-     * Forms models
+     * Sms models
      */
     public function sms_model()
     {
@@ -81,6 +81,11 @@ class Helpers
     public function messages_model()
     {
         return config('rl_sms.models.messages');
+    }
+
+    public function refills_model()
+    {
+        return config('rl_sms.models.refills');
     }
 
     public function get_last_refill()

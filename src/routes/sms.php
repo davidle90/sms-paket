@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use Rocketlabs\Sms\App\Http\Controllers\SmsController;
 use Rocketlabs\Sms\App\Http\Controllers\SendersController;
 use Rocketlabs\Sms\App\Http\Controllers\ReceiversController;
+use Rocketlabs\Sms\App\Http\Controllers\RefillsController;
 
 
 
@@ -56,6 +58,21 @@ Route::group(['middleware' => 'web'], function () use ($route, $middleware) {
             Route::post($route('admin.sms.send'), [SmsController::class, 'send'])
                 ->middleware($middleware('admin.sms.send'))
                 ->name('rl_sms.admin.sms.send');
+
+            /*
+             * Refills
+             */
+            Route::get($route('admin.refills.index'), [RefillsController::class, 'index'])
+                ->middleware($middleware('admin.refills.index'))
+                ->name('rl_sms.admin.refills.index');
+
+            Route::get($route('admin.refills.filter'), [RefillsController::class, 'filter'])
+                ->middleware($middleware('admin.refills.filter'))
+                ->name('rl_sms.admin.refills.filter');
+
+            Route::get($route('admin.refills.clearfilter'), [RefillsController::class, 'clear_filter'])
+                ->middleware($middleware('admin.refills.clearfilter'))
+                ->name('rl_sms.admin.refills.clearfilter');
 
             /*
              * Senders
