@@ -34,7 +34,8 @@ return [
                 'view'          => '/admin/sms/view/{id}',
                 'filter'        => '/admin/sms/filter',
                 'clearfilter'   => '/admin/sms/clearfilter',
-                'chart'         => '/admin/sms/chart'
+                'chart'         => '/admin/sms/chart',
+                'send'          => '/admin/sms/send'
             ],
             'senders'   => [
                 'index'     => '/admin/senders',
