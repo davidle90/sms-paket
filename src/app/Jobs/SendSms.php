@@ -7,6 +7,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
+use Rocketlabs\Sms\App\Events\SmsSent;
 use Rocketlabs\Sms\App\Models\Sms;
 use Rocketlabs\Sms\App\Models\NexmoResponses;
 
@@ -46,16 +47,22 @@ class SendSms implements ShouldQueue
                     $phone_number = PhoneNumber::make($this->receiver['phone'], 'SE')->formatE164();
                 }
 
-                $response = Vonage::message()->send([
+                $vonage_sms = [
                     'to'   => str_replace('+', '', $phone_number),
                     'from' => $this->sender->sms_label,
                     'text' => $this->message,
-                ]);
+                ];
+
+                $response_vonage = Vonage::sms()->send(new Vonage\SMS\Message\SMS(
+                    $vonage_sms['to'],
+                    $vonage_sms['from'],
+                    $vonage_sms['text']
+                ));
 
             }
 
-            if(isset($response)) {
-                rl_sms::store_sms_and_response($response, $this->message_id, $this->sender->sms_label, $this->receiver['name'], $this->receiver['phone']);
+            if(isset($response_vonage)) {
+                rl_sms::store_sms_and_response($response_vonage, $this->message_id, $this->sender->sms_label, $this->receiver['name'], $this->receiver['phone']);
             }
 
         } catch (\Exception $e) {
