@@ -158,8 +158,6 @@ class Helpers
 
     public function store_sms_and_response($response, $message_id, $sender_title, $receiver_name, $receiver_phone, $variables = null, $verify_search = 0)
     {
-        $response = is_array($response) ? $response : $response->getResponseData();
-
         $new_sms = new Sms();
         $new_sms->message_id        = $message_id;
         $new_sms->sender_title      = $sender_title;
@@ -167,31 +165,50 @@ class Helpers
         $new_sms->receiver_phone    = $receiver_phone;
         try {
             $new_sms->country           = strtolower(PhoneNumber::make($receiver_phone)->getCountry());
-        } catch(\Exception){
+        } catch(\Exception $e){
             $new_sms->country = null;
         }
         $new_sms->variables         = $variables;
-        $new_sms->quantity          = $response['message-count'];
+        $new_sms->quantity          = is_array($response) ? $response['message-count'] : $response->count();
         $new_sms->sent_at           = now();
         $new_sms->save();
 
         $new_sms = $this->update_pricing($new_sms, $new_sms->quantity);
 
-        foreach ($response['messages'] as $data) {
-            $new_nexmo_response = new NexmoResponses();
-            $new_nexmo_response->sms_id         = $new_sms->id;
-            $new_nexmo_response->message_id     = $data['message-id'];
-            $new_nexmo_response->request_id     = $data['request_id'] ?? null;
-            $new_nexmo_response->status         = $data['status'];
-            $new_nexmo_response->to             = $data['to'];
-            $new_nexmo_response->balance        = $data['remaining-balance'];
-            $new_nexmo_response->price          = $data['message-price'];
-            $new_nexmo_response->network        = $data['network'];
-            $new_nexmo_response->verify_search  = $verify_search;
-            $new_nexmo_response->save();
+        if(is_array($response)) {
+            foreach ($response['messages'] as $data) {
+                $new_nexmo_response = new NexmoResponses();
+                $new_nexmo_response->sms_id         = $new_sms->id;
+                $new_nexmo_response->message_id     = $data['message-id'];
+                $new_nexmo_response->request_id     = $data['request_id'];
+                $new_nexmo_response->status         = $data['status'];
+                $new_nexmo_response->to             = $data['to'];
+                $new_nexmo_response->balance        = $data['remaining-balance'];
+                $new_nexmo_response->price          = $data['message-price'];
+                $new_nexmo_response->network        = $data['network'];
+                $new_nexmo_response->verify_search  = $verify_search;
+                $new_nexmo_response->save();
+            }
+        } else {
+            for($i = 1; $i <= $response->count(); $i++) {
+                $current_message = $response->current();
+
+                $new_nexmo_response = new NexmoResponses();
+                $new_nexmo_response->sms_id         = $new_sms->id;
+                $new_nexmo_response->message_id     = $current_message->getMessageId();
+                $new_nexmo_response->request_id     = null;
+                $new_nexmo_response->status         = $current_message->getStatus();
+                $new_nexmo_response->to             = $current_message->getTo();
+                $new_nexmo_response->balance        = $current_message->getRemainingBalance();
+                $new_nexmo_response->price          = $current_message->getMessagePrice();
+                $new_nexmo_response->network        = $current_message->getNetwork();
+                $new_nexmo_response->verify_search  = $verify_search;
+                $new_nexmo_response->save();
+
+                $response->next();
+            }
         }
     }
-
 }
 
 

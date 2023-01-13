@@ -19,7 +19,7 @@
 	},
 	"minimum-stability": "dev",
 	"require": {
-		"laravel/vonage-notification-channel": "^3.0"
+		"laravel/vonage-notification-channel": "^4.0"
 	},
 	"extra": {
 		"laravel": {
