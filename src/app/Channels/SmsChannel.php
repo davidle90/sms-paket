@@ -54,7 +54,8 @@ class SmsChannel
             $response_vonage = Vonage::sms()->send(new Vonage\SMS\Message\SMS(
                 $vonage_sms['to'],
                 $vonage_sms['from'],
-                $vonage_sms['text']
+                $vonage_sms['text'],
+                'text'
             ));
         }
 
