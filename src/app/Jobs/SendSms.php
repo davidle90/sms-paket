@@ -56,8 +56,7 @@ class SendSms implements ShouldQueue
                 $response_vonage = Vonage::sms()->send(new Vonage\SMS\Message\SMS(
                     $vonage_sms['to'],
                     $vonage_sms['from'],
-                    $vonage_sms['text'],
-                    'text'
+                    $vonage_sms['text']
                 ));
 
             }
