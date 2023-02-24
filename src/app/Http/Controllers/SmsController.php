@@ -935,7 +935,7 @@ class SmsController extends Controller
                     'message_timestamp' => $request->get('message-timestamp', null),
                     'msisdn'            => $request->get('msisdn', null),
                     'scts'              => $request->get('scts', null),
-                    'price'             => $request->get('price', null),
+                    'price'             => Config::get('rl_sms.price'),
                     'network'           => $request->get('network-code', null),
                     'status'            => $request->get('status', null),
                     'error_code'        => $request->get('err-code', null)
@@ -945,7 +945,7 @@ class SmsController extends Controller
                 $new_receipt->message_timestamp = $input['message_timestamp'];
                 $new_receipt->msisdn            = $input['msisdn'];
                 $new_receipt->scts              = $input['scts'];
-                $new_receipt->price             = Config::get('rl_sms.price');
+                $new_receipt->price             = $input['price'];
                 $new_receipt->network           = $input['network'];
                 $new_receipt->status            = $input['status'];
                 $new_receipt->error_code        = $input['error_code'];
