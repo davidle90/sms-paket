@@ -15,6 +15,7 @@ use DB;
 
 use Rocketlabs\Languages\App\Models\Languages;
 use Rocketlabs\Notifications\App\Facades\Notifications;
+use Rocketlabs\Sms\App\Classes\Api\SmsServerApi;
 use Rocketlabs\Sms\App\Models\NexmoReceipts;
 use Rocketlabs\Sms\App\Models\Receivers;
 use Rocketlabs\Sms\App\Models\Refills;
@@ -31,6 +32,17 @@ class SmsController extends Controller
 
 	public function index(Request $request)
 	{
+        $sms_server_api = new SmsServerApi();
+
+        $server_status = $sms_server_api->getServerStatus();
+
+        if($server_status == 1) {
+            pre('send sms');
+        } else {
+            pre('use vonage');
+        }
+
+
         $sms                    = $this->filter($request, false);
         $senders                = Senders::get();
         $smsables               = Smsables::get();

@@ -7,6 +7,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
+use Rocketlabs\Sms\App\Classes\Api\SmsServerApi;
 use Rocketlabs\Sms\App\Events\SmsSent;
 use Rocketlabs\Sms\App\Models\Sms;
 use Rocketlabs\Sms\App\Models\NexmoResponses;
@@ -40,30 +41,28 @@ class SendSms implements ShouldQueue
         try {
 
             if(!empty($this->receiver['phone'])){
-                
                 if($this->receiver['phone'][0] == '+'){
                     $phone_number = PhoneNumber::make($this->receiver['phone'])->formatE164();
                 } else {
                     $phone_number = PhoneNumber::make($this->receiver['phone'], 'SE')->formatE164();
                 }
 
-                $vonage_sms = [
-                    'to'   => str_replace('+', '', $phone_number),
-                    'from' => $this->sender->sms_label,
-                    'text' => $this->message,
-                ];
+                $phone_country_code     = PhoneNumber::make($phone_number)->getCountry();
+                $smsbox_country_codes   = config('rl_sms.api.country_codes');
 
-                $response_vonage = Vonage::sms()->send(new Vonage\SMS\Message\SMS(
-                    $vonage_sms['to'],
-                    $vonage_sms['from'],
-                    $vonage_sms['text'],
-                    'text'
-                ));
+                if(in_array($phone_country_code, $smsbox_country_codes)) {
+                    $sms_server_api = new SmsServerApi(config('rl_sms.api.live'));
+                    $server_status  = $sms_server_api->getServerStatus();
 
-            }
+                    if($server_status == 1) {
+                        $sms_server_api->sendSms();
+                    } else {
+                        $this->send_via_vonage($phone_number);
+                    }
 
-            if(isset($response_vonage)) {
-                rl_sms::store_sms_and_response($response_vonage, $this->message_id, $this->sender->sms_label, $this->receiver['name'], $this->receiver['phone']);
+                } else {
+                    $this->send_via_vonage($phone_number);
+                }
             }
 
         } catch (\Exception $e) {
@@ -71,6 +70,24 @@ class SendSms implements ShouldQueue
             throw $e;
 
         }
+    }
+
+    private function send_via_vonage($phone_number)
+    {
+        $vonage_sms = [
+            'to'   => str_replace('+', '', $phone_number),
+            'from' => $this->sender->sms_label,
+            'text' => $this->message,
+        ];
+
+        $response_vonage = Vonage::sms()->send(new Vonage\SMS\Message\SMS(
+            $vonage_sms['to'],
+            $vonage_sms['from'],
+            $vonage_sms['text'],
+            'text'
+        ));
+
+        rl_sms::store_sms_and_response($response_vonage, $this->message_id, $this->sender->sms_label, $this->receiver['name'], $this->receiver['phone']);
     }
 
 }

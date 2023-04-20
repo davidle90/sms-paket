@@ -28,6 +28,11 @@ return [
             'receipts' => '/rl_sms/webhooks/receipts'
         ],
 
+        'api'   => [
+            'test'          => '/rl_sms/api/test',
+            'server_status' => '/rl_sms/api/server-status'
+        ],
+
 		'admin' => [
             'sms'       => [
                 'index'         => '/admin/sms',
@@ -122,6 +127,13 @@ return [
 
     'channels' => [
         'sms' => true
+    ],
+
+    'api' => [
+        'country_codes' => [
+            'SE'
+        ],
+        'live' => false
     ]
 
 ];
