@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(AclAbilitiesTableSeeder::class);
         $this->call(NotificationsTableSeeder::class);
         $this->call(ChannelsTableSeeder::class);
-
+        $this->call(SmsPrioritiesTableSeeder::class);
 
     }
 }

@@ -31,6 +31,23 @@
                         @endif
                     </div>
 
+                    <!-- Priority list -->
+                    <div class="form-group">
+                        <label class="bold" for="message">Prioritet</label>
+
+                        @if(isset($sms_priorities))
+                            <div class="select-wrapper">
+                                <select class="select-priority pmd-select2 form-control" name="priority_slug" style="width: 100%;">
+                                    @foreach($sms_priorities as $sms_priority)
+                                        <option @if($sms_priority->slug == 'low') selected @endif value="{{ $sms_priority->slug }}">
+                                            {{ $sms_priority->label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+                    </div>
+
                     <!-- Handle/Add receivers modal -->
                     <div class="form-group">
                         <span class="btn btn-block btn-outline-primary handle-receivers" data-toggle="modal" data-target="#receiversModal">Hantera mottagare</span>

@@ -17,6 +17,7 @@ use Rocketlabs\Languages\App\Models\Languages;
 use Rocketlabs\Notifications\App\Facades\Notifications;
 use Rocketlabs\Sms\App\Classes\Api\SmsServerApi;
 use Rocketlabs\Sms\App\Models\NexmoReceipts;
+use Rocketlabs\Sms\App\Models\Priorities;
 use Rocketlabs\Sms\App\Models\Receivers;
 use Rocketlabs\Sms\App\Models\Refills;
 use Rocketlabs\Sms\App\Models\Senders;
@@ -32,20 +33,11 @@ class SmsController extends Controller
 
 	public function index(Request $request)
 	{
-        $sms_server_api = new SmsServerApi();
-
-        $server_status = $sms_server_api->getServerStatus();
-
-        if($server_status == 1) {
-            pre('send sms');
-        } else {
-            pre('use vonage');
-        }
-
-
         $sms                    = $this->filter($request, false);
         $senders                = Senders::get();
         $smsables               = Smsables::get();
+
+        $sms_priorities         = Priorities::orderBy('priority', 'desc')->get();
 
         $default_language       = Config::get('app.locale');
         $fallback_language      = Config::get('app.fallback_locale');
@@ -118,6 +110,7 @@ class SmsController extends Controller
 
        return view('rl_sms::admin.pages.sms.index', [
            'sms'                => $sms,
+           'sms_priorities'     => $sms_priorities,
            'filter_array'       => $filter_array,
            'starts_at'          => $starts_at,
            'ends_at'            => $ends_at,
@@ -218,8 +211,6 @@ class SmsController extends Controller
             $smsQuery->whereDate('sent_at', '>=', now()->startOfMonth()->format('Y-m-d'));
             $smsQuery->whereDate('sent_at', '<=', now()->endOfMonth()->format('Y-m-d'));
         }
-
-        //pre($date_array);
 
         if(isset($filter['direction']) && !empty($filter['direction'])){
             $direction = $filter['direction'];
@@ -863,15 +854,17 @@ class SmsController extends Controller
     {
 
         $input = [
-            'sender_id' => $request->get('sender_id', null),
-            'message'   => $request->get('message', null),
-            'receivers' => $request->get('receivers', null),
+            'sender_id'     => $request->get('sender_id', null),
+            'message'       => $request->get('message', null),
+            'receivers'     => $request->get('receivers', null),
+            'priority_slug' => $request->get('priority_slug', null)
         ];
 
         $validator = Validator::make($input, [
-            'sender_id' => 'required',
-            'message'   => 'required',
-            'receivers' => 'required',
+            'sender_id'     => 'required',
+            'message'       => 'required',
+            'receivers'     => 'required',
+            'priority_slug' => 'required',
         ]);
 
         if($validator->fails()){
@@ -888,7 +881,7 @@ class SmsController extends Controller
 
             try {
 
-                rl_sms::send($input['sender_id'], $input['receivers'], $input['message']);
+                rl_sms::send($input['sender_id'], $input['receivers'], $input['message'], $input['priority_slug']);
 
                 Session::flash('message', 'Meddelande skickat!');
                 Session::flash('message-title', 'Lyckad åtgärd!');

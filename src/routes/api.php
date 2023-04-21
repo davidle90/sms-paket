@@ -18,6 +18,8 @@ $route = function ($accessor, $default = '') {
 //
 //});
 
-Route::get($route('test'), [SmsController::class, 'test']);
-
 Route::get($route('server_status'), [SmsController::class, 'getServerStatus']);
+
+Route::post($route('send_sms'), [SmsController::class, 'sendSms']);
+
+

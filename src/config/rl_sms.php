@@ -9,7 +9,9 @@ return [
         'senders'           => 'sms_senders',
         'messages'          => 'sms_messages',
         'nexmo_responses'   => 'sms_nexmo',
-        'nexmo_receipts'    => 'sms_nexmo_receipts'
+        'nexmo_receipts'    => 'sms_nexmo_receipts',
+        'priorities'        => 'sms_priorities',
+        'queue'             => 'sms_queue'
     ],
 
     'models' => [
@@ -19,7 +21,9 @@ return [
         'senders'           => \Rocketlabs\Sms\App\Models\Senders::class,
         'messages'          => \Rocketlabs\Sms\App\Models\Messages::class,
         'nexmo_responses'   => \Rocketlabs\Sms\App\Models\NexmoResponses::class,
-        'nexmo_receipts'    => \Rocketlabs\Sms\App\Models\NexmoReceipts::class
+        'nexmo_receipts'    => \Rocketlabs\Sms\App\Models\NexmoReceipts::class,
+        'priorities'        => \Rocketlabs\Sms\App\Models\Priorities::class,
+        'queue'             => \Rocketlabs\Sms\App\Models\Queue::class,
     ],
     
 	'routes' => [
@@ -29,8 +33,8 @@ return [
         ],
 
         'api'   => [
-            'test'          => '/rl_sms/api/test',
-            'server_status' => '/rl_sms/api/server-status'
+            'server_status' => '/rl_sms/api/server-status',
+            'send_sms'     => '/rl_sms/api/send-sms'
         ],
 
 		'admin' => [

@@ -34,12 +34,21 @@ class SmsServerApi
         return $data['server_status'];
     }
 
-    public function getSms()
+    public function sendSms($to, $from, $message, $priority_slug)
     {
-    }
+       $response = $this->client->post('send-sms', [
+           'headers' => ['Content-type' => 'application/json'],
+           'body'    => json_encode([
+               'to'             => $to,
+               'from'           => $from,
+               'message'        => $message,
+               'priority_slug'  => $priority_slug
+           ])
+       ]);
 
-    public function sendSms()
-    {
+       $data = json_decode($response->getBody(), true);
+
+       return $data;
     }
 
     /*

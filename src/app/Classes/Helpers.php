@@ -94,7 +94,7 @@ class Helpers
         return $last_refill;
     }
 
-    public function send($sender_id, $receivers, $message)
+    public function send($sender_id, $receivers, $message, $priority_slug)
     {
         $sender         = Senders::find($sender_id);
         $number_keys    = [];
@@ -109,7 +109,7 @@ class Helpers
             $message_formatted  = str_replace('%firstname%', trim($receiver_name[0] ?? ''), $message);
             $message_formatted  = str_replace('%lastname%', trim($receiver_name[1] ?? ''), $message_formatted);
 
-            SendSms::dispatch($sender, $receiver, $message_formatted, $new_message->id);
+            SendSms::dispatch($sender, $receiver, $message_formatted, $new_message->id, $priority_slug);
         }
     }
 

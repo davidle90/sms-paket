@@ -284,6 +284,12 @@
 				allowClear: true
 			});
 
+			$('.select-priority').select2({
+				dropdownParent: $('#sendModal'),
+				placeholder: "Välj prioritet",
+				minimumResultsForSearch: -1
+			});
+
 			//Initializing chartjs
 			let ctx 		= $('#sms_chart');
 			let sms_chart 	= new Chart(ctx, {

@@ -27,12 +27,13 @@ class SendSms implements ShouldQueue
     protected $message;
     protected $message_id;
 
-    public function __construct($sender, $receiver, $message, $message_id)
+    public function __construct($sender, $receiver, $message, $message_id, $priority_slug)
     {
-        $this->sender       = $sender;
-        $this->receiver     = $receiver;
-        $this->message      = $message;
-        $this->message_id   = $message_id;
+        $this->sender           = $sender;
+        $this->receiver         = $receiver;
+        $this->message          = $message;
+        $this->message_id       = $message_id;
+        $this->priority_slug    = $priority_slug;
     }
 
     public function handle()
@@ -55,7 +56,7 @@ class SendSms implements ShouldQueue
                     $server_status  = $sms_server_api->getServerStatus();
 
                     if($server_status == 1) {
-                        $sms_server_api->sendSms();
+                        $sms_server_api->sendSms($phone_number, $this->sender, $this->message, $this->priority_slug);
                     } else {
                         $this->send_via_vonage($phone_number);
                     }
