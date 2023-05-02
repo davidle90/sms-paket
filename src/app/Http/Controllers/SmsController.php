@@ -33,6 +33,12 @@ class SmsController extends Controller
 
 	public function index(Request $request)
 	{
+        // Notify test
+        //Notification::route('sms', '+46760805210')
+          //  ->notify(new Notifier('sms-prio-test', [
+            //    'receiver' => 'David Win21'
+            //]));
+
         $sms                    = $this->filter($request, false);
         $senders                = Senders::get();
         $smsables               = Smsables::get();

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class Queue extends Model
+class ServerStatus extends Model
 {
     /**
      * The database table used by the model.
@@ -11,22 +11,14 @@ class Queue extends Model
      */
     public function getTable()
     {
-        return config('rl_sms.tables.queue');
+        return config('rl_sms.tables.server_status');
     }
 
     protected $fillable = [
-        'message_id',
-        'priority',
-        'priority_slug',
-        'sender_title',
-        'receiver_title',
-        'receiver_phone',
-        'country',
-        'quantity',
+        'status'
     ];
 
     protected $dates = [
-        'sent_at',
         'created_at',
         'updated_at'
     ];

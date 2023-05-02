@@ -36,6 +36,7 @@ class SmsServiceProvider extends ServiceProvider
         if($this->app->runningInConsole()){
             $this->commands([
                 \Rocketlabs\Sms\App\Console\Commands\RefillSms::class,
+                \Rocketlabs\Sms\App\Console\Commands\SendQueuedSms::class,
             ]);
         }
 
@@ -47,6 +48,10 @@ class SmsServiceProvider extends ServiceProvider
             // Run schedule for refill
             $schedule->command('sms:refill')
                 ->dailyAt(config('rl_sms.schedule.refill'));
+
+            // Run schedule for send queued sms
+            $schedule->command('sms:send_queued_sms')
+                ->everyMinute();
         });
 
     }

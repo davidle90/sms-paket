@@ -11,7 +11,8 @@ return [
         'nexmo_responses'   => 'sms_nexmo',
         'nexmo_receipts'    => 'sms_nexmo_receipts',
         'priorities'        => 'sms_priorities',
-        'queue'             => 'sms_queue'
+        'queue'             => 'sms_queue',
+        'server_status'     => 'sms_server_status'
     ],
 
     'models' => [
@@ -110,6 +111,9 @@ return [
         'public' => [
             'global'    => [],
         ],
+        'api' => [
+
+        ]
     ],
 
     'refill' => [

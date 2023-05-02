@@ -16,12 +16,11 @@ class CreateSmsQueueTable extends Migration
         Schema::create('sms_queue', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('message_id')->unsigned()->index()->nullable();
-            $table->integer('priority')->unsigned();
+            $table->integer('priority')->unsigned()->nullable();
             $table->string('sender_title')->nullable();
             $table->string('receiver_title')->nullable();
             $table->string('receiver_phone')->nullable();
             $table->string('country')->nullable();
-            $table->integer('quantity');
             $table->timestamp('sent_at');
             $table->timestamps();
         });

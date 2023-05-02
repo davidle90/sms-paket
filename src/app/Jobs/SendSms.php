@@ -26,6 +26,7 @@ class SendSms implements ShouldQueue
     protected $receiver;
     protected $message;
     protected $message_id;
+    protected $priority_slug;
 
     public function __construct($sender, $receiver, $message, $message_id, $priority_slug)
     {
@@ -38,7 +39,6 @@ class SendSms implements ShouldQueue
 
     public function handle()
     {
-
         try {
 
             if(!empty($this->receiver['phone'])){
@@ -56,11 +56,11 @@ class SendSms implements ShouldQueue
                     $server_status  = $sms_server_api->getServerStatus();
 
                     if($server_status == 1) {
-                        $sms_server_api->sendSms($phone_number, $this->sender, $this->message, $this->priority_slug);
+                        $sms_priority = config('rl_sms.models.priorities')::where('slug', $this->priority_slug)->first();
+                        $sms_server_api->sendSms($this->receiver['name'], $this->receiver['phone'], $this->sender->sms_label, $this->message, $this->message_id, $sms_priority->priority, $this->priority_slug);
                     } else {
                         $this->send_via_vonage($phone_number);
                     }
-
                 } else {
                     $this->send_via_vonage($phone_number);
                 }

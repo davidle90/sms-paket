@@ -10,13 +10,9 @@ $route = function ($accessor, $default = '') {
 };
 
 // Middleware helper.
-//$middleware = function ($accessor, $default = []) {
-//    return $this->app->config->get('rl_sms.middleware.'.$accessor, $default);
-//};
-
-//Route::group(['middleware' => $middleware('api')], function () use ($route, $middleware) {
-//
-//});
+$middleware = function ($accessor, $default = []) {
+    return $this->app->config->get('rl_sms.middleware.'.$accessor, $default);
+};
 
 Route::get($route('server_status'), [SmsController::class, 'getServerStatus']);
 

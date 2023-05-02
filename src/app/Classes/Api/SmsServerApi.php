@@ -34,15 +34,18 @@ class SmsServerApi
         return $data['server_status'];
     }
 
-    public function sendSms($to, $from, $message, $priority_slug)
+    public function sendSms($receiver_name, $receiver_phone, $sender, $message, $message_id, $priority, $priority_slug)
     {
        $response = $this->client->post('send-sms', [
            'headers' => ['Content-type' => 'application/json'],
            'body'    => json_encode([
-               'to'             => $to,
-               'from'           => $from,
-               'message'        => $message,
-               'priority_slug'  => $priority_slug
+               'receiver_name'      => $receiver_name,
+               'receiver_phone'     => $receiver_phone,
+               'sender'             => $sender,
+               'message'            => $message,
+               'message_id'         => $message_id,
+               'priority'           => $priority,
+               'priority_slug'      => $priority_slug,
            ])
        ]);
 
